@@ -6,7 +6,7 @@
 /////////////
 // GLOBALS //
 /////////////
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
 	matrix worldMatrix;
 	matrix viewMatrix;
@@ -38,7 +38,7 @@ PixelInputType VSMain(VertexInputType input)
 	PixelInputType output;
 
 
-	// Change the position vector to be 4 units for proper matrix calculations.
+	// Convert the position vector to homogeneous coordinates for matrix calculations.
 	input.position.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.

@@ -11,8 +11,10 @@ D3DClass::D3DClass()
 	m_device = nullptr;
 	m_commandQueue = nullptr;
 	m_renderTargetViewHeap = nullptr;
-	m_backBufferRenderTarget[0] = nullptr;
-	m_backBufferRenderTarget[1] = nullptr;
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		m_backBufferRenderTarget[i] = nullptr;
+	}
 	m_commandAllocator = nullptr;
 	m_commandList = nullptr;
 	m_pipelineState = nullptr;
@@ -37,6 +39,7 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	ID3D12Debug* debugController;
 	D3D_FEATURE_LEVEL featureLevel;
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc;
+	UINT dxgiFlags;
 	IDXGIFactory4* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
@@ -58,9 +61,12 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	// Note: Not all cards support full DirectX 12, this feature level may need to be reduced on some cards to 12.0.
 	featureLevel = D3D_FEATURE_LEVEL_12_1;
 
+	// Set the default DXGI factory flags.
+	dxgiFlags = 0;
+
 #if defined(_DEBUG)
 	// Create the Direct3D debug controller.
-	result = D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)&debugController);
+	result = D3D12GetDebugInterface(IID_PPV_ARGS(&debugController));
 	if (FAILED(result))
 	{
 		MessageBox(hwnd, L"Could not enable Direct3D debugging.", L"Debugger Failure", MB_OK);
@@ -73,10 +79,13 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	// Release the debug controller.
 	debugController->Release();
 	debugController = nullptr;
+
+	// Enable debugging our DXGI device.
+	dxgiFlags = DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
 	// Create the Direct3D 12 device.
-	result = D3D12CreateDevice(nullptr, featureLevel, __uuidof(ID3D12Device), (void**)&m_device);
+	result = D3D12CreateDevice(nullptr, featureLevel, IID_PPV_ARGS(&m_device));
 	if (FAILED(result))
 	{
 		MessageBox(hwnd, L"Could not create a DirectX 12.1 device.  The default video card does not support DirectX 12.1.", L"DirectX Device Failure", MB_OK);
@@ -93,14 +102,14 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	commandQueueDesc.NodeMask =	0;
 
 	// Create the command queue.
-	result = m_device->CreateCommandQueue(&commandQueueDesc, __uuidof(ID3D12CommandQueue), (void**)&m_commandQueue);
+	result = m_device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_commandQueue));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Create a DirectX graphics interface factory.
-	result = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&factory);
+	result = CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&factory));
 	if (FAILED(result))
 	{
 		return false;
@@ -188,7 +197,7 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
 	// Set the swap chain to use double buffering.
-	swapChainDesc.BufferCount =			2;
+	swapChainDesc.BufferCount =			FRAME_BUFFER_COUNT;
 
 	// Set the height and width of the back buffers in the swap chain.
 	swapChainDesc.BufferDesc.Height =	screenHeight;
@@ -248,7 +257,7 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 
 	// Next upgrade the IDXGISwapChain to a IDXGISwapChain3 interface and store it in a private member variable named m_swapChain.
 	// This will allow us to use the newer functionality such as getting the current back buffer index.
-	result = swapChain->QueryInterface(__uuidof(IDXGISwapChain3), (void**)&m_swapChain);
+	result = swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain));
 	if (FAILED(result))
 	{
 		return false;
@@ -265,12 +274,12 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	ZeroMemory(&renderTargetViewHeapDesc, sizeof(renderTargetViewHeapDesc));
 
 	// Set the number of descriptors to two for our two back buffers.  Also set the heap type to render target views.
-	renderTargetViewHeapDesc.NumDescriptors =	2;
+	renderTargetViewHeapDesc.NumDescriptors =	FRAME_BUFFER_COUNT;
 	renderTargetViewHeapDesc.Type =				D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	renderTargetViewHeapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	// Create the render target view heap for the back buffers.
-	result = m_device->CreateDescriptorHeap(&renderTargetViewHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_renderTargetViewHeap);
+	result = m_device->CreateDescriptorHeap(&renderTargetViewHeapDesc, IID_PPV_ARGS(&m_renderTargetViewHeap));
 	if (FAILED(result))
 	{
 		return false;
@@ -282,41 +291,34 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	// Get the size of the memory location for the render target view descriptors.
 	renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-	// Get a pointer to the first back buffer from the swap chain.
-	result = m_swapChain->GetBuffer(0, __uuidof(ID3D12Resource), (void**)&m_backBufferRenderTarget[0]);
-	if (FAILED(result))
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		return false;
+		// Get a pointer to the next back buffer from the swap chain.
+		result = m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBufferRenderTarget[i]));
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		// Create a render target view for this back buffer.
+		m_device->CreateRenderTargetView(m_backBufferRenderTarget[i], nullptr, renderTargetViewHandle);
+
+		// Increment the view handle to the next descriptor location in the render target view heap.
+		renderTargetViewHandle.ptr += renderTargetViewDescriptorSize;
 	}
-
-	// Create a render target view for the first back buffer.
-	m_device->CreateRenderTargetView(m_backBufferRenderTarget[0], nullptr, renderTargetViewHandle);
-
-	// Increment the view handle to the next descriptor location in the render target view heap.
-	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize;
-
-	// Get a pointer to the second back buffer from the swap chain.
-	result = m_swapChain->GetBuffer(1, __uuidof(ID3D12Resource), (void**)&m_backBufferRenderTarget[1]);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Create a render target view for the second back buffer.
-	m_device->CreateRenderTargetView(m_backBufferRenderTarget[1], nullptr, renderTargetViewHandle);
 
 	// Finally get the initial index to which buffer is the current back buffer.
 	m_bufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
 	// Create a command allocator.
-	result = m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)&m_commandAllocator);
+	result = m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Create a basic command list.
-	result = m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, nullptr, __uuidof(ID3D12GraphicsCommandList), (void**)&m_commandList);
+	result = m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, nullptr, IID_PPV_ARGS(&m_commandList));
 	if (FAILED(result))
 	{
 		return false;
@@ -330,7 +332,7 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	}
 
 	// Create a fence for GPU synchronization.
-	result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&m_fence);
+	result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));
 	if (FAILED(result))
 	{
 		return false;
@@ -396,15 +398,13 @@ void D3DClass::Shutdown()
 	}
 
 	// Release the back buffer render target views.
-	if (m_backBufferRenderTarget[0])
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		m_backBufferRenderTarget[0]->Release();
-		m_backBufferRenderTarget[0] = nullptr;
-	}
-	if (m_backBufferRenderTarget[1])
-	{
-		m_backBufferRenderTarget[1]->Release();
-		m_backBufferRenderTarget[1] = nullptr;
+		if (m_backBufferRenderTarget[i])
+		{
+			m_backBufferRenderTarget[i]->Release();
+			m_backBufferRenderTarget[i] = nullptr;
+		}
 	}
 
 	// Release the render target view heap.
@@ -477,10 +477,7 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 	// Get the render target view handle for the current back buffer.
 	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
 	renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	if (m_bufferIndex == 1)
-	{
-		renderTargetViewHandle.ptr += renderTargetViewDescriptorSize;
-	}
+	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * m_bufferIndex;
 
 	// Set the back buffer as the render target.
 	m_commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
@@ -546,8 +543,9 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
 
-	// Alternate the back buffer index back and forth between 0 and 1 each frame.
-	m_bufferIndex == 0 ? m_bufferIndex = 1 : m_bufferIndex = 0;
+	// Advance the back buffer index to the next frame.
+	++m_bufferIndex;
+	m_bufferIndex %= FRAME_BUFFER_COUNT;
 
 	return true;
 }

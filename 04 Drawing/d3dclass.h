@@ -19,6 +19,12 @@
 #include <dxgi1_4.h>
 
 
+/////////////////
+// DEFENITIONS //
+/////////////////
+#define FRAME_BUFFER_COUNT 2
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: D3DClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +49,7 @@ private:
 	ID3D12Device*				m_device;
 	ID3D12CommandQueue*			m_commandQueue;
 	ID3D12DescriptorHeap*		m_renderTargetViewHeap;
-	ID3D12Resource*				m_backBufferRenderTarget[2];
+	ID3D12Resource*				m_backBufferRenderTarget[FRAME_BUFFER_COUNT];
 	unsigned int				m_bufferIndex;
 	ID3D12CommandAllocator*		m_commandAllocator;
 	ID3D12GraphicsCommandList*	m_commandList;

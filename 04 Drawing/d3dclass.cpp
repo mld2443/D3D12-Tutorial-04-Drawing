@@ -87,10 +87,10 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	ZeroMemory(&commandQueueDesc, sizeof(commandQueueDesc));
 
 	// Set up the description of the command queue.
-	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	commandQueueDesc.NodeMask = 0;
+	commandQueueDesc.Type =		D3D12_COMMAND_LIST_TYPE_DIRECT;
+	commandQueueDesc.Priority =	D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+	commandQueueDesc.Flags =	D3D12_COMMAND_QUEUE_FLAG_NONE;
+	commandQueueDesc.NodeMask =	0;
 
 	// Create the command queue.
 	result = m_device->CreateCommandQueue(&commandQueueDesc, __uuidof(ID3D12CommandQueue), (void**)&m_commandQueue);
@@ -188,56 +188,56 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
 	// Set the swap chain to use double buffering.
-	swapChainDesc.BufferCount = 2;
+	swapChainDesc.BufferCount =			2;
 
 	// Set the height and width of the back buffers in the swap chain.
-	swapChainDesc.BufferDesc.Height = screenHeight;
-	swapChainDesc.BufferDesc.Width = screenWidth;
+	swapChainDesc.BufferDesc.Height =	screenHeight;
+	swapChainDesc.BufferDesc.Width =	screenWidth;
 
 	// Set a regular 32-bit surface for the back buffers.
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format =	DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	// Set the usage of the back buffers to be render target outputs.
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferUsage =			DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
 	// Set the swap effect to discard the previous buffer contents after swapping.
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.SwapEffect =			DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
 	// Set the handle for the window to render to.
-	swapChainDesc.OutputWindow = hwnd;
+	swapChainDesc.OutputWindow =		hwnd;
 
 	// Set to full screen or windowed mode.
 	if (fullscreen)
 	{
-		swapChainDesc.Windowed = false;
+		swapChainDesc.Windowed =	false;
 	}
 	else
 	{
-		swapChainDesc.Windowed = true;
+		swapChainDesc.Windowed =	true;
 	}
 
 	// Set the refresh rate of the back buffer.
 	if (m_vsync_enabled)
 	{
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator =	numerator;
+		swapChainDesc.BufferDesc.RefreshRate.Denominator =	denominator;
 	}
 	else
 	{
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		swapChainDesc.BufferDesc.RefreshRate.Numerator =	0;
+		swapChainDesc.BufferDesc.RefreshRate.Denominator =	1;
 	}
 
 	// Turn multisampling off.
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
+	swapChainDesc.SampleDesc.Count =			1;
+	swapChainDesc.SampleDesc.Quality =			0;
 
 	// Set the scan line ordering and scaling to unspecified.
-	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	swapChainDesc.BufferDesc.ScanlineOrdering =	DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling =			DXGI_MODE_SCALING_UNSPECIFIED;
 
 	// Don't set the advanced flags.
-	swapChainDesc.Flags = 0;
+	swapChainDesc.Flags =						0;
 
 	// Finally create the swap chain using the swap chain description.	
 	result = factory->CreateSwapChain(m_commandQueue, &swapChainDesc, &swapChain);
@@ -265,9 +265,9 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 	ZeroMemory(&renderTargetViewHeapDesc, sizeof(renderTargetViewHeapDesc));
 
 	// Set the number of descriptors to two for our two back buffers.  Also set the heap type to render target views.
-	renderTargetViewHeapDesc.NumDescriptors = 2;
-	renderTargetViewHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	renderTargetViewHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	renderTargetViewHeapDesc.NumDescriptors =	2;
+	renderTargetViewHeapDesc.Type =				D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	renderTargetViewHeapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	// Create the render target view heap for the back buffers.
 	result = m_device->CreateDescriptorHeap(&renderTargetViewHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_renderTargetViewHeap);
@@ -466,12 +466,12 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 
 	// Record commands in the command list now.
 	// Start by setting the resource barrier.
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = m_backBufferRenderTarget[m_bufferIndex];
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex];
+	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	m_commandList->ResourceBarrier(1, &barrier);
 
 	// Get the render target view handle for the current back buffer.
@@ -493,8 +493,8 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 	m_commandList->ClearRenderTargetView(renderTargetViewHandle, color, 0, nullptr);
 
 	// Indicate that the back buffer will now be used to present.
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
 	m_commandList->ResourceBarrier(1, &barrier);
 
 	// Close the list of commands.

@@ -48,6 +48,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <FxCompile>
       <ShaderModel>4.0</ShaderModel>
@@ -76,21 +77,25 @@
   <ItemGroup>
     <ClInclude Include="cameraclass.h" />
     <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="geometryinterface.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="pipelineinterface.h" />
     <ClInclude Include="solopipelineclass.h" />
     <ClInclude Include="systemclass.h" />
+    <ClInclude Include="triangleclass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cameraclass.cpp" />
     <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="geometryinterface.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pipelineinterface.cpp" />
     <ClCompile Include="solopipelineclass.cpp" />
     <ClCompile Include="systemclass.cpp" />
+    <ClCompile Include="triangleclass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="color.vs.hlsl">

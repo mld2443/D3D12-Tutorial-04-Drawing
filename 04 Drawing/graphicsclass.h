@@ -9,6 +9,7 @@
 ///////////////////////
 #include "cameraclass.h"
 #include "d3dclass.h"
+#include "triangleclass.h"
 
 
 /////////////
@@ -38,6 +39,7 @@ private:
 	bool Render();
 
 private:
-	CameraClass*	m_Camera;
 	D3DClass*		m_Direct3D;
+	CameraClass*	m_Camera;
+	TriangleClass*	m_Triangle;
 };

@@ -126,7 +126,7 @@ bool GraphicsClass::Render()
 	m_Camera->Render();
 
 	// Submit the geometry buffers to the render pipeline.
-	m_Triangle->Render();
+	//m_Triangle->Render();
 
 	// Use the Direct3D object to render the scene.
 	result = m_Direct3D->Render(0.2f, 0.2f, 0.2f, 1.0f);

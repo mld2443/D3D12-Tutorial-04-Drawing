@@ -21,26 +21,38 @@ GeometryInterface::~GeometryInterface()
 }
 
 
-void GeometryInterface::Render()
+void GeometryInterface::Render(ID3D12GraphicsCommandList* commandList)
 {
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Set the vertex buffer to active in the input assembler so it can be rendered.
+	commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+
+	// Set the index buffer to active in the input assembler so it can be rendered.
+	commandList->IASetIndexBuffer(&m_indexBufferView);
+
+	// Issue the draw call for this geometry.
+	commandList->DrawIndexedInstanced(m_indexCount, 1, 0, 0, 0);
+
 	return;
 }
 
 
-unsigned int GeometryInterface::GetVertexCount()
+unsigned long GeometryInterface::GetVertexCount()
 {
 	return m_vertexCount;
 }
 
 
-unsigned int GeometryInterface::GetIndexCount()
+unsigned long GeometryInterface::GetIndexCount()
 {
 	return m_indexCount;
 }
 
 
 template<typename T>
-bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource* buffer, const std::vector<T>& data, D3D12_RESOURCE_STATES finalState, LPCWSTR name)
+bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buffer, const std::vector<T>& data, D3D12_RESOURCE_STATES finalState, LPCWSTR name)
 {
 	HRESULT result;
 	UINT bufferSize;
@@ -64,35 +76,35 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource* buffe
 
 	// Fill out a description for the default heap; the CPU cannot write to this heap.
 	ZeroMemory(&heapProps, sizeof(heapProps));
-	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-	heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	heapProps.CreationNodeMask = 1;
-	heapProps.VisibleNodeMask = 1;
+	heapProps.Type =					D3D12_HEAP_TYPE_DEFAULT;
+	heapProps.CPUPageProperty =			D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProps.MemoryPoolPreference =	D3D12_MEMORY_POOL_UNKNOWN;
+	heapProps.CreationNodeMask =		1;
+	heapProps.VisibleNodeMask =			1;
 
 	// Fill out a resource description for both heaps.
 	ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Alignment = 0;
-	resourceDesc.Width = bufferSize;
-	resourceDesc.Height = 1;
-	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 1;
-	resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-	resourceDesc.SampleDesc.Count = 1;
-	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	resourceDesc.Dimension =			D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Alignment =			0;
+	resourceDesc.Width =				bufferSize;
+	resourceDesc.Height =				1;
+	resourceDesc.DepthOrArraySize =		1;
+	resourceDesc.MipLevels =			1;
+	resourceDesc.Format =				DXGI_FORMAT_UNKNOWN;
+	resourceDesc.SampleDesc.Count =		1;
+	resourceDesc.SampleDesc.Quality =	0;
+	resourceDesc.Layout =				D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_NONE;
 
 	// Allocate space on the GPU for the defualt heap.
-	result = device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&buffer));
+	result = device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(buffer));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Set the name of the default heap for use in debugging.
-	buffer->SetName(name);
+	(*buffer)->SetName(name);
 
 	// Change the heap type for the upload heap; this allows the CPU to write to it.
 	heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -123,10 +135,10 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource* buffe
 
 	// Fill out a description for our command queue.
 	ZeroMemory(&queueDesc, sizeof(queueDesc));
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	queueDesc.NodeMask = 0;
+	queueDesc.Type =		D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Priority =	D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+	queueDesc.Flags =		D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.NodeMask =	0;
 
 	// Create a one time command queue.
 	result = device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue));
@@ -149,16 +161,16 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource* buffe
 	uploadBuffer->Unmap(0, NULL);
 
 	// Add the copy command to our list.
-	commandList->CopyBufferRegion(buffer, 0, uploadBuffer, 0, bufferSize);
+	commandList->CopyBufferRegion(*buffer, 0, uploadBuffer, 0, bufferSize);
 
 	// Fill out the description for our resource barrier.
 	ZeroMemory(&barrierDesc, sizeof(barrierDesc));
-	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrierDesc.Transition.pResource = buffer;
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	barrierDesc.Transition.StateAfter = finalState;
-	barrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrierDesc.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrierDesc.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrierDesc.Transition.pResource =		*buffer;
+	barrierDesc.Transition.StateBefore =	D3D12_RESOURCE_STATE_COPY_DEST;
+	barrierDesc.Transition.StateAfter =		finalState;
+	barrierDesc.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
 	// Add the barrier to the command list.
 	commandList->ResourceBarrier(1, &barrierDesc);
@@ -235,11 +247,20 @@ bool GeometryInterface::InitializeVertexBuffer(ID3D12Device* device, const std::
 
 
 	// Set up default and upload heaps for the vertices, load the data and wait for completion.
-	result = CreateBuffer(device, m_vertexBuffer, vertices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Vertex Buffer");
+	result = CreateBuffer(device, &m_vertexBuffer, vertices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Vertex Buffer");
 	if (!result)
 	{
 		return false;
 	}
+
+	// Set the count of vertices.
+	m_vertexCount = static_cast<unsigned long>(vertices.size());
+
+	// Fill out the vertex buffer view for use while rendering.
+	ZeroMemory(&m_vertexBufferView, sizeof(m_vertexBufferView));
+	m_vertexBufferView.BufferLocation =	m_vertexBuffer->GetGPUVirtualAddress();
+	m_vertexBufferView.StrideInBytes =	static_cast<UINT>(sizeof(VertexType));
+	m_vertexBufferView.SizeInBytes =	static_cast<UINT>(m_vertexBufferView.StrideInBytes * m_vertexCount);
 
 	return true;
 }
@@ -251,11 +272,20 @@ bool GeometryInterface::InitializeIndexBuffer(ID3D12Device* device, const std::v
 
 
 	// Set up default and upload heaps for the indices, load the data and wait for completion.
-	result = CreateBuffer(device, m_indexBuffer, indices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Index Buffer");
+	result = CreateBuffer(device, &m_indexBuffer, indices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Index Buffer");
 	if (!result)
 	{
 		return false;
 	}
+
+	// Set the count of indices.
+	m_indexCount = static_cast<unsigned long>(indices.size());
+
+	// Fill out the index buffer view for use while rendering.
+	ZeroMemory(&m_indexBufferView, sizeof(m_indexBufferView));
+	m_indexBufferView.BufferLocation =	m_indexBuffer->GetGPUVirtualAddress();
+	m_indexBufferView.Format =			DXGI_FORMAT_R32_UINT;
+	m_indexBufferView.SizeInBytes =		static_cast<UINT>(sizeof(unsigned long) * m_indexCount);
 
 	return true;
 }

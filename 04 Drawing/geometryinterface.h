@@ -32,14 +32,14 @@ public:
 
 	virtual bool Initialize(ID3D12Device*) = 0;
 	virtual void Shutdown() = 0;
-	void Render();
+	void Render(ID3D12GraphicsCommandList*);
 
-	unsigned int GetVertexCount();
-	unsigned int GetIndexCount();
+	unsigned long GetVertexCount();
+	unsigned long GetIndexCount();
 
 private:
 	template<typename T>
-	bool CreateBuffer(ID3D12Device*, ID3D12Resource*, const std::vector<T>&, D3D12_RESOURCE_STATES, LPCWSTR = L"");
+	bool CreateBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<T>&, D3D12_RESOURCE_STATES, LPCWSTR = L"");
 
 protected:
 	bool InitializeVertexBuffer(ID3D12Device*, const std::vector<VertexType>&);
@@ -48,6 +48,8 @@ protected:
 	void ShutdownBuffers();
 
 private:
-	ID3D12Resource	*m_vertexBuffer, *m_indexBuffer;
-	unsigned int	m_vertexCount, m_indexCount;
+	ID3D12Resource				*m_vertexBuffer, *m_indexBuffer;
+	unsigned long				m_vertexCount, m_indexCount;
+	D3D12_VERTEX_BUFFER_VIEW	m_vertexBufferView;
+	D3D12_INDEX_BUFFER_VIEW		m_indexBufferView;
 };

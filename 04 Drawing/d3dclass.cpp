@@ -549,3 +549,9 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 
 	return true;
 }
+
+
+ID3D12Device* D3DClass::GetDevice()
+{
+	return m_device;
+}

@@ -40,6 +40,8 @@ public:
 
 	bool Render(float, float, float, float);
 
+	ID3D12Device* GetDevice();
+
 private:
 	bool				m_vsync_enabled;
 	int					m_videoCardMemory;

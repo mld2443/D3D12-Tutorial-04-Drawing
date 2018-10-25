@@ -63,7 +63,7 @@ bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 		return false;
 	}
 
-	// Setup the projection matrix.
+	// Set up the projection matrix.
 	fieldOfView = QUARTER_PI;
 	screenAspect = (float)screenWidth / (float)screenHeight;
 
@@ -76,13 +76,21 @@ bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 	// Create an orthographic projection matrix for 2D rendering.
 	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
 
-	// Setup the viewport for rendering.
+	// Set up the viewport for rendering.
+	ZeroMemory(&m_viewport, sizeof(m_viewport));
 	m_viewport.Width =		(float)screenWidth;
 	m_viewport.Height =		(float)screenHeight;
 	m_viewport.MinDepth =	0.0f;
 	m_viewport.MaxDepth =	1.0f;
 	m_viewport.TopLeftX =	0.0f;
 	m_viewport.TopLeftY =	0.0f;
+
+	// Set up the scissor rect for the viewport.
+	ZeroMemory(&m_scissorRect, sizeof(m_scissorRect));
+	m_scissorRect.left =	0;
+	m_scissorRect.top =		0;
+	m_scissorRect.right =	screenWidth;
+	m_scissorRect.bottom =	screenHeight;
 
 	return true;
 }
@@ -151,9 +159,9 @@ void PipelineInterface::SetRasterDesc()
 	m_rasterDesc.FillMode =					D3D12_FILL_MODE_SOLID;
 	m_rasterDesc.CullMode =					D3D12_CULL_MODE_BACK;
 	m_rasterDesc.FrontCounterClockwise =	false;
-	m_rasterDesc.DepthBias =				0;
-	m_rasterDesc.DepthBiasClamp =			0.0f;
-	m_rasterDesc.SlopeScaledDepthBias =		0.0f;
+	m_rasterDesc.DepthBias =				D3D12_DEFAULT_DEPTH_BIAS;
+	m_rasterDesc.DepthBiasClamp =			D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+	m_rasterDesc.SlopeScaledDepthBias =		D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
 	m_rasterDesc.DepthClipEnable =			true;
 	m_rasterDesc.MultisampleEnable =		false;
 	m_rasterDesc.AntialiasedLineEnable =	false;

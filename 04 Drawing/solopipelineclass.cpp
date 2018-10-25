@@ -51,8 +51,8 @@ bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex, XMMATRIX viewMatr
 
 	// Set the bounds of the read.
 	ZeroMemory(&readRange, sizeof(readRange));
-	readRange.Begin = frameIndex * m_matrixBufferwidth;
-	readRange.End = readRange.Begin + sizeof(MatrixBufferType);
+	readRange.Begin =	frameIndex * m_matrixBufferwidth;
+	readRange.End =		readRange.Begin + sizeof(MatrixBufferType);
 
 	// Lock the constant buffer so it can be written to.
 	result = m_matrixBuffer->Map(0, &readRange, reinterpret_cast<void**>(&dataPtr));
@@ -74,7 +74,7 @@ bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex, XMMATRIX viewMatr
 
 	// Set the window viewport.
 	m_commandList->RSSetViewports(1, &m_viewport);
-	//m_commandList->RSSetScissorRects(1, &m_scissorRect);
+	m_commandList->RSSetScissorRects(1, &m_scissorRect);
 
 	return true;
 }

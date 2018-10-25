@@ -39,8 +39,10 @@ public:
 	bool Initialize(int, int, HWND, bool, bool);
 	void Shutdown();
 
-	bool BeginScene(float, float, float, float);
-	bool EndScene(std::vector<ID3D12CommandList*>);
+	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
+	void EndScene(ID3D12GraphicsCommandList*);
+
+	bool SubmitToQueue(std::vector<ID3D12CommandList*>);
 
 	ID3D12Device* GetDevice();
 	unsigned int GetBufferIndex();
@@ -56,9 +58,6 @@ private:
 	ID3D12CommandQueue*			m_commandQueue;
 	ID3D12DescriptorHeap*		m_renderTargetViewHeap;
 	ID3D12Resource*				m_backBufferRenderTarget[FRAME_BUFFER_COUNT];
-	ID3D12CommandAllocator*		m_startingAllocator[FRAME_BUFFER_COUNT];
-	ID3D12CommandAllocator*		m_endingAllocator[FRAME_BUFFER_COUNT];
-	ID3D12GraphicsCommandList	*m_startingList, *m_endingList;
 	ID3D12PipelineState*		m_pipelineState;
 	ID3D12Fence*				m_fence;
 	HANDLE						m_fenceEvent;

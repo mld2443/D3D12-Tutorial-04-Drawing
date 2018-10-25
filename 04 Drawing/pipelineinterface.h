@@ -33,7 +33,7 @@ public:
 	virtual bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float);
 	virtual void Shutdown();
 
-	virtual bool BeginPipeline(unsigned int) = 0;
+	virtual bool BeginPipeline(unsigned int, XMMATRIX) = 0;
 	virtual bool EndPipeline() = 0;
 
 	void GetProjectionMatrix(XMMATRIX&);

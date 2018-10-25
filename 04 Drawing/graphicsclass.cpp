@@ -136,6 +136,7 @@ bool GraphicsClass::Frame()
 bool GraphicsClass::Render()
 {
 	bool result;
+	XMMATRIX view;
 	std::vector<ID3D12CommandList*> lists;
 
 
@@ -146,15 +147,18 @@ bool GraphicsClass::Render()
 		return false;
 	}
 
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Render();
+
+	// Get the camera's view matrix.
+	m_Camera->GetViewMatrix(view);
+
 	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->BeginPipeline(m_Direct3D->GetBufferIndex());
+	result = m_Pipeline->BeginPipeline(m_Direct3D->GetBufferIndex(), view);
 	if (!result)
 	{
 		return false;
 	}
-
-	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
 
 	// Submit the geometry buffers to the render pipeline.
 	m_Geometry->Render(m_Pipeline->GetCommandList());
@@ -167,7 +171,7 @@ bool GraphicsClass::Render()
 	}
 
 	// Collect all one of our command lists to be drawn this frame.
-	lists.push_back(m_Pipeline->GetCommandList);
+	lists.push_back(m_Pipeline->GetCommandList());
 
 	// Finish the scene and submit our lists for drawing.
 	result = m_Direct3D->EndScene(lists);

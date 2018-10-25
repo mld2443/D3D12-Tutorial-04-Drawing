@@ -4,12 +4,6 @@
 #pragma once
 
 
-//////////////
-// INCLUDES //
-//////////////
-#include <DirectXMath.h>
-
-
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
@@ -17,7 +11,6 @@
 #include "color.vs.h"
 #include "color.ps.h"
 
-using namespace DirectX;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: SoloPipelineClass
@@ -33,13 +26,7 @@ public:
 	ID3D12CommandList* ClosePipeline() override;
 
 protected:
-	bool InitializePipeline(ID3D12Device*, int, int) override;
-	void ShutdownPipeline() override;
-
-private:
-	D3D12_VIEWPORT	m_viewport;
-
-	XMMATRIX	m_projectionMatrix;
-	XMMATRIX	m_worldMatrix;
-	XMMATRIX	m_orthoMatrix;
+	bool InitializeRootSignature(ID3D12Device*) override;
+	void SetShaderBytecode() override;
+	std::vector<D3D12_INPUT_ELEMENT_DESC>& GetInputLayoutDesc() override;
 };

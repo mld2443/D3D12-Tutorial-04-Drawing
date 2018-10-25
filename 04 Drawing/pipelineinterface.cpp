@@ -26,18 +26,214 @@ PipelineInterface::~PipelineInterface()
 }
 
 
-bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int frameIndex, int screenWidth, int screenHeight)
+bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int frameIndex,
+	int screenWidth, int screenHeight, float screenDepth, float screenNear)
+{
+	bool result;
+	float fieldOfView, screenAspect;
+
+
+	// First, set up the root signature.
+	result = InitializeRootSignature(device);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Unable to initialize the root signature.", L"Initializer Error", MB_OK);
+		return false;
+	}
+
+	// Next, We set all the descriptions for our pipeline.
+	SetShaderBytecode();
+	SetBlendDesc();
+	SetRasterDesc();
+	SetDepthStencilDesc();
+
+	// Next, initialize the pipeline state and parameters.
+	result = InitializePipelineState(device);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Unable to initialize the pipeline.", L"Initializer Error", MB_OK);
+		return false;
+	}
+
+	// Finally, create the command list this pipeline will use.
+	result = InitializeCommandList(device, frameIndex, screenWidth, screenHeight);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Unable to initialize the command list.", L"Initializer Error", MB_OK);
+		return false;
+	}
+
+	// Setup the projection matrix.
+	fieldOfView = QUARTER_PI;
+	screenAspect = (float)screenWidth / (float)screenHeight;
+
+	// Create the projection matrix for 3D rendering.
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+
+	// Initialize the world matrix to the identity matrix.
+	m_worldMatrix = XMMatrixIdentity();
+
+	// Create an orthographic projection matrix for 2D rendering.
+	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+
+	// Setup the viewport for rendering.
+	m_viewport.Width =		(float)screenWidth;
+	m_viewport.Height =		(float)screenHeight;
+	m_viewport.MinDepth =	0.0f;
+	m_viewport.MaxDepth =	1.0f;
+	m_viewport.TopLeftX =	0.0f;
+	m_viewport.TopLeftY =	0.0f;
+
+	return true;
+}
+
+
+void PipelineInterface::Shutdown()
+{
+	// Release the command list and its resources.
+	ShutdownCommandList();
+
+	return;
+}
+
+
+void PipelineInterface::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+{
+	projectionMatrix = m_projectionMatrix;
+	return;
+}
+
+
+void PipelineInterface::GetWorldMatrix(XMMATRIX& worldMatrix)
+{
+	worldMatrix = m_worldMatrix;
+	return;
+}
+
+
+void PipelineInterface::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+{
+	orthoMatrix = m_orthoMatrix;
+	return;
+}
+
+
+ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
+{
+	return m_commandList;
+}
+
+
+void PipelineInterface::SetBlendDesc()
+{
+	// Create an alpha enabled blend state description.
+	ZeroMemory(&m_blendDesc, sizeof(m_blendDesc));
+	m_blendDesc.AlphaToCoverageEnable =					FALSE;
+	m_blendDesc.IndependentBlendEnable =				FALSE;
+	m_blendDesc.RenderTarget[0].BlendEnable =			TRUE;
+	m_blendDesc.RenderTarget[0].LogicOpEnable =			FALSE;
+	m_blendDesc.RenderTarget[0].SrcBlend =				D3D12_BLEND_SRC_ALPHA;
+	m_blendDesc.RenderTarget[0].DestBlend =				D3D12_BLEND_INV_SRC_ALPHA;
+	m_blendDesc.RenderTarget[0].BlendOp =				D3D12_BLEND_OP_ADD;
+	m_blendDesc.RenderTarget[0].SrcBlendAlpha =			D3D12_BLEND_ONE;
+	m_blendDesc.RenderTarget[0].DestBlendAlpha =		D3D12_BLEND_ZERO;
+	m_blendDesc.RenderTarget[0].BlendOpAlpha =			D3D12_BLEND_OP_ADD;
+	m_blendDesc.RenderTarget[0].RenderTargetWriteMask =	0x0f;
+
+	return;
+}
+
+
+void PipelineInterface::SetRasterDesc()
+{
+	// Setup the raster description which will determine how and what polygons will be drawn.
+	ZeroMemory(&m_rasterDesc, sizeof(m_rasterDesc));
+	m_rasterDesc.FillMode =					D3D12_FILL_MODE_SOLID;
+	m_rasterDesc.CullMode =					D3D12_CULL_MODE_BACK;
+	m_rasterDesc.FrontCounterClockwise =	false;
+	m_rasterDesc.DepthBias =				0;
+	m_rasterDesc.DepthBiasClamp =			0.0f;
+	m_rasterDesc.SlopeScaledDepthBias =		0.0f;
+	m_rasterDesc.DepthClipEnable =			true;
+	m_rasterDesc.MultisampleEnable =		false;
+	m_rasterDesc.AntialiasedLineEnable =	false;
+	m_rasterDesc.ForcedSampleCount =		0;
+	m_rasterDesc.ConservativeRaster =		D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+	return;
+}
+
+
+void PipelineInterface::SetDepthStencilDesc()
+{
+	// Set up the description of the stencil state.
+	ZeroMemory(&m_depthStencilDesc, sizeof(m_depthStencilDesc));
+	m_depthStencilDesc.DepthEnable =		true;
+	m_depthStencilDesc.DepthWriteMask =		D3D12_DEPTH_WRITE_MASK_ALL;
+	m_depthStencilDesc.DepthFunc =			D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	m_depthStencilDesc.StencilEnable =		true;
+	m_depthStencilDesc.StencilReadMask =	0xFF;
+	m_depthStencilDesc.StencilWriteMask =	0xFF;
+
+	// Stencil operations if pixel is front-facing.
+	m_depthStencilDesc.FrontFace.StencilFailOp =		D3D12_STENCIL_OP_KEEP;
+	m_depthStencilDesc.FrontFace.StencilDepthFailOp =	D3D12_STENCIL_OP_INCR;
+	m_depthStencilDesc.FrontFace.StencilPassOp =		D3D12_STENCIL_OP_KEEP;
+	m_depthStencilDesc.FrontFace.StencilFunc =			D3D12_COMPARISON_FUNC_ALWAYS;
+
+	// Stencil operations if pixel is back-facing.
+	m_depthStencilDesc.BackFace.StencilFailOp =			D3D12_STENCIL_OP_KEEP;
+	m_depthStencilDesc.BackFace.StencilDepthFailOp =	D3D12_STENCIL_OP_DECR;
+	m_depthStencilDesc.BackFace.StencilPassOp =			D3D12_STENCIL_OP_KEEP;
+	m_depthStencilDesc.BackFace.StencilFunc =			D3D12_COMPARISON_FUNC_ALWAYS;
+
+	return;
+}
+
+
+bool PipelineInterface::InitializePipelineState(ID3D12Device* device)
+{
+	HRESULT result;
+	std::vector<D3D12_INPUT_ELEMENT_DESC> polygonLayout;
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
+
+
+	// Retrieve the layout description.
+	polygonLayout = GetInputLayoutDesc();
+
+	// Set up the Pipeline State for this render pipeline.
+	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
+	pipelineStateDesc.pRootSignature =					m_rootSignature;
+	pipelineStateDesc.VS =								m_vsBytecode;
+	pipelineStateDesc.PS =								m_psBytecode;
+	pipelineStateDesc.BlendState =						m_blendDesc;
+	pipelineStateDesc.SampleMask =						0xffffffff;
+	pipelineStateDesc.RasterizerState =					m_rasterDesc;
+	pipelineStateDesc.DepthStencilState =				m_depthStencilDesc;
+	pipelineStateDesc.InputLayout.NumElements =			static_cast<UINT>(polygonLayout.size());
+	pipelineStateDesc.InputLayout.pInputElementDescs =	polygonLayout.data();
+	pipelineStateDesc.PrimitiveTopologyType =			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateDesc.NumRenderTargets =				1;
+	pipelineStateDesc.RTVFormats[0] =					DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.SampleDesc.Count =				1;
+	pipelineStateDesc.SampleDesc.Quality =				0;
+	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	// Create the pipeline state.
+	result = device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&m_pipelineState));
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool PipelineInterface::InitializeCommandList(ID3D12Device* device, unsigned int frameIndex, int screenWidth, int screenHeight)
 {
 	HRESULT result;
 
-
-	// Initialize pipeline implementation specific resources.
-	InitializePipeline(device, screenWidth, screenHeight);
-	if (!m_rootSignature || !m_pipelineState)
-	{
-		MessageBox(hwnd, L"The pipeline was not initialized properly.", L"Initializer Failure", MB_OK);
-		return false;
-	}
 
 	for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
 	{
@@ -45,7 +241,6 @@ bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 		result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator[i]));
 		if (FAILED(result))
 		{
-			MessageBox(hwnd, L"Could not create Direct3D 12 command allocators.", L"Initializer Failure", MB_OK);
 			return false;
 		}
 	}
@@ -54,7 +249,6 @@ bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 	result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[frameIndex], nullptr, IID_PPV_ARGS(&m_commandList));
 	if (FAILED(result))
 	{
-		MessageBox(hwnd, L"Could not create command list.", L"Initializer Failure", MB_OK);
 		return false;
 	}
 
@@ -69,11 +263,8 @@ bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 }
 
 
-void PipelineInterface::Shutdown()
+void PipelineInterface::ShutdownCommandList()
 {
-	// First, release implementation specific resources.
-	ShutdownPipeline();
-
 	// Release the command list.
 	if (m_commandList)
 	{

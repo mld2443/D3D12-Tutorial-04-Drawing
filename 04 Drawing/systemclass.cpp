@@ -192,21 +192,21 @@ bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
 	m_hinstance = GetModuleHandle(NULL);
 
 	// Give the application a name.
-	m_applicationName = L"D3D12 Sample";
+	m_applicationName = L"04 Drawing";
 
 	// Setup the windows class with default settings.
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = m_hinstance;
-	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-	wc.hIconSm = wc.hIcon;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = m_applicationName;
-	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.style =			CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wc.lpfnWndProc =	WndProc;
+	wc.cbClsExtra =		0;
+	wc.cbWndExtra =		0;
+	wc.hInstance =		m_hinstance;
+	wc.hIcon =			LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIconSm =		wc.hIcon;
+	wc.hCursor =		LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground =	(HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszMenuName =	NULL;
+	wc.lpszClassName =	m_applicationName;
+	wc.cbSize =			sizeof(WNDCLASSEX);
 
 	// Register the window class.
 	if (!RegisterClassEx(&wc))
@@ -223,11 +223,11 @@ bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
 	{
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsHeight = (unsigned long)screenHeight;
-		dmScreenSettings.dmPelsWidth = (unsigned long)screenWidth;
-		dmScreenSettings.dmBitsPerPel = 32;
-		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+		dmScreenSettings.dmSize =		sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsHeight =	(unsigned long)screenHeight;
+		dmScreenSettings.dmPelsWidth =	(unsigned long)screenWidth;
+		dmScreenSettings.dmBitsPerPel =	32;
+		dmScreenSettings.dmFields =		DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		// Change the display settings to full screen.
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
@@ -248,8 +248,8 @@ bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
 
 	// Create the window with the screen settings and get the handle to it.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_OVERLAPPEDWINDOW,
-		posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+							WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_OVERLAPPEDWINDOW,
+							posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 	if (!m_hwnd)
 	{
 		return false;

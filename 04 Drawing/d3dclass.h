@@ -17,6 +17,13 @@
 //////////////
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <vector>
+
+
+/////////////////
+// DEFENITIONS //
+/////////////////
+#define FRAME_BUFFER_COUNT 2
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,26 +36,41 @@ public:
 	D3DClass(const D3DClass&);
 	~D3DClass();
 
-	bool Initialize(int, int, HWND, bool, bool);
+	bool Initialize(HWND, int, int, bool, bool);
 	void Shutdown();
 
-	bool Render(float, float, float, float);
+	ID3D12Device* GetDevice();
+	unsigned int GetBufferIndex();
+
+	void WaitForPreviousFrame(unsigned int);
+	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
+	void EndScene(ID3D12GraphicsCommandList*);
+	bool SubmitToQueue(std::vector<ID3D12CommandList*>);
 
 private:
-	bool				m_vsync_enabled;
-	int					m_videoCardMemory;
-	char				m_videoCardDescription[128];
-	IDXGISwapChain3*	m_swapChain;
+	bool InitializeDevice(HWND);
+	bool InitializeCommandQueue();
+	bool InitializeSwapChain(HWND, int, int, bool);
+	bool InitializeRenderTargets();
+	bool InitializeDepthStencil(int, int);
+	bool InitializeFences();
 
-	ID3D12Device*				m_device;
-	ID3D12CommandQueue*			m_commandQueue;
-	ID3D12DescriptorHeap*		m_renderTargetViewHeap;
-	ID3D12Resource*				m_backBufferRenderTarget[2];
-	unsigned int				m_bufferIndex;
-	ID3D12CommandAllocator*		m_commandAllocator;
-	ID3D12GraphicsCommandList*	m_commandList;
-	ID3D12PipelineState*		m_pipelineState;
-	ID3D12Fence*				m_fence;
-	HANDLE						m_fenceEvent;
-	unsigned long long			m_fenceValue;
+private:
+	bool			m_vsync_enabled;
+	unsigned int	m_bufferIndex;
+	int				m_videoCardMemory;
+	char			m_videoCardDescription[128];
+
+	IDXGISwapChain3*	m_swapChain;
+	ID3D12Device*		m_device;
+	ID3D12CommandQueue*	m_commandQueue;
+
+	ID3D12DescriptorHeap*	m_renderTargetViewHeap;
+	ID3D12Resource*			m_backBufferRenderTarget[FRAME_BUFFER_COUNT];
+	ID3D12DescriptorHeap*	m_depthStencilViewHeap;
+	ID3D12Resource*			m_depthStencil;
+
+	ID3D12Fence*		m_fence[FRAME_BUFFER_COUNT];
+	HANDLE				m_fenceEvent;
+	unsigned long long	m_fenceValue[FRAME_BUFFER_COUNT];
 };

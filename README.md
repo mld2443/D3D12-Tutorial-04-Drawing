@@ -1,5 +1,5 @@
-# 04 Drawing
-This project is currently a work in progress. Check the issues for info about progress toward completion.
+# Tutorial 04: Drawing
+This tutorial is currently a work in progress. This particular tutorial will eventually be part 4, but it is currently a prototype of my implementation and style. Check the issues for info about progress toward completion.
 
 ![04 drawing](https://user-images.githubusercontent.com/5340992/47532732-cbb24a80-d876-11e8-99ee-40c7c556ffc3.png)
 

@@ -14,9 +14,11 @@ D3DClass::D3DClass()
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		m_backBufferRenderTarget[i] = nullptr;
+		m_startingAllocator[i] = nullptr;
+		m_endingAllocator[i] = nullptr;
 	}
-	m_commandAllocator = nullptr;
-	m_commandList = nullptr;
+	m_startingList = nullptr;
+	m_endingList = nullptr;
 	m_pipelineState = nullptr;
 	m_fence = nullptr;
 	m_fenceEvent = nullptr;
@@ -305,27 +307,48 @@ bool D3DClass::Initialize(int screenHeight, int screenWidth, HWND hwnd, bool vsy
 
 		// Increment the view handle to the next descriptor location in the render target view heap.
 		renderTargetViewHandle.ptr += renderTargetViewDescriptorSize;
+
+		// Create a command allocator.
+		result = m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_startingAllocator[i]));
+		if (FAILED(result))
+		{
+			return false;
+		}
+
+		// Create a command allocator.
+		result = m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_endingAllocator[i]));
+		if (FAILED(result))
+		{
+			return false;
+		}
 	}
 
 	// Finally get the initial index to which buffer is the current back buffer.
 	m_bufferIndex = m_swapChain->GetCurrentBackBufferIndex();
 
-	// Create a command allocator.
-	result = m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator));
-	if (FAILED(result))
-	{
-		return false;
-	}
-
 	// Create a basic command list.
-	result = m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator, nullptr, IID_PPV_ARGS(&m_commandList));
+	result = m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_startingAllocator[m_bufferIndex], nullptr, IID_PPV_ARGS(&m_startingList));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Initially we need to close the command list during initialization as it is created in a recording state.
-	result = m_commandList->Close();
+	result = m_startingList->Close();
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Create a basic command list.
+	result = m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_endingAllocator[m_bufferIndex], nullptr, IID_PPV_ARGS(&m_endingList));
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Initially we need to close the command list during initialization as it is created in a recording state.
+	result = m_endingList->Close();
 	if (FAILED(result))
 	{
 		return false;
@@ -383,23 +406,35 @@ void D3DClass::Shutdown()
 		m_pipelineState = nullptr;
 	}
 
-	// Release the command list.
-	if (m_commandList)
+	// Release the command lists.
+	if (m_endingList)
 	{
-		m_commandList->Release();
-		m_commandList = nullptr;
+		m_endingList->Release();
+		m_endingList = nullptr;
 	}
 
-	// Release the command allocator.
-	if (m_commandAllocator)
+	if (m_startingList)
 	{
-		m_commandAllocator->Release();
-		m_commandAllocator = nullptr;
+		m_startingList->Release();
+		m_startingList = nullptr;
 	}
 
-	// Release the back buffer render target views.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
+		// Release the command allocators.
+		if (m_endingAllocator[i])
+		{
+			m_endingAllocator[i]->Release();
+			m_endingAllocator[i] = nullptr;
+		}
+
+		if (m_startingAllocator[i])
+		{
+			m_startingAllocator[i]->Release();
+			m_startingAllocator[i] = nullptr;
+		}
+
+		// Release the back buffer render target views.
 		if (m_backBufferRenderTarget[i])
 		{
 			m_backBufferRenderTarget[i]->Release();
@@ -439,7 +474,7 @@ void D3DClass::Shutdown()
 }
 
 
-bool D3DClass::Render(float red, float green, float blue, float alpha)
+bool D3DClass::BeginScene(float red, float green, float blue, float alpha)
 {
 	HRESULT result;
 	D3D12_RESOURCE_BARRIER barrier;
@@ -451,14 +486,14 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 
 
 	// Reset (re-use) the memory associated command allocator.
-	result = m_commandAllocator->Reset();
+	result = m_startingAllocator[m_bufferIndex]->Reset();
 	if (FAILED(result))
 	{
 		return false;
 	}
 
 	// Reset the command list, use empty pipeline state for now since there are no shaders and we are just clearing the screen.
-	result = m_commandList->Reset(m_commandAllocator, m_pipelineState);
+	result = m_startingList->Reset(m_startingAllocator[m_bufferIndex], m_pipelineState);
 	if (FAILED(result))
 	{
 		return false;
@@ -472,7 +507,7 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	m_commandList->ResourceBarrier(1, &barrier);
+	m_startingList->ResourceBarrier(1, &barrier);
 
 	// Get the render target view handle for the current back buffer.
 	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
@@ -480,32 +515,64 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * m_bufferIndex;
 
 	// Set the back buffer as the render target.
-	m_commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
+	m_startingList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
 
 	// Then set the color to clear the window to.
 	color[0] = red;
 	color[1] = green;
 	color[2] = blue;
 	color[3] = alpha;
-	m_commandList->ClearRenderTargetView(renderTargetViewHandle, color, 0, nullptr);
-
-	// Indicate that the back buffer will now be used to present.
-	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
-	m_commandList->ResourceBarrier(1, &barrier);
+	m_startingList->ClearRenderTargetView(renderTargetViewHandle, color, 0, nullptr);
 
 	// Close the list of commands.
-	result = m_commandList->Close();
+	result = m_startingList->Close();
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	// Load the command list array (only one command list for now).
-	ppCommandLists[0] = m_commandList;
+	// Reset (re-use) the memory associated command allocator.
+	result = m_endingAllocator[m_bufferIndex]->Reset();
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Reset the command list, use empty pipeline state for now since there are no shaders and we are just clearing the screen.
+	result = m_endingList->Reset(m_endingAllocator[m_bufferIndex], m_pipelineState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Indicate that the back buffer will now be used to present.
+	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
+	m_endingList->ResourceBarrier(1, &barrier);
+
+	// Close the list of commands.
+	result = m_endingList->Close();
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool D3DClass::EndScene(std::vector<ID3D12CommandList*> lists)
+{
+	HRESULT result;
+	unsigned long long fenceToWaitFor;
+
+
+	// Wrap the given commands with our own command lists.
+	lists.insert(lists.begin(), m_startingList);
+	lists.push_back(m_endingList);
 
 	// Execute the list of commands.
-	m_commandQueue->ExecuteCommandLists(1, ppCommandLists);
+	m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
 
 	// Finally present the back buffer to the screen since rendering is complete.
 	if (m_vsync_enabled)
@@ -554,4 +621,10 @@ bool D3DClass::Render(float red, float green, float blue, float alpha)
 ID3D12Device* D3DClass::GetDevice()
 {
 	return m_device;
+}
+
+
+unsigned int D3DClass::GetBufferIndex()
+{
+	return m_bufferIndex;
 }

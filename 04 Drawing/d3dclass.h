@@ -17,6 +17,7 @@
 //////////////
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <vector>
 
 
 /////////////////
@@ -38,12 +39,15 @@ public:
 	bool Initialize(int, int, HWND, bool, bool);
 	void Shutdown();
 
-	bool Render(float, float, float, float);
+	bool BeginScene(float, float, float, float);
+	bool EndScene(std::vector<ID3D12CommandList*>);
 
 	ID3D12Device* GetDevice();
+	unsigned int GetBufferIndex();
 
 private:
 	bool				m_vsync_enabled;
+	unsigned int		m_bufferIndex;
 	int					m_videoCardMemory;
 	char				m_videoCardDescription[128];
 	IDXGISwapChain3*	m_swapChain;
@@ -52,9 +56,9 @@ private:
 	ID3D12CommandQueue*			m_commandQueue;
 	ID3D12DescriptorHeap*		m_renderTargetViewHeap;
 	ID3D12Resource*				m_backBufferRenderTarget[FRAME_BUFFER_COUNT];
-	unsigned int				m_bufferIndex;
-	ID3D12CommandAllocator*		m_commandAllocator;
-	ID3D12GraphicsCommandList*	m_commandList;
+	ID3D12CommandAllocator*		m_startingAllocator[FRAME_BUFFER_COUNT];
+	ID3D12CommandAllocator*		m_endingAllocator[FRAME_BUFFER_COUNT];
+	ID3D12GraphicsCommandList	*m_startingList, *m_endingList;
 	ID3D12PipelineState*		m_pipelineState;
 	ID3D12Fence*				m_fence;
 	HANDLE						m_fenceEvent;

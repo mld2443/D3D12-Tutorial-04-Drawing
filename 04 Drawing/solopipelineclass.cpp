@@ -19,7 +19,7 @@ SoloPipelineClass::~SoloPipelineClass()
 }
 
 
-bool SoloPipelineClass::UpdatePipeline(unsigned int frameIndex)
+bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex)
 {
 	HRESULT result;
 	//ID3D12DescriptorHeap* descriptorHeaps[1];
@@ -58,7 +58,7 @@ bool SoloPipelineClass::UpdatePipeline(unsigned int frameIndex)
 }
 
 
-ID3D12CommandList* SoloPipelineClass::ClosePipeline()
+bool SoloPipelineClass::EndPipeline()
 {
 	HRESULT result;
 
@@ -67,10 +67,10 @@ ID3D12CommandList* SoloPipelineClass::ClosePipeline()
 	result = m_commandList->Close();
 	if (FAILED(result))
 	{
-		return nullptr;
+		return false;
 	}
 
-	return m_commandList;
+	return true;
 }
 
 

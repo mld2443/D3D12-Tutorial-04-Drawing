@@ -10,6 +10,7 @@
 #include "cameraclass.h"
 #include "d3dclass.h"
 #include "triangleclass.h"
+#include "solopipelineclass.h"
 
 
 /////////////
@@ -39,7 +40,8 @@ private:
 	bool Render();
 
 private:
-	D3DClass*		m_Direct3D;
-	CameraClass*	m_Camera;
-	TriangleClass*	m_Triangle;
+	D3DClass*			m_Direct3D;
+	CameraClass*		m_Camera;
+	GeometryInterface*	m_Geometry;
+	PipelineInterface*	m_Pipeline;
 };

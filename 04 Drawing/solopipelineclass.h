@@ -22,8 +22,8 @@ public:
 	SoloPipelineClass(const SoloPipelineClass&);
 	~SoloPipelineClass();
 
-	bool UpdatePipeline(unsigned int) override;
-	ID3D12CommandList* ClosePipeline() override;
+	bool BeginPipeline(unsigned int) override;
+	bool EndPipeline() override;
 
 protected:
 	bool InitializeRootSignature(ID3D12Device*) override;

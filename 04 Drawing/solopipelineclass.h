@@ -28,5 +28,5 @@ public:
 protected:
 	bool InitializeRootSignature(ID3D12Device*) override;
 	void SetShaderBytecode() override;
-	std::vector<D3D12_INPUT_ELEMENT_DESC>& GetInputLayoutDesc() override;
+	std::vector<D3D12_INPUT_ELEMENT_DESC> GetInputLayoutDesc() override;
 };

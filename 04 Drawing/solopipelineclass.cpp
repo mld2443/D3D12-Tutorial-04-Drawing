@@ -142,7 +142,7 @@ void SoloPipelineClass::SetShaderBytecode()
 }
 
 
-std::vector<D3D12_INPUT_ELEMENT_DESC>& SoloPipelineClass::GetInputLayoutDesc()
+std::vector<D3D12_INPUT_ELEMENT_DESC> SoloPipelineClass::GetInputLayoutDesc()
 {
 	std::vector<D3D12_INPUT_ELEMENT_DESC> polygonLayout;
 

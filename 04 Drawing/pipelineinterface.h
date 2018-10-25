@@ -47,7 +47,7 @@ protected:
 	virtual void SetBlendDesc();
 	virtual void SetRasterDesc();
 	virtual void SetDepthStencilDesc();
-	virtual std::vector<D3D12_INPUT_ELEMENT_DESC>& GetInputLayoutDesc() = 0;
+	virtual std::vector<D3D12_INPUT_ELEMENT_DESC> GetInputLayoutDesc() = 0;
 	virtual bool InitializePipelineState(ID3D12Device*);
 
 	bool InitializeCommandList(ID3D12Device*, unsigned int, int, int);

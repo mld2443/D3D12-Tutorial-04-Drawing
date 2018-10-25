@@ -105,6 +105,29 @@ void PipelineInterface::Shutdown()
 }
 
 
+bool PipelineInterface::ResetCommandList(unsigned int frameIndex)
+{
+	HRESULT result;
+
+
+	// Reset the memory that was holding the previously submitted command list.
+	result = m_commandAllocator[frameIndex]->Reset();
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Reset our command list to prepare it for new commands.
+	result = m_commandList->Reset(m_commandAllocator[frameIndex], m_pipelineState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
 void PipelineInterface::GetProjectionMatrix(XMMATRIX& projectionMatrix)
 {
 	projectionMatrix = m_projectionMatrix;

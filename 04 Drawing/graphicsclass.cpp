@@ -155,7 +155,7 @@ bool GraphicsClass::Render()
 	m_Camera->GetViewMatrix(view);
 
 	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->BeginPipeline(m_Direct3D->GetBufferIndex(), view);
+	result = m_Pipeline->ResetCommandList(m_Direct3D->GetBufferIndex());
 	if (!result)
 	{
 		return false;
@@ -163,6 +163,13 @@ bool GraphicsClass::Render()
 
 	// Put the first transition barrier on the command list and clear the RTV and DSV.
 	m_Direct3D->BeginScene(m_Pipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
+
+	// Start our pipeline, preparing it for drawing commands.
+	result = m_Pipeline->BeginPipeline(m_Direct3D->GetBufferIndex(), view);
+	if (!result)
+	{
+		return false;
+	}
 
 	// Submit the geometry buffers to the render pipeline.
 	m_Geometry->Render(m_Pipeline->GetCommandList());

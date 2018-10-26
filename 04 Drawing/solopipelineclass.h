@@ -7,13 +7,12 @@
 //////////////
 // INCLUDES //
 //////////////
-#include <string>
-
-
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
 #include "pipelineinterface.h"
+
+
+/////////////
+// SHADERS //
+/////////////
 #include "color.vs.h"
 #include "color.ps.h"
 

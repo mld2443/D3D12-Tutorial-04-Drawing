@@ -4,22 +4,13 @@
 #pragma once
 
 
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
+//////////////
+// INCLUDES //
+//////////////
 #include "cameraclass.h"
 #include "d3dclass.h"
 #include "triangleclass.h"
 #include "solopipelineclass.h"
-
-
-/////////////
-// GLOBALS //
-/////////////
-const bool FULL_SCREEN = false;
-const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
 
 
 ////////////////////////////////////////////////////////////////////////////////

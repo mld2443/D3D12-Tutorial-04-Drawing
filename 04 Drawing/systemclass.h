@@ -4,21 +4,9 @@
 #pragma once
 
 
-///////////////////////////////
-// PRE-PROCESSING DIRECTIVES //
-///////////////////////////////
-#define WIN32_LEAN_AND_MEAN
-
-
 //////////////
 // INCLUDES //
 //////////////
-#include <windows.h>
-
-
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
 #include "inputclass.h"
 #include "graphicsclass.h"
 

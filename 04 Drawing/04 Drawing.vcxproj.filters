@@ -42,6 +42,7 @@
     <ClInclude Include="triangleclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="systemclass.cpp">
@@ -74,6 +75,7 @@
     <ClCompile Include="triangleclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="color.vs.hlsl">

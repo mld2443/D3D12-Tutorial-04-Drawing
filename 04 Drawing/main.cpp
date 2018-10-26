@@ -15,7 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	System = new SystemClass;
 	if (!System)
 	{
-		return 0;
+		return 1;
 	}
 
 	// Initialize and run the system object.
@@ -26,9 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	}
 
 	// Shutdown and release the system object.
-	System->Shutdown();
-	delete System;
-	System = nullptr;
+	SAFE_SHUTDOWN(System);
 
 	return 0;
 }

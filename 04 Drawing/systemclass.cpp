@@ -24,7 +24,7 @@ SystemClass::~SystemClass()
 
 bool SystemClass::Initialize()
 {
-	int screenHeight, screenWidth;
+	UINT screenHeight, screenWidth;
 	bool result;
 
 
@@ -179,7 +179,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 }
 
 
-bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
+bool SystemClass::InitializeWindows(UINT& screenHeight, UINT& screenWidth)
 {
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
@@ -187,7 +187,7 @@ bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
 
 
 	// Get an external pointer to this object.
-	g_ApplicationHandle = this;
+	g_ApplicationHandle = static_cast<void*>(this);
 
 	// Get the instance of this application.
 	m_hinstance = GetModuleHandle(NULL);
@@ -204,7 +204,7 @@ bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
 	wc.hIcon =			LoadIcon(NULL, IDI_WINLOGO);
 	wc.hIconSm =		wc.hIcon;
 	wc.hCursor =		LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground =	(HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.hbrBackground =	static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
 	wc.lpszMenuName =	NULL;
 	wc.lpszClassName =	m_applicationName;
 	wc.cbSize =			sizeof(WNDCLASSEX);
@@ -223,10 +223,10 @@ bool SystemClass::InitializeWindows(int& screenHeight, int& screenWidth)
 	if (FULL_SCREEN)
 	{
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+		ZeroMemory(&dmScreenSettings, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize =		sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsHeight =	(unsigned long)screenHeight;
-		dmScreenSettings.dmPelsWidth =	(unsigned long)screenWidth;
+		dmScreenSettings.dmPelsHeight =	screenHeight;
+		dmScreenSettings.dmPelsWidth =	screenWidth;
 		dmScreenSettings.dmBitsPerPel =	32;
 		dmScreenSettings.dmFields =		DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
@@ -288,7 +288,7 @@ void SystemClass::ShutdownWindows()
 	m_hinstance = NULL;
 
 	// Release the pointer to this class.
-	g_ApplicationHandle = NULL;
+	g_ApplicationHandle = nullptr;
 
 	return;
 }
@@ -315,7 +315,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	// All other messages pass to the message handler in the system class.
 	default:
 	{
-		return g_ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
+		return static_cast<SystemClass*>(g_ApplicationHandle)->MessageHandler(hwnd, umessage, wparam, lparam);
 	}
 	}
 }

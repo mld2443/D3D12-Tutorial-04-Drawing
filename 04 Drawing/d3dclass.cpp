@@ -112,67 +112,18 @@ void D3DClass::Shutdown()
 	{
 	}
 
+	// Release reserved resources.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		// Release the fence.
-		if (m_fence[i])
-		{
-			m_fence[i]->Release();
-			m_fence[i] = nullptr;
-		}
+		SAFE_RELEASE(m_fence[i]);
+		SAFE_RELEASE(m_backBufferRenderTarget[i]);
 	}
-
-	// Release the depth stencil view.
-	if (m_depthStencil)
-	{
-		m_depthStencil->Release();
-		m_depthStencil = nullptr;
-	}
-
-	// Release the depth stencil view heap.
-	if (m_depthStencilViewHeap)
-	{
-		m_depthStencilViewHeap->Release();
-		m_depthStencilViewHeap = nullptr;
-	}
-
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		// Release the back buffer render target views.
-		if (m_backBufferRenderTarget[i])
-		{
-			m_backBufferRenderTarget[i]->Release();
-			m_backBufferRenderTarget[i] = nullptr;
-		}
-	}
-
-	// Release the render target view heap.
-	if (m_renderTargetViewHeap)
-	{
-		m_renderTargetViewHeap->Release();
-		m_renderTargetViewHeap = nullptr;
-	}
-
-	// Release the swap chain.
-	if (m_swapChain)
-	{
-		m_swapChain->Release();
-		m_swapChain = nullptr;
-	}
-
-	// Release the command queue.
-	if (m_commandQueue)
-	{
-		m_commandQueue->Release();
-		m_commandQueue = nullptr;
-	}
-
-	// Release the device.
-	if (m_device)
-	{
-		m_device->Release();
-		m_device = nullptr;
-	}
+	SAFE_RELEASE(m_depthStencil);
+	SAFE_RELEASE(m_depthStencilViewHeap);
+	SAFE_RELEASE(m_renderTargetViewHeap);
+	SAFE_RELEASE(m_swapChain);
+	SAFE_RELEASE(m_commandQueue);
+	SAFE_RELEASE(m_device);
 
 	return;
 }

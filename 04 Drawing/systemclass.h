@@ -29,7 +29,7 @@ public:
 
 private:
 	bool Frame();
-	bool InitializeWindows(int&, int&);
+	bool InitializeWindows(UINT&, UINT&);
 	void ShutdownWindows();
 
 private:
@@ -40,15 +40,3 @@ private:
 	InputClass*		m_Input;
 	GraphicsClass*	m_Graphics;
 };
-
-
-/////////////////////////
-// FUNCTION PROTOTYPES //
-/////////////////////////
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-
-/////////////
-// GLOBALS //
-/////////////
-static SystemClass* g_ApplicationHandle = 0;

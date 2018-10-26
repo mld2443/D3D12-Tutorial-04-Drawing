@@ -658,11 +658,13 @@ bool D3DClass::InitializeDepthStencil(int screenWidth, int screenHeight)
 	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 
 
+	//TODO: Fill out these comments.
+
 	//
 	ZeroMemory(&depthOptimizedClearValue, sizeof(depthOptimizedClearValue));
-	depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
-	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+	depthOptimizedClearValue.Format =				DXGI_FORMAT_D32_FLOAT;
+	depthOptimizedClearValue.DepthStencil.Depth =	1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil =	0;
 
 	//
 	ZeroMemory(&heapProps, sizeof(heapProps));
@@ -726,18 +728,18 @@ bool D3DClass::InitializeFences()
 
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		// Create a fence for GPU synchronization.
+		// Create fences for GPU synchronization.
 		result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence[i]));
 		if (FAILED(result))
 		{
 			return false;
 		}
 
-		// Initialize the starting fence value. 
+		// Initialize the starting fence values.
 		m_fenceValue[i] = 0;
 	}
 
-	// Create an event object for the fence.
+	// Create an event object for the fences.
 	m_fenceEvent = CreateEventEx(NULL, FALSE, FALSE, EVENT_ALL_ACCESS);
 	if (m_fenceEvent == NULL)
 	{

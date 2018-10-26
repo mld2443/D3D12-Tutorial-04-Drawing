@@ -19,11 +19,63 @@ SoloPipelineClass::~SoloPipelineClass()
 }
 
 
-bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex, XMMATRIX viewMatrix)
+bool SoloPipelineClass::Initialize(ID3D12Device* device, HWND hwnd, unsigned int frameIndex,
+	int screenWidth, int screenHeight, float screenDepth, float screenNear)
+{
+	bool result;
+
+
+	// We need to set up the root signature before creating the pipeline state object.
+	result = InitializeRootSignature(device);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Unable to initialize the root signature.", L"Initializer Error", MB_OK);
+		return false;
+	}
+
+	// Initialize the root signature and pipeline.
+	result = InitializePipeline(device);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Unable to initialize the pipeline.", L"Initializer Error", MB_OK);
+		return false;
+	}
+
+	// Initialize the command list and allocators.
+	result = InitializeCommandList(device, frameIndex);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Unable to initialize the command list.", L"Initializer Error", MB_OK);
+		return false;
+	}
+
+	// Initialize the viewport and scissor rectangle.
+	InitializeViewport(screenWidth, screenHeight, screenDepth, screenNear);
+
+	// For the final step, we will name all of our objects for graphics debugging.
+	NameResources();
+
+	return true;
+}
+
+
+void SoloPipelineClass::Shutdown()
+{
+	// Release the command list and its resources.
+	ShutdownCommandList();
+
+	// Release the pipeline and the root signature.
+	ShutdownPipeline();
+
+	return;
+}
+
+
+bool SoloPipelineClass::SetPipelineParameters(unsigned int frameIndex, XMMATRIX viewMatrix)
 {
 	HRESULT result;
-	UINT8* mappedResource;
 	D3D12_RANGE range;
+	UINT8* mappedResource;
 	MatrixBufferType* dataPtr;
 
 
@@ -35,7 +87,7 @@ bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex, XMMATRIX viewMatr
 	ZeroMemory(&range, sizeof(range));
 
 	// Lock the constant buffer so it can be written to.
-	result = m_matrixBuffer->Map(0, &range , reinterpret_cast<void**>(&mappedResource));
+	result = m_matrixBuffer->Map(0, &range, reinterpret_cast<void**>(&mappedResource));
 	if (FAILED(result))
 	{
 		return false;
@@ -62,22 +114,6 @@ bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex, XMMATRIX viewMatr
 	// Set the window viewport.
 	m_commandList->RSSetViewports(1, &m_viewport);
 	m_commandList->RSSetScissorRects(1, &m_scissorRect);
-
-	return true;
-}
-
-
-bool SoloPipelineClass::EndPipeline()
-{
-	HRESULT result;
-
-
-	// Close the command list so it can be submitted to a command queue.
-	result = m_commandList->Close();
-	if (FAILED(result))
-	{
-		return false;
-	}
 
 	return true;
 }
@@ -130,7 +166,7 @@ bool SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 		return false;
 	}
 
-	// Name the heap for use while debugging.
+	// Name the buffer for use while debugging.
 	m_matrixBuffer->SetName(L"Matrix Buffer");
 
 	// Create a descriptor for the matrix buffer.
@@ -189,31 +225,39 @@ void SoloPipelineClass::SetShaderBytecode()
 }
 
 
-std::vector<D3D12_INPUT_ELEMENT_DESC> SoloPipelineClass::GetInputLayoutDesc()
+void SoloPipelineClass::SetInputLayoutDesc()
 {
-	std::vector<D3D12_INPUT_ELEMENT_DESC> polygonLayout;
-
-
 	// Set the size of the layout description.
-	polygonLayout.resize(2);
+	m_inputLayoutDesc.resize(2);
 
-	// Create the vertex input layout description.
-	// This setup needs to match the VertexType stucture in the geometry interface and in the shader.
-	polygonLayout[0].SemanticName =			"POSITION";
-	polygonLayout[0].SemanticIndex =		0;
-	polygonLayout[0].Format =				DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot =			0;
-	polygonLayout[0].AlignedByteOffset =	0;
-	polygonLayout[0].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate =	0;
+	// Create the vertex input layout description. This needs to match the VertexType
+	// stucture in the geometry interface and the VertexInputType in the shader.
+	m_inputLayoutDesc[0].SemanticName =			"POSITION";
+	m_inputLayoutDesc[0].SemanticIndex =		0;
+	m_inputLayoutDesc[0].Format =				DXGI_FORMAT_R32G32B32_FLOAT;
+	m_inputLayoutDesc[0].InputSlot =			0;
+	m_inputLayoutDesc[0].AlignedByteOffset =	0;
+	m_inputLayoutDesc[0].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	m_inputLayoutDesc[0].InstanceDataStepRate =	0;
 
-	polygonLayout[1].SemanticName =			"COLOR";
-	polygonLayout[1].SemanticIndex =		0;
-	polygonLayout[1].Format =				DXGI_FORMAT_R32G32B32A32_FLOAT;
-	polygonLayout[1].InputSlot =			0;
-	polygonLayout[1].AlignedByteOffset =	D3D12_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate =	0;
+	m_inputLayoutDesc[1].SemanticName =			"COLOR";
+	m_inputLayoutDesc[1].SemanticIndex =		0;
+	m_inputLayoutDesc[1].Format =				DXGI_FORMAT_R32G32B32A32_FLOAT;
+	m_inputLayoutDesc[1].InputSlot =			0;
+	m_inputLayoutDesc[1].AlignedByteOffset =	D3D12_APPEND_ALIGNED_ELEMENT;
+	m_inputLayoutDesc[1].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	m_inputLayoutDesc[1].InstanceDataStepRate =	0;
 
-	return polygonLayout;
+	return;
+}
+
+
+void SoloPipelineClass::NameResources()
+{
+	std::wstring name;
+
+
+	//TODO: Name everything.
+
+	return;
 }

@@ -52,13 +52,14 @@ unsigned long GeometryInterface::GetIndexCount()
 
 
 template<typename T>
-bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buffer, const std::vector<T>& data, D3D12_RESOURCE_STATES finalState, LPCWSTR name)
+bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buffer, const std::vector<T>& data, D3D12_RESOURCE_STATES finalState, std::wstring name)
 {
 	HRESULT result;
 	UINT bufferSize;
 	D3D12_HEAP_PROPERTIES heapProps;
 	D3D12_RESOURCE_DESC resourceDesc;
 	ID3D12Resource* uploadBuffer;
+	std::wstring uploadName;
 	ID3D12CommandAllocator* commandAllocator;
 	ID3D12GraphicsCommandList* commandList;
 	D3D12_COMMAND_QUEUE_DESC queueDesc;
@@ -104,7 +105,7 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buff
 	}
 
 	// Set the name of the default heap for use in debugging.
-	(*buffer)->SetName(name);
+	(*buffer)->SetName(name.c_str());
 
 	// Change the heap type for the upload heap; this allows the CPU to write to it.
 	heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -117,30 +118,31 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buff
 	}
 
 	// Set the name of the upload heap for use in debugging.
-	uploadBuffer->SetName((std::wstring(name) + L" (upload)").c_str());
+	uploadName = name + L" upload heap";
+	uploadBuffer->SetName(uploadName.c_str());
 
-	//
+	// Create a single-use command allocator.
 	result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	//
+	// Create a command list using our new command allocator.
 	result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&commandList));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	// Fill out a description for our command queue.
+	// Fill out a description for a command queue.
 	ZeroMemory(&queueDesc, sizeof(queueDesc));
 	queueDesc.Type =		D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queueDesc.Priority =	D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 	queueDesc.Flags =		D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.NodeMask =	0;
 
-	// Create a one time command queue.
+	// Create a single-use command queue.
 	result = device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue));
 	if (FAILED(result))
 	{
@@ -148,19 +150,19 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buff
 	}
 
 	// Lock the upload buffer.
-	result = uploadBuffer->Map(0, NULL, &rawData);
+	result = uploadBuffer->Map(0, nullptr, &rawData);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	// Copy the data to our buffer.
+	// Upload the data to our upload buffer.
 	memcpy(rawData, data.data(), bufferSize);
 
 	// Unlock the upload buffer.
-	uploadBuffer->Unmap(0, NULL);
+	uploadBuffer->Unmap(0, nullptr);
 
-	// Add the copy command to our list.
+	// Add the copy command to the command list.
 	commandList->CopyBufferRegion(*buffer, 0, uploadBuffer, 0, bufferSize);
 
 	// Fill out the description for our resource barrier.
@@ -272,7 +274,7 @@ bool GeometryInterface::InitializeIndexBuffer(ID3D12Device* device, const std::v
 
 
 	// Set up default and upload heaps for the indices, load the data and wait for completion.
-	result = CreateBuffer(device, &m_indexBuffer, indices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Index Buffer");
+	result = CreateBuffer(device, &m_indexBuffer, indices, D3D12_RESOURCE_STATE_INDEX_BUFFER, L"Index Buffer");
 	if (!result)
 	{
 		return false;

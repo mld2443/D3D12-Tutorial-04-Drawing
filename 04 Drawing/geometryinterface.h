@@ -39,7 +39,7 @@ public:
 
 private:
 	template<typename T>
-	bool CreateBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<T>&, D3D12_RESOURCE_STATES, LPCWSTR = L"");
+	bool CreateBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<T>&, D3D12_RESOURCE_STATES, std::wstring = L"GI buffer");
 
 protected:
 	bool InitializeVertexBuffer(ID3D12Device*, const std::vector<VertexType>&);

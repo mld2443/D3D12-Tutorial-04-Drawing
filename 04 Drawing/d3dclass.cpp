@@ -253,11 +253,17 @@ void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
 bool D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
 {
 	HRESULT result;
-	unsigned long long fenceToWaitFor;
 
 
 	// Execute the list of commands.
 	m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
+
+	// Signal and increment the fence value.
+	result = m_commandQueue->Signal(m_fence[m_bufferIndex], m_fenceValue[m_bufferIndex]);
+	if (FAILED(result))
+	{
+		return false;
+	}
 
 	// Finally present the back buffer to the screen since rendering is complete.
 	if (m_vsync_enabled)
@@ -275,31 +281,66 @@ bool D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
 		return false;
 	}
 
-	// Signal and increment the fence value.
-	fenceToWaitFor = m_fenceValue[m_bufferIndex];
-	result = m_commandQueue->Signal(m_fence[m_bufferIndex], fenceToWaitFor);
-	if (FAILED(result))
-	{
-		return false;
-	}
-	m_fenceValue[m_bufferIndex]++;
+	return true;
+}
 
-	// Wait until the GPU is done rendering.
-	if (m_fence[m_bufferIndex]->GetCompletedValue() < fenceToWaitFor)
+
+bool D3DClass::WaitForFrameIndex(unsigned int frameIndex)
+{
+	HRESULT result;
+
+
+	// if the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
+	// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command
+	if (m_fence[frameIndex]->GetCompletedValue() < m_fenceValue[frameIndex])
 	{
-		result = m_fence[m_bufferIndex]->SetEventOnCompletion(fenceToWaitFor, m_fenceEvent);
+		// we have the fence create an event which is signaled once the fence's current value is "fenceValue"
+		result = m_fence[frameIndex]->SetEventOnCompletion(m_fenceValue[frameIndex], m_fenceEvent);
 		if (FAILED(result))
 		{
 			return false;
 		}
+
+		// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
+		// has reached "fenceValue", we know the command queue has finished executing
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
 
-	// Advance the back buffer index to the next frame.
-	++m_bufferIndex;
-	m_bufferIndex %= FRAME_BUFFER_COUNT;
+	// increment fenceValue for next frame
+	m_fenceValue[frameIndex]++;
 
 	return true;
+}
+
+
+bool D3DClass::WaitForPreviousFrame()
+{
+	bool result;
+
+
+	// Update the buffer index.
+	m_bufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+	// Wait for the last frame at this index to finish if it hasn't already.
+	result = WaitForFrameIndex(m_bufferIndex);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+void D3DClass::WaitOnAllFrames()
+{
+	// Finish all commands already submitted to the GPU.
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		WaitForFrameIndex(i);
+	}
+
+	return;
 }
 
 
@@ -683,7 +724,7 @@ bool D3DClass::InitializeFences()
 	HRESULT result;
 
 
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; i++)
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		// Create a fence for GPU synchronization.
 		result = m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence[i]));

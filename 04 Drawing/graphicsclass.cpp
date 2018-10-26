@@ -90,6 +90,9 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
+	// Wait for all frames to finish before releasing anything.
+	m_Direct3D->WaitOnAllFrames();
+
 	// Release the camera object.
 	if (m_Camera)
 	{
@@ -153,6 +156,13 @@ bool GraphicsClass::Render()
 
 	// Get the camera's view matrix.
 	m_Camera->GetViewMatrix(view);
+
+	// Wait on the frame last in this buffer index.
+	result = m_Direct3D->WaitForPreviousFrame();
+	if (!result)
+	{
+		return false;
+	}
 
 	// Start our pipeline, preparing it for drawing commands.
 	result = m_Pipeline->ResetCommandList(m_Direct3D->GetBufferIndex());

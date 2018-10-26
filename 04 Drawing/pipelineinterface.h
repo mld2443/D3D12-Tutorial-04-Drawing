@@ -16,7 +16,7 @@
 // DEFINITIONS //
 /////////////////
 #define FRAME_BUFFER_COUNT 2
-#define QUARTER_PI 3.141592654f / 4.0f
+#define PI 3.141592654f
 
 using namespace DirectX;
 
@@ -30,12 +30,13 @@ public:
 	PipelineInterface(const PipelineInterface&);
 	~PipelineInterface();
 
-	virtual bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float);
-	virtual void Shutdown();
+	virtual bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float) = 0;
+	virtual void Shutdown() = 0;
 
-	bool ResetCommandList(unsigned int);
-	virtual bool BeginPipeline(unsigned int, XMMATRIX) = 0;
-	virtual bool EndPipeline() = 0;
+	bool OpenPipeline(unsigned int);
+	bool ClosePipeline();
+
+	virtual bool SetPipelineParameters(unsigned int, XMMATRIX) = 0;
 
 	void GetProjectionMatrix(XMMATRIX&);
 	void GetWorldMatrix(XMMATRIX&);
@@ -44,15 +45,18 @@ public:
 
 protected:
 	virtual bool InitializeRootSignature(ID3D12Device*) = 0;
+	bool InitializePipeline(ID3D12Device*);
+	bool InitializeCommandList(ID3D12Device*, unsigned int);
+	virtual void InitializeViewport(int, int, float, float);
+	void ShutdownPipeline();
+	void ShutdownCommandList();
+
 	virtual void SetShaderBytecode() = 0;
 	virtual void SetBlendDesc();
 	virtual void SetRasterDesc();
 	virtual void SetDepthStencilDesc();
-	virtual std::vector<D3D12_INPUT_ELEMENT_DESC> GetInputLayoutDesc() = 0;
-	virtual bool InitializePipelineState(ID3D12Device*);
-
-	bool InitializeCommandList(ID3D12Device*, unsigned int, int, int);
-	void ShutdownCommandList();
+	virtual void SetInputLayoutDesc() = 0;
+	virtual bool InitializePipelineStateObject(ID3D12Device*);
 
 protected:
 	ID3D12RootSignature*		m_rootSignature;
@@ -60,10 +64,11 @@ protected:
 	ID3D12CommandAllocator*		m_commandAllocator[FRAME_BUFFER_COUNT];
 	ID3D12GraphicsCommandList*	m_commandList;
 
-	D3D12_SHADER_BYTECODE		m_vsBytecode, m_psBytecode;
-	D3D12_BLEND_DESC			m_blendDesc;
-	D3D12_RASTERIZER_DESC		m_rasterDesc;
-	D3D12_DEPTH_STENCIL_DESC	m_depthStencilDesc;
+	D3D12_SHADER_BYTECODE					m_vsBytecode, m_psBytecode;
+	D3D12_BLEND_DESC						m_blendDesc;
+	D3D12_RASTERIZER_DESC					m_rasterDesc;
+	D3D12_DEPTH_STENCIL_DESC				m_depthStencilDesc;
+	std::vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc;
 
 	XMMATRIX	m_projectionMatrix;
 	XMMATRIX	m_worldMatrix;

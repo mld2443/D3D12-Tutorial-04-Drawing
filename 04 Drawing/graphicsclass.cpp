@@ -165,7 +165,7 @@ bool GraphicsClass::Render()
 	}
 
 	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->ResetCommandList(m_Direct3D->GetBufferIndex());
+	result = m_Pipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
 	if (!result)
 	{
 		return false;
@@ -175,7 +175,7 @@ bool GraphicsClass::Render()
 	m_Direct3D->BeginScene(m_Pipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
 
 	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->BeginPipeline(m_Direct3D->GetBufferIndex(), view);
+	result = m_Pipeline->SetPipelineParameters(m_Direct3D->GetBufferIndex(), view);
 	if (!result)
 	{
 		return false;
@@ -187,8 +187,8 @@ bool GraphicsClass::Render()
 	// Add a final transition barrier to the queue.
 	m_Direct3D->EndScene(m_Pipeline->GetCommandList());
 
-	// Close our pipeline, so its command list can be queued.
-	result = m_Pipeline->EndPipeline();
+	// Close our pipeline so its command list can be queued.
+	result = m_Pipeline->ClosePipeline();
 	if (!result)
 	{
 		return false;

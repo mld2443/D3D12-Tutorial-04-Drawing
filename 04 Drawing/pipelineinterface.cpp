@@ -8,7 +8,7 @@ PipelineInterface::PipelineInterface()
 {
 	m_rootSignature = nullptr;
 	m_pipelineState = nullptr;
-	for (unsigned int i = 0; i < FRAME_BUFFER_COUNT; i++)
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		m_commandAllocator[i] = nullptr;
 	}
@@ -26,86 +26,7 @@ PipelineInterface::~PipelineInterface()
 }
 
 
-bool PipelineInterface::Initialize(ID3D12Device* device, HWND hwnd, unsigned int frameIndex,
-	int screenWidth, int screenHeight, float screenDepth, float screenNear)
-{
-	bool result;
-	float fieldOfView, screenAspect;
-
-
-	// First, set up the root signature.
-	result = InitializeRootSignature(device);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Unable to initialize the root signature.", L"Initializer Error", MB_OK);
-		return false;
-	}
-
-	// Next, We set all the descriptions for our pipeline.
-	SetShaderBytecode();
-	SetBlendDesc();
-	SetRasterDesc();
-	SetDepthStencilDesc();
-
-	// Next, initialize the pipeline state and parameters.
-	result = InitializePipelineState(device);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Unable to initialize the pipeline.", L"Initializer Error", MB_OK);
-		return false;
-	}
-
-	// Finally, create the command list this pipeline will use.
-	result = InitializeCommandList(device, frameIndex, screenWidth, screenHeight);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Unable to initialize the command list.", L"Initializer Error", MB_OK);
-		return false;
-	}
-
-	// Set up the projection matrix.
-	fieldOfView = QUARTER_PI;
-	screenAspect = (float)screenWidth / (float)screenHeight;
-
-	// Create the projection matrix for 3D rendering.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
-
-	// Initialize the world matrix to the identity matrix.
-	m_worldMatrix = XMMatrixIdentity();
-
-	// Create an orthographic projection matrix for 2D rendering.
-	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
-
-	// Set up the viewport for rendering.
-	ZeroMemory(&m_viewport, sizeof(m_viewport));
-	m_viewport.Width =		(float)screenWidth;
-	m_viewport.Height =		(float)screenHeight;
-	m_viewport.MinDepth =	0.0f;
-	m_viewport.MaxDepth =	1.0f;
-	m_viewport.TopLeftX =	0.0f;
-	m_viewport.TopLeftY =	0.0f;
-
-	// Set up the scissor rect for the viewport.
-	ZeroMemory(&m_scissorRect, sizeof(m_scissorRect));
-	m_scissorRect.left =	0;
-	m_scissorRect.top =		0;
-	m_scissorRect.right =	screenWidth;
-	m_scissorRect.bottom =	screenHeight;
-
-	return true;
-}
-
-
-void PipelineInterface::Shutdown()
-{
-	// Release the command list and its resources.
-	ShutdownCommandList();
-
-	return;
-}
-
-
-bool PipelineInterface::ResetCommandList(unsigned int frameIndex)
+bool PipelineInterface::OpenPipeline(unsigned int frameIndex)
 {
 	HRESULT result;
 
@@ -119,6 +40,22 @@ bool PipelineInterface::ResetCommandList(unsigned int frameIndex)
 
 	// Reset our command list to prepare it for new commands.
 	result = m_commandList->Reset(m_commandAllocator[frameIndex], m_pipelineState);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool PipelineInterface::ClosePipeline()
+{
+	HRESULT result;
+
+
+	// Close the command list so it can be submitted to a command queue.
+	result = m_commandList->Close();
 	if (FAILED(result))
 	{
 		return false;
@@ -152,6 +89,146 @@ void PipelineInterface::GetOrthoMatrix(XMMATRIX& orthoMatrix)
 ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
 {
 	return m_commandList;
+}
+
+
+bool PipelineInterface::InitializePipeline(ID3D12Device* device)
+{
+	bool result;
+
+
+	//TODO: Check that the root signature is set up. Maybe remove the InitializeRootSignature pure function.
+
+	// First we need to set all the descriptions for the pipeline.
+	SetShaderBytecode();
+	SetBlendDesc();
+	SetRasterDesc();
+	SetDepthStencilDesc();
+	SetInputLayoutDesc();
+
+	// Then we can initialize the pipeline state and parameters.
+	result = InitializePipelineStateObject(device);
+	if (!result)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool PipelineInterface::InitializeCommandList(ID3D12Device* device, unsigned int frameIndex)
+{
+	HRESULT result;
+
+
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		// Create command allocators, one for each frame.
+		result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator[i]));
+		if (FAILED(result))
+		{
+			return false;
+		}
+	}
+
+	// Create a command list.
+	result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[frameIndex], nullptr, IID_PPV_ARGS(&m_commandList));
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Initially we need to close the command list during initialization as it is created in a recording state.
+	result = m_commandList->Close();
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+void PipelineInterface::InitializeViewport(int screenWidth, int screenHeight, float screenDepth, float screenNear)
+{
+	float fieldOfView, screenAspect;
+
+
+	// Set up the projection matrix.
+	fieldOfView = PI / 4.0f;
+	screenAspect = (float)screenWidth / (float)screenHeight;
+
+	//TODO: The projection matrix feels like it belongs in the camera class.
+	// Create the projection matrix for 3D rendering.
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+
+	// Initialize the world matrix to the identity matrix.
+	m_worldMatrix = XMMatrixIdentity();
+
+	// Create an orthographic projection matrix for 2D rendering.
+	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+
+	// Set up the viewport for rendering.
+	ZeroMemory(&m_viewport, sizeof(m_viewport));
+	m_viewport.Width =		(float)screenWidth;
+	m_viewport.Height =		(float)screenHeight;
+	m_viewport.MinDepth =	0.0f;
+	m_viewport.MaxDepth =	1.0f;
+	m_viewport.TopLeftX =	0.0f;
+	m_viewport.TopLeftY =	0.0f;
+
+	// Set up the scissor rect for the viewport.
+	ZeroMemory(&m_scissorRect, sizeof(m_scissorRect));
+	m_scissorRect.left =	0;
+	m_scissorRect.top =		0;
+	m_scissorRect.right =	screenWidth;
+	m_scissorRect.bottom =	screenHeight;
+
+	return;
+}
+
+
+void PipelineInterface::ShutdownPipeline()
+{
+	// Release the pipeline state object.
+	if (m_pipelineState)
+	{
+		m_pipelineState->Release();
+		m_pipelineState = nullptr;
+	}
+
+	// Release the root signature.
+	if (m_rootSignature)
+	{
+		m_rootSignature->Release();
+		m_rootSignature = nullptr;
+	}
+
+	return;
+}
+
+
+void PipelineInterface::ShutdownCommandList()
+{
+	// Release the command list.
+	if (m_commandList)
+	{
+		m_commandList->Release();
+		m_commandList = nullptr;
+	}
+
+	// Release the command allocators.
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		if (m_commandAllocator[i])
+		{
+			m_commandAllocator[i]->Release();
+			m_commandAllocator[i] = nullptr;
+		}
+	}
+
+	return;
 }
 
 
@@ -203,8 +280,8 @@ void PipelineInterface::SetDepthStencilDesc()
 	m_depthStencilDesc.DepthWriteMask =		D3D12_DEPTH_WRITE_MASK_ALL;
 	m_depthStencilDesc.DepthFunc =			D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	m_depthStencilDesc.StencilEnable =		true;
-	m_depthStencilDesc.StencilReadMask =	0xFF;
-	m_depthStencilDesc.StencilWriteMask =	0xFF;
+	m_depthStencilDesc.StencilReadMask =	D3D12_DEFAULT_STENCIL_READ_MASK;
+	m_depthStencilDesc.StencilWriteMask =	D3D12_DEFAULT_STENCIL_WRITE_MASK;
 
 	// Stencil operations if pixel is front-facing.
 	m_depthStencilDesc.FrontFace.StencilFailOp =		D3D12_STENCIL_OP_KEEP;
@@ -222,15 +299,11 @@ void PipelineInterface::SetDepthStencilDesc()
 }
 
 
-bool PipelineInterface::InitializePipelineState(ID3D12Device* device)
+bool PipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
 {
 	HRESULT result;
-	std::vector<D3D12_INPUT_ELEMENT_DESC> polygonLayout;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
-
-	// Retrieve the layout description.
-	polygonLayout = GetInputLayoutDesc();
 
 	// Set up the Pipeline State for this render pipeline.
 	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
@@ -238,11 +311,11 @@ bool PipelineInterface::InitializePipelineState(ID3D12Device* device)
 	pipelineStateDesc.VS =								m_vsBytecode;
 	pipelineStateDesc.PS =								m_psBytecode;
 	pipelineStateDesc.BlendState =						m_blendDesc;
-	pipelineStateDesc.SampleMask =						0xffffffff;
+	pipelineStateDesc.SampleMask =						D3D12_DEFAULT_SAMPLE_MASK;
 	pipelineStateDesc.RasterizerState =					m_rasterDesc;
 	pipelineStateDesc.DepthStencilState =				m_depthStencilDesc;
-	pipelineStateDesc.InputLayout.NumElements =			static_cast<UINT>(polygonLayout.size());
-	pipelineStateDesc.InputLayout.pInputElementDescs =	polygonLayout.data();
+	pipelineStateDesc.InputLayout.NumElements =			static_cast<UINT>(m_inputLayoutDesc.size());
+	pipelineStateDesc.InputLayout.pInputElementDescs =	m_inputLayoutDesc.data();
 	pipelineStateDesc.PrimitiveTopologyType =			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	pipelineStateDesc.NumRenderTargets =				1;
 	pipelineStateDesc.RTVFormats[0] =					DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -258,74 +331,4 @@ bool PipelineInterface::InitializePipelineState(ID3D12Device* device)
 	}
 
 	return true;
-}
-
-
-bool PipelineInterface::InitializeCommandList(ID3D12Device* device, unsigned int frameIndex, int screenWidth, int screenHeight)
-{
-	HRESULT result;
-
-
-	for (int i = 0; i < FRAME_BUFFER_COUNT; i++)
-	{
-		// Create command allocators, one for each frame.
-		result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator[i]));
-		if (FAILED(result))
-		{
-			return false;
-		}
-	}
-
-	// Create a command list.
-	result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[frameIndex], nullptr, IID_PPV_ARGS(&m_commandList));
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Initially we need to close the command list during initialization as it is created in a recording state.
-	result = m_commandList->Close();
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
-void PipelineInterface::ShutdownCommandList()
-{
-	// Release the command list.
-	if (m_commandList)
-	{
-		m_commandList->Release();
-		m_commandList = nullptr;
-	}
-
-	// Release the command allocators.
-	for (unsigned int i = 0; i < FRAME_BUFFER_COUNT; i++)
-	{
-		if (m_commandAllocator[i])
-		{
-			m_commandAllocator[i]->Release();
-			m_commandAllocator[i] = nullptr;
-		}
-	}
-
-	// Release the pipeline state.
-	if (m_pipelineState)
-	{
-		m_pipelineState->Release();
-		m_pipelineState = nullptr;
-	}
-
-	// Release the root signature.
-	if (m_rootSignature)
-	{
-		m_rootSignature->Release();
-		m_rootSignature = nullptr;
-	}
-
-	return;
 }

@@ -4,6 +4,12 @@
 #pragma once
 
 
+//////////////
+// INCLUDES //
+//////////////
+#include <string>
+
+
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
@@ -30,13 +36,18 @@ public:
 	SoloPipelineClass(const SoloPipelineClass&);
 	~SoloPipelineClass();
 
-	bool BeginPipeline(unsigned int, XMMATRIX) override;
-	bool EndPipeline() override;
+	bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float) override;
+	void Shutdown() override;
+
+	bool SetPipelineParameters(unsigned int, XMMATRIX) override;
 
 protected:
 	bool InitializeRootSignature(ID3D12Device*) override;
 	void SetShaderBytecode() override;
-	std::vector<D3D12_INPUT_ELEMENT_DESC> GetInputLayoutDesc() override;
+	void SetInputLayoutDesc() override;
+
+private:
+	void NameResources();
 
 private:
 	UINT			m_matrixBufferWidth;

@@ -32,30 +32,22 @@ bool SystemClass::Initialize()
 	screenHeight = 0;
 	screenWidth = 0;
 
-	// Initialize the windows api.
-	InitializeWindows(screenHeight, screenWidth);
-
-	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
-	m_Input = new InputClass;
-	if (!m_Input)
+	try
 	{
-		return false;
+		// Initialize the windows api.
+		InitializeWindows(screenHeight, screenWidth);
+
+		// Create the input object.  This object will be used to handle reading the keyboard input from the user.
+		m_Input = new InputClass();
+		m_Input->Initialize();
+
+		// Create the graphics object.  This object will handle rendering all the graphics for this application.
+		m_Graphics = new GraphicsClass();
+		m_Graphics->Initialize(screenHeight, screenWidth, m_hwnd);
 	}
-
-	// Initialize the input object.
-	m_Input->Initialize();
-
-	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new GraphicsClass;
-	if (!m_Graphics)
+	catch (MessageBoxType exception)
 	{
-		return false;
-	}
-
-	// Initialize the graphics object.
-	result = m_Graphics->Initialize(screenHeight, screenWidth, m_hwnd);
-	if (!result)
-	{
+		MessageBox(m_hwnd, exception.message, exception.title, exception.type);
 		return false;
 	}
 
@@ -130,9 +122,6 @@ void SystemClass::Run()
 
 bool SystemClass::Frame()
 {
-	bool result;
-
-
 	// Check if the user pressed escape and wants to exit the application.
 	if (m_Input->IsKeyDown(VK_ESCAPE))
 	{
@@ -140,9 +129,11 @@ bool SystemClass::Frame()
 	}
 
 	// Do the frame processing for the graphics object.
-	result = m_Graphics->Frame();
-	if (!result)
-	{
+	try {
+		m_Graphics->Frame();
+	}
+	catch (MessageBoxType exception) {
+		MessageBox(m_hwnd, exception.title, exception.message, exception.type);
 		return false;
 	}
 
@@ -298,24 +289,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
 	switch (umessage)
 	{
-		// Check if the window is being destroyed.
+	// Check if the window is being destroyed or closed.
 	case WM_DESTROY:
-	{
-		PostQuitMessage(0);
-		return 0;
-	}
-
-	// Check if the window is being closed.
 	case WM_CLOSE:
-	{
 		PostQuitMessage(0);
 		return 0;
-	}
 
 	// All other messages pass to the message handler in the system class.
 	default:
-	{
 		return static_cast<SystemClass*>(g_ApplicationHandle)->MessageHandler(hwnd, umessage, wparam, lparam);
-	}
 	}
 }

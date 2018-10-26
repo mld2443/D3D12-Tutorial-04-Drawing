@@ -14,35 +14,34 @@ public:
 	D3DClass(const D3DClass&);
 	~D3DClass();
 
-	bool Initialize(HWND, int, int, bool, bool);
+	void Initialize(HWND, UINT, UINT, bool, bool);
 	void Shutdown();
 
 	ID3D12Device* GetDevice();
-	unsigned int GetBufferIndex();
+	UINT GetBufferIndex();
 
 	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
 	void EndScene(ID3D12GraphicsCommandList*);
-	bool SubmitToQueue(std::vector<ID3D12CommandList*>);
+	void SubmitToQueue(std::vector<ID3D12CommandList*>);
 
-	bool WaitForFrameIndex(unsigned int);
-	bool WaitForPreviousFrame();
+	void WaitForFrameIndex(unsigned int);
+	void WaitForPreviousFrame();
 	void WaitOnAllFrames();
 
 private:
-	bool InitializeDevice(HWND);
-	bool InitializeCommandQueue();
-	bool InitializeSwapChain(HWND, int, int, bool);
-	bool InitializeRenderTargets();
-	bool InitializeDepthStencil(int, int);
-	bool InitializeFences();
+	void InitializeDevice();
+	void InitializeCommandQueue();
+	void InitializeSwapChain(HWND, UINT, UINT, bool);
+	void InitializeRenderTargets();
+	void InitializeDepthStencil(UINT, UINT);
+	void InitializeFences();
 
 	void NameResources();
 
 private:
-	bool			m_vsync_enabled;
-	unsigned int	m_bufferIndex;
-	int				m_videoCardMemory;
-	char			m_videoCardDescription[128];
+	bool	m_vsyncEnabled;
+	UINT	m_bufferIndex;
+	UINT	m_videoCardMemory;
 
 	IDXGISwapChain3*	m_swapChain;
 	ID3D12Device*		m_device;
@@ -53,7 +52,7 @@ private:
 	ID3D12DescriptorHeap*	m_depthStencilViewHeap;
 	ID3D12Resource*			m_depthStencil;
 
-	ID3D12Fence*		m_fence[FRAME_BUFFER_COUNT];
-	HANDLE				m_fenceEvent;
-	unsigned long long	m_fenceValue[FRAME_BUFFER_COUNT];
+	ID3D12Fence*	m_fence[FRAME_BUFFER_COUNT];
+	HANDLE			m_fenceEvent;
+	UINT64			m_fenceValue[FRAME_BUFFER_COUNT];
 };

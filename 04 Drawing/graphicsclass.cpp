@@ -155,7 +155,7 @@ bool GraphicsClass::Render()
 	m_Camera->Render();
 
 	// Get the camera's view matrix.
-	m_Camera->GetViewMatrix(view);
+	view = m_Camera->GetViewMatrix();
 
 	// Wait on the frame last in this buffer index.
 	result = m_Direct3D->WaitForPreviousFrame();

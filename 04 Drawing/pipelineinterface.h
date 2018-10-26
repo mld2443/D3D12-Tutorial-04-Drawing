@@ -38,9 +38,9 @@ public:
 
 	virtual bool SetPipelineParameters(unsigned int, XMMATRIX) = 0;
 
-	void GetProjectionMatrix(XMMATRIX&);
-	void GetWorldMatrix(XMMATRIX&);
-	void GetOrthoMatrix(XMMATRIX&);
+	XMMATRIX GetProjectionMatrix();
+	XMMATRIX GetWorldMatrix();
+	XMMATRIX GetOrthoMatrix();
 	ID3D12GraphicsCommandList* GetCommandList();
 
 protected:

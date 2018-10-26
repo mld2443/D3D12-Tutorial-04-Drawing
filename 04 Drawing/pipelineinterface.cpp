@@ -65,24 +65,21 @@ bool PipelineInterface::ClosePipeline()
 }
 
 
-void PipelineInterface::GetProjectionMatrix(XMMATRIX& projectionMatrix)
+XMMATRIX PipelineInterface::GetProjectionMatrix()
 {
-	projectionMatrix = m_projectionMatrix;
-	return;
+	return m_projectionMatrix;
 }
 
 
-void PipelineInterface::GetWorldMatrix(XMMATRIX& worldMatrix)
+XMMATRIX PipelineInterface::GetWorldMatrix()
 {
-	worldMatrix = m_worldMatrix;
-	return;
+	return m_worldMatrix;
 }
 
 
-void PipelineInterface::GetOrthoMatrix(XMMATRIX& orthoMatrix)
+XMMATRIX PipelineInterface::GetOrthoMatrix()
 {
-	orthoMatrix = m_orthoMatrix;
-	return;
+	return m_orthoMatrix;
 }
 
 

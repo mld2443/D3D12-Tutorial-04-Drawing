@@ -39,6 +39,6 @@ protected:
 	std::vector<D3D12_INPUT_ELEMENT_DESC> GetInputLayoutDesc() override;
 
 private:
-	UINT			m_matrixBufferwidth;
+	UINT			m_matrixBufferWidth;
 	ID3D12Resource*	m_matrixBuffer;
 };

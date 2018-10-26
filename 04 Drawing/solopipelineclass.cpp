@@ -22,41 +22,42 @@ SoloPipelineClass::~SoloPipelineClass()
 bool SoloPipelineClass::BeginPipeline(unsigned int frameIndex, XMMATRIX viewMatrix)
 {
 	HRESULT result;
-	D3D12_RANGE readRange;
-	MatrixBufferType matrices;
+	UINT8* mappedResource;
+	D3D12_RANGE range;
 	MatrixBufferType* dataPtr;
 
 
 	// Declare the root signature.
 	m_commandList->SetGraphicsRootSignature(m_rootSignature);
 
-	// Transpose the matrices to prepare them for the shader.
-	matrices.world = XMMatrixTranspose(m_worldMatrix);
-	matrices.view = XMMatrixTranspose(viewMatrix);
-	matrices.projection = XMMatrixTranspose(m_projectionMatrix);
-
-	// Set the bounds of the read.
-	ZeroMemory(&readRange, sizeof(readRange));
-	readRange.Begin =	frameIndex * m_matrixBufferwidth;
-	readRange.End =		readRange.Begin + sizeof(MatrixBufferType);
+	// Create a zero-width read range, [0, 0].
+	// This is a signal to the GPU to not worry about the accuracy of the data within.
+	ZeroMemory(&range, sizeof(range));
 
 	// Lock the constant buffer so it can be written to.
-	result = m_matrixBuffer->Map(0, &readRange, reinterpret_cast<void**>(&dataPtr));
+	result = m_matrixBuffer->Map(0, &range , reinterpret_cast<void**>(&mappedResource));
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	// Copy the matrices into the constant buffer.
-	dataPtr->world = matrices.world;
-	dataPtr->view = matrices.view;
-	dataPtr->projection = matrices.projection;
+	// Get a pointer to the correct buffer offset location.
+	dataPtr = reinterpret_cast<MatrixBufferType*>(&mappedResource[frameIndex * m_matrixBufferWidth]);
+
+	// Transpose and copy the matrices into the constant buffer.
+	dataPtr->world = XMMatrixTranspose(m_worldMatrix);
+	dataPtr->view = XMMatrixTranspose(viewMatrix);
+	dataPtr->projection = XMMatrixTranspose(m_projectionMatrix);
+
+	// Set the range of data that we wrote to.
+	range.Begin =	frameIndex * m_matrixBufferWidth;
+	range.End =		range.Begin + m_matrixBufferWidth;
 
 	// Unlock the constant buffer.
-	m_matrixBuffer->Unmap(0, nullptr);
+	m_matrixBuffer->Unmap(0, &range);
 
 	// Tell the root descriptor where the data for our matrix buffer is located.
-	m_commandList->SetGraphicsRootConstantBufferView(0, m_matrixBuffer->GetGPUVirtualAddress() + frameIndex * m_matrixBufferwidth);
+	m_commandList->SetGraphicsRootConstantBufferView(0, m_matrixBuffer->GetGPUVirtualAddress() + frameIndex * m_matrixBufferWidth);
 
 	// Set the window viewport.
 	m_commandList->RSSetViewports(1, &m_viewport);
@@ -95,10 +96,10 @@ bool SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 
 
 	// Calculate the size of the matrices as they appear in memory.
-	m_matrixBufferwidth = (sizeof(MatrixBufferType) + 255) & ~255;
+	m_matrixBufferWidth = (sizeof(MatrixBufferType) + 255) & ~255;
 
 	// Because CPU and GPU are asynchronus, we need to make room for multiple frames worth of matrices.
-	bufferSize = m_matrixBufferwidth * FRAME_BUFFER_COUNT;
+	bufferSize = m_matrixBufferWidth * FRAME_BUFFER_COUNT;
 
 	// Create description for our constant buffer heap type.
 	ZeroMemory(&heapProps, sizeof(heapProps));

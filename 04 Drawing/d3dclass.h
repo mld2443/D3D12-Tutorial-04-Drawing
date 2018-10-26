@@ -42,10 +42,13 @@ public:
 	ID3D12Device* GetDevice();
 	unsigned int GetBufferIndex();
 
-	void WaitForPreviousFrame(unsigned int);
 	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
 	void EndScene(ID3D12GraphicsCommandList*);
 	bool SubmitToQueue(std::vector<ID3D12CommandList*>);
+
+	bool WaitForFrameIndex(unsigned int);
+	bool WaitForPreviousFrame();
+	void WaitOnAllFrames();
 
 private:
 	bool InitializeDevice(HWND);

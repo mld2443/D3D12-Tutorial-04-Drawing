@@ -167,7 +167,7 @@ bool SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 	}
 
 	// Name the buffer for use while debugging.
-	m_matrixBuffer->SetName(L"Matrix Buffer");
+	m_matrixBuffer->SetName(L"SPC matrix buffer");
 
 	// Create a descriptor for the matrix buffer.
 	ZeroMemory(&matrixBufferDesc, sizeof(matrixBufferDesc));
@@ -257,7 +257,15 @@ void SoloPipelineClass::NameResources()
 	std::wstring name;
 
 
-	//TODO: Name everything.
+	// Name all DirectX objects.
+	m_rootSignature->SetName(L"SPC root signature");
+	m_pipelineState->SetName(L"SPC pipeline state");
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		name = std::wstring(L"SPC command allocator ") + std::to_wstring(i);
+		m_commandAllocator[i]->SetName(name.c_str());
+	}
+	m_commandList->SetName(L"SPC command list");
 
 	return;
 }

@@ -18,6 +18,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <vector>
+#include <string>
 
 
 /////////////////
@@ -57,6 +58,8 @@ private:
 	bool InitializeRenderTargets();
 	bool InitializeDepthStencil(int, int);
 	bool InitializeFences();
+
+	void NameResources();
 
 private:
 	bool			m_vsync_enabled;

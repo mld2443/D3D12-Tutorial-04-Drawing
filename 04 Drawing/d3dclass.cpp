@@ -87,6 +87,9 @@ bool D3DClass::Initialize(HWND hwnd, int screenHeight, int screenWidth, bool vsy
 		return false;
 	}
 
+	// Finally, name our resources.
+	NameResources();
+
 	return true;
 }
 
@@ -747,4 +750,30 @@ bool D3DClass::InitializeFences()
 	}
 
 	return true;
+}
+
+
+void D3DClass::NameResources()
+{
+	std::wstring name;
+
+
+	// Name all DirectX objects.
+	m_device->SetName(L"D3DC device");
+	m_commandQueue->SetName(L"D3DC command queue");
+	m_renderTargetViewHeap->SetName(L"D3DC render target view heap");
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		name = std::wstring(L"D3DC back buffer render target ") + std::to_wstring(i);
+		m_backBufferRenderTarget[i]->SetName(name.c_str());
+	}
+	m_depthStencilViewHeap->SetName(L"D3DC depth stencil view heap");
+	m_depthStencil->SetName(L"D3DC depth stencil");
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		name = std::wstring(L"D3DC fence ") + std::to_wstring(i);
+		m_fence[i]->SetName(name.c_str());
+	}
+
+	return;
 }

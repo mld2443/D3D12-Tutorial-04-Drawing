@@ -5,32 +5,20 @@
 #include "geometryinterface.h"
 
 
-GeometryInterface::GeometryInterface()
-{
-	m_vertexBuffer = nullptr;
-	m_indexBuffer = nullptr;
-}
-
-
-GeometryInterface::GeometryInterface(const GeometryInterface& other)
-{
-}
-
-
 GeometryInterface::~GeometryInterface()
 {
+	SAFE_RELEASE(m_indexBuffer);
+	SAFE_RELEASE(m_vertexBuffer);
 }
 
 
 void GeometryInterface::Render(ID3D12GraphicsCommandList* commandList)
 {
-	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	// Set the type of primitive that the input assembler will try to assemble next.
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// Set the vertex buffer to active in the input assembler so it can be rendered.
+	// Set the vertex and index buffers as active in the input assembler so they will be used for rendering.
 	commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-
-	// Set the index buffer to active in the input assembler so it can be rendered.
 	commandList->IASetIndexBuffer(&m_indexBufferView);
 
 	// Issue the draw call for this geometry.
@@ -40,20 +28,56 @@ void GeometryInterface::Render(ID3D12GraphicsCommandList* commandList)
 }
 
 
-unsigned long GeometryInterface::GetVertexCount()
+UINT GeometryInterface::GetVertexCount()
 {
 	return m_vertexCount;
 }
 
 
-unsigned long GeometryInterface::GetIndexCount()
+UINT GeometryInterface::GetIndexCount()
 {
 	return m_indexCount;
 }
 
 
+void GeometryInterface::InitializeVertexBuffer(ID3D12Device* device, const std::vector<VertexType>& vertices)
+{
+	// Set up default and upload heaps for the vertices, load the data and wait for completion.
+	THROW_IF_FALSE(InitializeBuffer(device, &m_vertexBuffer, vertices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Vertex Buffer"),
+		L"Unable to communicate vertex information to the graphics device.",
+		L"Hardware Communication Failure");
+
+	// Set the count of vertices.
+	m_vertexCount = static_cast<UINT>(vertices.size());
+
+	// Fill out the vertex buffer view for use while rendering.
+	ZeroMemory(&m_vertexBufferView, sizeof(m_vertexBufferView));
+	m_vertexBufferView.BufferLocation =	m_vertexBuffer->GetGPUVirtualAddress();
+	m_vertexBufferView.StrideInBytes =	static_cast<UINT>(sizeof(VertexType));
+	m_vertexBufferView.SizeInBytes =	static_cast<UINT>(m_vertexBufferView.StrideInBytes * m_vertexCount);
+}
+
+
+void GeometryInterface::InitializeIndexBuffer(ID3D12Device* device, const std::vector<UINT32>& indices)
+{
+	// Set up default and upload heaps for the indices, load the data and wait for completion.
+	THROW_IF_FALSE(InitializeBuffer(device, &m_indexBuffer, indices, D3D12_RESOURCE_STATE_INDEX_BUFFER, L"Index Buffer"),
+		L"Unable to communicate index information to the graphics device.",
+		L"Hardware Communication Failure");
+
+	// Set the count of indices.
+	m_indexCount = static_cast<UINT>(indices.size());
+
+	// Fill out the index buffer view for use while rendering.
+	ZeroMemory(&m_indexBufferView, sizeof(m_indexBufferView));
+	m_indexBufferView.BufferLocation =	m_indexBuffer->GetGPUVirtualAddress();
+	m_indexBufferView.Format =			DXGI_FORMAT_R32_UINT;
+	m_indexBufferView.SizeInBytes =		static_cast<UINT>(sizeof(UINT32) * m_indexCount);
+}
+
+
 template<typename T>
-bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buffer, const std::vector<T>& data, D3D12_RESOURCE_STATES finalState, std::wstring name)
+bool GeometryInterface::InitializeBuffer(ID3D12Device* device, ID3D12Resource** buffer, const std::vector<T>& data, D3D12_RESOURCE_STATES finalState, std::wstring name)
 {
 	HRESULT result;
 	UINT bufferSize;
@@ -65,7 +89,7 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buff
 	ID3D12GraphicsCommandList* commandList;
 	D3D12_COMMAND_QUEUE_DESC queueDesc;
 	ID3D12CommandQueue* commandQueue;
-	void* rawData;
+	BYTE* rawData;
 	D3D12_RESOURCE_BARRIER barrierDesc;
 	ID3D12CommandList* ppCommandLists[1];
 	ID3D12Fence* fence;
@@ -151,7 +175,7 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buff
 	}
 
 	// Lock the upload buffer.
-	result = uploadBuffer->Map(0, nullptr, &rawData);
+	result = uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&rawData));
 	if (FAILED(result))
 	{
 		return false;
@@ -225,90 +249,11 @@ bool GeometryInterface::CreateBuffer(ID3D12Device* device, ID3D12Resource** buff
 	// Release temporary resources.
 	rawData = nullptr;
 
-	uploadBuffer->Release();
-	uploadBuffer = nullptr;
-
-	commandAllocator->Release();
-	commandAllocator = nullptr;
-
-	commandList->Release();
-	commandList = nullptr;
-
-	commandQueue->Release();
-	commandQueue = nullptr;
-
-	fence->Release();
-	fence = nullptr;
+	SAFE_RELEASE(uploadBuffer);
+	SAFE_RELEASE(commandAllocator);
+	SAFE_RELEASE(commandList);
+	SAFE_RELEASE(commandQueue);
+	SAFE_RELEASE(fence);
 
 	return true;
-}
-
-
-bool GeometryInterface::InitializeVertexBuffer(ID3D12Device* device, const std::vector<VertexType>& vertices)
-{
-	bool result;
-
-
-	// Set up default and upload heaps for the vertices, load the data and wait for completion.
-	result = CreateBuffer(device, &m_vertexBuffer, vertices, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, L"Vertex Buffer");
-	if (!result)
-	{
-		return false;
-	}
-
-	// Set the count of vertices.
-	m_vertexCount = static_cast<unsigned long>(vertices.size());
-
-	// Fill out the vertex buffer view for use while rendering.
-	ZeroMemory(&m_vertexBufferView, sizeof(m_vertexBufferView));
-	m_vertexBufferView.BufferLocation =	m_vertexBuffer->GetGPUVirtualAddress();
-	m_vertexBufferView.StrideInBytes =	static_cast<UINT>(sizeof(VertexType));
-	m_vertexBufferView.SizeInBytes =	static_cast<UINT>(m_vertexBufferView.StrideInBytes * m_vertexCount);
-
-	return true;
-}
-
-
-bool GeometryInterface::InitializeIndexBuffer(ID3D12Device* device, const std::vector<unsigned long>& indices)
-{
-	bool result;
-
-
-	// Set up default and upload heaps for the indices, load the data and wait for completion.
-	result = CreateBuffer(device, &m_indexBuffer, indices, D3D12_RESOURCE_STATE_INDEX_BUFFER, L"Index Buffer");
-	if (!result)
-	{
-		return false;
-	}
-
-	// Set the count of indices.
-	m_indexCount = static_cast<unsigned long>(indices.size());
-
-	// Fill out the index buffer view for use while rendering.
-	ZeroMemory(&m_indexBufferView, sizeof(m_indexBufferView));
-	m_indexBufferView.BufferLocation =	m_indexBuffer->GetGPUVirtualAddress();
-	m_indexBufferView.Format =			DXGI_FORMAT_R32_UINT;
-	m_indexBufferView.SizeInBytes =		static_cast<UINT>(sizeof(unsigned long) * m_indexCount);
-
-	return true;
-}
-
-
-void GeometryInterface::ShutdownBuffers()
-{
-	// Release the index buffer.
-	if (m_indexBuffer)
-	{
-		m_indexBuffer->Release();
-		m_indexBuffer = nullptr;
-	}
-
-	// Release the vertex buffer.
-	if (m_vertexBuffer)
-	{
-		m_vertexBuffer->Release();
-		m_vertexBuffer = nullptr;
-	}
-
-	return;
 }

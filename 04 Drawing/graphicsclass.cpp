@@ -44,15 +44,7 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 	}
 
 	// Create the triangle object.
-	m_Geometry = new TriangleClass;
-
-	// Initialize the triangle object.
-	result = m_Geometry->Initialize(m_Direct3D->GetDevice());
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize geometry object.", L"Error", MB_OK);
-		return false;
-	}
+	m_Geometry = new TriangleClass(m_Direct3D->GetDevice());
 
 	// Create the camera object.
 	m_Camera = new CameraClass();
@@ -80,7 +72,6 @@ void GraphicsClass::Shutdown()
 	// Release the geometry object.
 	if (m_Geometry)
 	{
-		m_Geometry->Shutdown();
 		delete m_Geometry;
 		m_Geometry = nullptr;
 	}

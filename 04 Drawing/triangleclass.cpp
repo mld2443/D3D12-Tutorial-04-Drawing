@@ -5,26 +5,10 @@
 #include "triangleclass.h"
 
 
-TriangleClass::TriangleClass() : GeometryInterface()
+TriangleClass::TriangleClass(ID3D12Device* device) : GeometryInterface()
 {
-}
-
-
-TriangleClass::TriangleClass(const TriangleClass& other) : GeometryInterface(other)
-{
-}
-
-
-TriangleClass::~TriangleClass()
-{
-}
-
-
-bool TriangleClass::Initialize(ID3D12Device* device)
-{
-	bool result;
 	std::vector<VertexType> vertices;
-	std::vector<unsigned long> indices;
+	std::vector<UINT32> indices;
 
 
 	// Create the new vertex array.
@@ -49,27 +33,8 @@ bool TriangleClass::Initialize(ID3D12Device* device)
 	indices[2] = 2;  // Bottom right.
 
 	// Initialize the vertex buffer.
-	result = InitializeVertexBuffer(device, vertices);
-	if (!result)
-	{
-		return false;
-	}
+	InitializeVertexBuffer(device, vertices);
 
 	// Initialize the vertex and index buffers.
-	result = InitializeIndexBuffer(device, indices);
-	if (!result)
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
-void TriangleClass::Shutdown()
-{
-	// Shutdown the vertex and index buffers.
-	ShutdownBuffers();
-
-	return;
+	InitializeIndexBuffer(device, indices);
 }

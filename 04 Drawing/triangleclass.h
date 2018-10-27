@@ -16,10 +16,10 @@
 class TriangleClass : public GeometryInterface
 {
 public:
-	TriangleClass();
-	TriangleClass(const TriangleClass&);
-	~TriangleClass();
+	TriangleClass() = delete;
+	TriangleClass(const TriangleClass&) = delete;
+	TriangleClass& operator=(const TriangleClass&) = delete;
 
-	bool Initialize(ID3D12Device*) override;
-	void Shutdown() override;
+	TriangleClass(ID3D12Device*);
+	~TriangleClass() = default;
 };

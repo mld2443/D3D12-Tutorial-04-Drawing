@@ -17,30 +17,30 @@ protected:
 	};
 
 public:
-	GeometryInterface();
-	GeometryInterface(const GeometryInterface&);
+	GeometryInterface(const GeometryInterface&) = delete;
+	GeometryInterface& operator=(const GeometryInterface&) = delete;
+
+	GeometryInterface() = default;
 	~GeometryInterface();
 
-	virtual bool Initialize(ID3D12Device*) = 0;
-	virtual void Shutdown() = 0;
 	void Render(ID3D12GraphicsCommandList*);
 
-	unsigned long GetVertexCount();
-	unsigned long GetIndexCount();
+	UINT GetVertexCount();
+	UINT GetIndexCount();
+
+protected:
+	void InitializeVertexBuffer(ID3D12Device*, const std::vector<VertexType>&);
+	void InitializeIndexBuffer(ID3D12Device*, const std::vector<UINT32>&);
 
 private:
 	template<typename T>
-	bool CreateBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<T>&, D3D12_RESOURCE_STATES, std::wstring = L"GI buffer");
-
-protected:
-	bool InitializeVertexBuffer(ID3D12Device*, const std::vector<VertexType>&);
-	bool InitializeIndexBuffer(ID3D12Device*, const std::vector<unsigned long>&);
-
-	void ShutdownBuffers();
+	bool InitializeBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<T>&, D3D12_RESOURCE_STATES, std::wstring = L"GI buffer");
 
 private:
-	ID3D12Resource				*m_vertexBuffer, *m_indexBuffer;
-	unsigned long				m_vertexCount, m_indexCount;
+	ID3D12Resource*				m_vertexBuffer =	nullptr;
+	UINT						m_vertexCount =		0;
+	ID3D12Resource*				m_indexBuffer =		nullptr;
+	UINT						m_indexCount =		0;
 	D3D12_VERTEX_BUFFER_VIEW	m_vertexBufferView;
 	D3D12_INDEX_BUFFER_VIEW		m_indexBufferView;
 };

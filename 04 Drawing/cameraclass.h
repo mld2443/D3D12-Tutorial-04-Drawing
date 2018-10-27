@@ -10,24 +10,26 @@
 class CameraClass
 {
 public:
-	CameraClass();
-	CameraClass(const CameraClass&);
-	~CameraClass();
+	CameraClass(const CameraClass&) = delete;
+	CameraClass& operator=(const CameraClass&) = delete;
+
+	CameraClass() = default;
+	~CameraClass() = default;
 
 	void SetPosition(float, float, float);
 	void SetLookDirection(float, float, float);
-	void SetRotation(float, float, float);
+	void SetRotationInDegrees(float, float, float);
 
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetLookDirection();
 	XMFLOAT3 GetRotation();
-
-	void Render();
 	XMMATRIX GetViewMatrix();
 
+	void Render();
+
 private:
-	XMFLOAT3	m_position;
-	XMFLOAT3	m_lookDirection;
-	XMFLOAT3	m_rotation;
-	XMMATRIX	m_viewMatrix;
+	XMFLOAT3	m_position =		XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3	m_lookDirection =	XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3	m_rotation =		XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMMATRIX	m_viewMatrix =		XMMatrixIdentity();
 };

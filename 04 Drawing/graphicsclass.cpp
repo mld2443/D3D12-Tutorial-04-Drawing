@@ -55,7 +55,7 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 	}
 
 	// Create the camera object.
-	m_Camera = new CameraClass;
+	m_Camera = new CameraClass();
 
 	// Set the initial parameters of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);

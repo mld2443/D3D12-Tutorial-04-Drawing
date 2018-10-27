@@ -76,7 +76,7 @@ bool SoloPipelineClass::SetPipelineParameters(unsigned int frameIndex, XMMATRIX 
 {
 	HRESULT result;
 	D3D12_RANGE range;
-	UINT8* mappedResource;
+	BYTE* mappedResource;
 	MatrixBufferType* dataPtr;
 
 

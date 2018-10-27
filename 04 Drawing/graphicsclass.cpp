@@ -29,27 +29,11 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 	bool result;
 
 
-	// Create the Direct3D object.
-	m_Direct3D = new D3DClass;
-	if (!m_Direct3D)
-	{
-		return false;
-	}
-
-	// Initialize the Direct3D object.
-	result = m_Direct3D->Initialize(hwnd, screenHeight, screenWidth, VSYNC_ENABLED, FULL_SCREEN);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
-		return false;
-	}
+	// Create and initialize the Direct3D object.
+	m_Direct3D = new D3DClass(hwnd, screenHeight, screenWidth, VSYNC_ENABLED, FULL_SCREEN);
 
 	// Create the pipeline object.
 	m_Pipeline = new SoloPipelineClass;
-	if (!m_Pipeline)
-	{
-		return false;
-	}
 
 	// Initialize the pipeline object.
 	result = m_Pipeline->Initialize(m_Direct3D->GetDevice(), hwnd, m_Direct3D->GetBufferIndex(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
@@ -61,10 +45,6 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 
 	// Create the triangle object.
 	m_Geometry = new TriangleClass;
-	if (!m_Geometry)
-	{
-		return false;
-	}
 
 	// Initialize the triangle object.
 	result = m_Geometry->Initialize(m_Direct3D->GetDevice());
@@ -76,10 +56,6 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 
 	// Create the camera object.
 	m_Camera = new CameraClass;
-	if (!m_Camera)
-	{
-		return false;
-	}
 
 	// Set the initial parameters of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
@@ -120,7 +96,6 @@ void GraphicsClass::Shutdown()
 	// Release the Direct3D object.
 	if (m_Direct3D)
 	{
-		m_Direct3D->Shutdown();
 		delete m_Direct3D;
 		m_Direct3D = nullptr;
 	}
@@ -159,11 +134,7 @@ bool GraphicsClass::Render()
 	view = m_Camera->GetViewMatrix();
 
 	// Wait on the frame last in this buffer index.
-	result = m_Direct3D->WaitForPreviousFrame();
-	if (!result)
-	{
-		return false;
-	}
+	m_Direct3D->WaitForPreviousFrame();
 
 	// Start our pipeline, preparing it for drawing commands.
 	result = m_Pipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
@@ -199,7 +170,7 @@ bool GraphicsClass::Render()
 	lists.push_back(m_Pipeline->GetCommandList());
 
 	// Finish the scene and submit our lists for drawing.
-	result = m_Direct3D->SubmitToQueue(lists);
+	m_Direct3D->SubmitToQueue(lists);
 
 	return true;
 }

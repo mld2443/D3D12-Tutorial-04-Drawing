@@ -66,11 +66,6 @@ struct MessageBoxType {
 
 constexpr auto PI = 3.141592654f;
 constexpr auto PI_180 = 0.0174532925f;
-constexpr bool FULL_SCREEN = false;
-constexpr bool VSYNC_ENABLED = true;
-constexpr UINT FRAME_BUFFER_COUNT = 2;
-constexpr float SCREEN_DEPTH = 1000.0f;
-constexpr float SCREEN_NEAR = 0.1f;
 
 
 /////////////////////////
@@ -84,7 +79,12 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 // GLOBALS //
 /////////////
 
-static void* g_ApplicationHandle = 0;
+static void* g_ApplicationHandle = nullptr;
+constexpr bool FULL_SCREEN = false;
+constexpr bool VSYNC_ENABLED = true;
+constexpr UINT FRAME_BUFFER_COUNT = 2;
+constexpr float SCREEN_DEPTH = 1000.0f;
+constexpr float SCREEN_NEAR = 0.1f;
 
 
 //////////////////////

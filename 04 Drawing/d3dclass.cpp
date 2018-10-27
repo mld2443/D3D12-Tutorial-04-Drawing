@@ -5,59 +5,15 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass()
+D3DClass::D3DClass(HWND hwnd, UINT screenHeight, UINT screenWidth, bool vsync, bool fullscreen):
+	m_vsyncEnabled(vsync)
 {
-	m_swapChain = nullptr;
-	m_device = nullptr;
-	m_commandQueue = nullptr;
-
-	m_renderTargetViewHeap = nullptr;
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		m_backBufferRenderTarget[i] = nullptr;
-	}
-	m_depthStencilViewHeap = nullptr;
-	m_depthStencil = nullptr;
-
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		m_fence[i] = nullptr;
-	}
-	m_fenceEvent = nullptr;
-}
-
-
-D3DClass::D3DClass(const D3DClass& other)
-{
-}
-
-
-D3DClass::~D3DClass()
-{
-}
-
-
-void D3DClass::Initialize(HWND hwnd, UINT screenHeight, UINT screenWidth, bool vsync, bool fullscreen)
-{
-	// Save the vsync setting.
-	m_vsyncEnabled = vsync;
-
-	// Create the direct3D device.
+	// Initialize the device and all the resources we will need while rendering.
 	InitializeDevice();
-
-	// Create the command queue where we submit all command lists.
 	InitializeCommandQueue();
-
-	// Create the swap chain that houses the back buffer.
 	InitializeSwapChain(hwnd, screenWidth, screenHeight, fullscreen);
-
-	// Create the render targets for drawing onto.
 	InitializeRenderTargets();
-
-	// Create the depth stencil buffer and its descriptor heap.
 	InitializeDepthStencil(screenWidth, screenHeight);
-
-	// Create the fences and their values for handling asynchronous events.
 	InitializeFences();
 
 	// Finally, name our resources.
@@ -65,7 +21,7 @@ void D3DClass::Initialize(HWND hwnd, UINT screenHeight, UINT screenWidth, bool v
 }
 
 
-void D3DClass::Shutdown()
+D3DClass::~D3DClass()
 {
 	// Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
 	if (m_swapChain)
@@ -88,8 +44,6 @@ void D3DClass::Shutdown()
 	SAFE_RELEASE(m_swapChain);
 	SAFE_RELEASE(m_commandQueue);
 	SAFE_RELEASE(m_device);
-
-	return;
 }
 
 
@@ -114,7 +68,6 @@ void D3DClass::BeginScene(ID3D12GraphicsCommandList* commandList,
 	float color[4];
 
 
-	// Record commands in the command list now.
 	// Start by setting the resource barrier.
 	ZeroMemory(&barrier, sizeof(barrier));
 	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -202,7 +155,7 @@ void D3DClass::WaitForFrameIndex(unsigned int frameIndex)
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
 
-	// increment fenceValue for next frame
+	// Increment fenceValue for the next frame.
 	m_fenceValue[frameIndex]++;
 }
 
@@ -258,7 +211,6 @@ void D3DClass::InitializeDevice()
 
 void D3DClass::InitializeCommandQueue()
 {
-	HRESULT result;
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc;
 
 
@@ -283,10 +235,8 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
 	unsigned int numModes, numerator, denominator;
-	unsigned long long stringLength;
 	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
-	int error;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	IDXGISwapChain* swapChain;
 
@@ -329,11 +279,11 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 
 	// Now go through all the display modes and find the one that matches the screen height and width.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for (unsigned int i = 0; i < numModes; i++)
+	for (UINT i = 0; i < numModes; ++i)
 	{
-		if (displayModeList[i].Height == (unsigned int)screenHeight)
+		if (displayModeList[i].Height == screenHeight)
 		{
-			if (displayModeList[i].Width == (unsigned int)screenWidth)
+			if (displayModeList[i].Width == screenWidth)
 			{
 				numerator = displayModeList[i].RefreshRate.Numerator;
 				denominator = displayModeList[i].RefreshRate.Denominator;
@@ -555,6 +505,4 @@ void D3DClass::NameResources()
 		name = std::wstring(L"D3DC fence ") + std::to_wstring(i);
 		m_fence[i]->SetName(name.c_str());
 	}
-
-	return;
 }

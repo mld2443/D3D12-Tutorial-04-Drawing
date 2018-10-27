@@ -10,12 +10,12 @@
 class D3DClass
 {
 public:
-	D3DClass();
-	D3DClass(const D3DClass&);
-	~D3DClass();
+	D3DClass() = delete;
+	D3DClass(const D3DClass&) = delete;
+	D3DClass& operator=(const D3DClass&) = delete;
 
-	void Initialize(HWND, UINT, UINT, bool, bool);
-	void Shutdown();
+	D3DClass(HWND, UINT, UINT, bool, bool);
+	~D3DClass();
 
 	ID3D12Device* GetDevice();
 	UINT GetBufferIndex();
@@ -40,19 +40,19 @@ private:
 
 private:
 	bool	m_vsyncEnabled;
-	UINT	m_bufferIndex;
-	UINT	m_videoCardMemory;
+	UINT	m_bufferIndex =		0;
+	UINT	m_videoCardMemory =	0;
 
-	IDXGISwapChain3*	m_swapChain;
-	ID3D12Device*		m_device;
-	ID3D12CommandQueue*	m_commandQueue;
+	IDXGISwapChain3*	m_swapChain =		nullptr;
+	ID3D12Device*		m_device =			nullptr;
+	ID3D12CommandQueue*	m_commandQueue =	nullptr;
 
-	ID3D12DescriptorHeap*	m_renderTargetViewHeap;
-	ID3D12Resource*			m_backBufferRenderTarget[FRAME_BUFFER_COUNT];
-	ID3D12DescriptorHeap*	m_depthStencilViewHeap;
-	ID3D12Resource*			m_depthStencil;
+	ID3D12DescriptorHeap*			m_renderTargetViewHeap =	nullptr;
+	std::vector<ID3D12Resource*>	m_backBufferRenderTarget =	std::vector<ID3D12Resource*>(FRAME_BUFFER_COUNT, nullptr);
+	ID3D12DescriptorHeap*			m_depthStencilViewHeap =	nullptr;
+	ID3D12Resource*					m_depthStencil =			nullptr;
 
-	ID3D12Fence*	m_fence[FRAME_BUFFER_COUNT];
-	HANDLE			m_fenceEvent;
-	UINT64			m_fenceValue[FRAME_BUFFER_COUNT];
+	std::vector<ID3D12Fence*>	m_fence =		std::vector<ID3D12Fence*>(FRAME_BUFFER_COUNT, nullptr);
+	std::vector<UINT64>			m_fenceValue =	std::vector<UINT64>(FRAME_BUFFER_COUNT, 0);
+	HANDLE						m_fenceEvent =	NULL;
 };

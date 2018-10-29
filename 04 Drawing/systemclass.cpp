@@ -24,24 +24,23 @@ SystemClass::~SystemClass()
 
 bool SystemClass::Initialize()
 {
-	UINT screenHeight, screenWidth;
+	UINT windowHeight, windowWidth;
 
 
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
-	screenHeight = 0;
-	screenWidth = 0;
+	windowHeight = 0;
+	windowWidth = 0;
 
 	try
 	{
 		// Initialize the windows API.
-		InitializeWindows(screenHeight, screenWidth);
+		InitializeWindows(windowHeight, windowWidth);
 
 		// Create the input object.  This object will be used to handle reading the keyboard input from the user.
 		m_Input = new InputClass();
 
 		// Create the graphics object.  This object will handle rendering all the graphics for this application.
-		m_Graphics = new GraphicsClass();
-		m_Graphics->Initialize(screenHeight, screenWidth, m_hwnd);
+		m_Graphics = new GraphicsClass(m_hwnd, windowWidth, windowHeight);
 	}
 	catch (MessageBoxType exception)
 	{
@@ -58,7 +57,6 @@ void SystemClass::Shutdown()
 	// Release the graphics object.
 	if (m_Graphics)
 	{
-		m_Graphics->Shutdown();
 		delete m_Graphics;
 		m_Graphics = nullptr;
 	}
@@ -238,7 +236,7 @@ bool SystemClass::InitializeWindows(UINT& screenHeight, UINT& screenWidth)
 
 	// Create the window with the screen settings and get the handle to it.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-							WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP | WS_OVERLAPPEDWINDOW,
+							WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
 							posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 	if (!m_hwnd)
 	{
@@ -251,7 +249,7 @@ bool SystemClass::InitializeWindows(UINT& screenHeight, UINT& screenWidth)
 	SetFocus(m_hwnd);
 
 	// Hide the mouse cursor.
-	ShowCursor(true);
+	ShowCursor(false);
 
 	return true;
 }

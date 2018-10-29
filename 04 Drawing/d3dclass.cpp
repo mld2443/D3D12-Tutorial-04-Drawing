@@ -5,7 +5,7 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(HWND hwnd, UINT screenHeight, UINT screenWidth, bool vsync, bool fullscreen):
+D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool vsync, bool fullscreen):
 	m_vsyncEnabled(vsync)
 {
 	// Initialize the device and all the resources we will need while rendering.
@@ -139,7 +139,27 @@ void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
 }
 
 
-void D3DClass::WaitForFrameIndex(unsigned int frameIndex)
+void D3DClass::WaitForNextAvailableFrame()
+{
+	// Update the buffer index.
+	m_bufferIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+	// Wait for the last frame at this index to finish if it hasn't already.
+	WaitForFrameIndex(m_bufferIndex);
+}
+
+
+void D3DClass::WaitForAllFrames()
+{
+	// Finish all commands already submitted to the GPU.
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		WaitForFrameIndex(i);
+	}
+}
+
+
+void D3DClass::WaitForFrameIndex(UINT frameIndex)
 {
 	// if the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
 	// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command
@@ -157,26 +177,6 @@ void D3DClass::WaitForFrameIndex(unsigned int frameIndex)
 
 	// Increment fenceValue for the next frame.
 	m_fenceValue[frameIndex]++;
-}
-
-
-void D3DClass::WaitForPreviousFrame()
-{
-	// Update the buffer index.
-	m_bufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-	// Wait for the last frame at this index to finish if it hasn't already.
-	WaitForFrameIndex(m_bufferIndex);
-}
-
-
-void D3DClass::WaitOnAllFrames()
-{
-	// Finish all commands already submitted to the GPU.
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		WaitForFrameIndex(i);
-	}
 }
 
 

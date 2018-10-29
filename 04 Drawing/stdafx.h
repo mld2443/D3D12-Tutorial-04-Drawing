@@ -53,6 +53,7 @@ struct MessageBoxType {
 /////////////////////
 
 #define SAFE_SHUTDOWN(ptr) if (ptr) { ptr->Shutdown(); delete ptr; ptr = nullptr; }
+#define SAFE_DELETE(ptr) if (ptr) { delete ptr; ptr = nullptr; }
 #define SAFE_RELEASE(ptr) if (ptr) { ptr->Release(); ptr = nullptr; }
 #define THROW_MESSAGE(message, title) throw MessageBoxType{ message, title, MB_OK }
 #define THROW_IF_FAILED(hr, message, title) if (FAILED(hr)) { THROW_MESSAGE(message, title); }

@@ -19,20 +19,21 @@
 class GraphicsClass
 {
 public:
-	GraphicsClass();
-	GraphicsClass(const GraphicsClass&);
+	GraphicsClass() = delete;
+	GraphicsClass(const GraphicsClass&) = delete;
+	GraphicsClass& operator=(const GraphicsClass&) = delete;
+
+	GraphicsClass(HWND, UINT, UINT);
 	~GraphicsClass();
 
-	bool Initialize(int, int, HWND);
-	void Shutdown();
-	bool Frame();
+	void Frame();
 
 private:
-	bool Render();
+	void Render();
 
 private:
-	D3DClass*			m_Direct3D;
-	CameraClass*		m_Camera;
-	GeometryInterface*	m_Geometry;
-	PipelineInterface*	m_Pipeline;
+	D3DClass*			m_Direct3D =	nullptr;
+	CameraClass*		m_Camera =		nullptr;
+	GeometryInterface*	m_Geometry =	nullptr;
+	PipelineInterface*	m_Pipeline =	nullptr;
 };

@@ -24,11 +24,12 @@ public:
 	void EndScene(ID3D12GraphicsCommandList*);
 	void SubmitToQueue(std::vector<ID3D12CommandList*>);
 
-	void WaitForFrameIndex(unsigned int);
-	void WaitForPreviousFrame();
-	void WaitOnAllFrames();
+	void WaitForNextAvailableFrame();
+	void WaitForAllFrames();
 
 private:
+	void WaitForFrameIndex(UINT);
+
 	void InitializeDevice();
 	void InitializeCommandQueue();
 	void InitializeSwapChain(HWND, UINT, UINT, bool);

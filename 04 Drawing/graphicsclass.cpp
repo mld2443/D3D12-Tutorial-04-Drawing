@@ -27,6 +27,7 @@ GraphicsClass::~GraphicsClass()
 bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 {
 	bool result;
+	float aspectRatio;
 
 
 	// Create and initialize the Direct3D object.
@@ -46,12 +47,14 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 	// Create the triangle object.
 	m_Geometry = new TriangleClass(m_Direct3D->GetDevice());
 
+	// Calculate the ratio of the scree for the camera.
+	aspectRatio = (float)screenWidth / (float)screenHeight;
+
 	// Create the camera object.
-	m_Camera = new CameraClass();
+	m_Camera = new CameraClass(PI / 4.0f, aspectRatio);
 
 	// Set the initial parameters of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
-	m_Camera->SetLookDirection(0.0f, 0.0f, 1.0f);
 
 	return true;
 }
@@ -114,7 +117,7 @@ bool GraphicsClass::Frame()
 bool GraphicsClass::Render()
 {
 	bool result;
-	XMMATRIX view;
+	XMMATRIX view, projection;
 	std::vector<ID3D12CommandList*> lists;
 
 
@@ -123,6 +126,7 @@ bool GraphicsClass::Render()
 
 	// Get the camera's view matrix.
 	view = m_Camera->GetViewMatrix();
+	projection = m_Camera->GetProjectionMatrix();
 
 	// Wait on the frame last in this buffer index.
 	m_Direct3D->WaitForPreviousFrame();
@@ -138,7 +142,7 @@ bool GraphicsClass::Render()
 	m_Direct3D->BeginScene(m_Pipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
 
 	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->SetPipelineParameters(m_Direct3D->GetBufferIndex(), view);
+	result = m_Pipeline->SetPipelineParameters(m_Direct3D->GetBufferIndex(), view, projection);
 	if (!result)
 	{
 		return false;

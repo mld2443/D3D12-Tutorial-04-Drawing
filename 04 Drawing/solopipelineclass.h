@@ -38,7 +38,7 @@ public:
 	bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float) override;
 	void Shutdown() override;
 
-	bool SetPipelineParameters(unsigned int, XMMATRIX) override;
+	bool SetPipelineParameters(unsigned int, XMMATRIX, XMMATRIX) override;
 
 protected:
 	bool InitializeRootSignature(ID3D12Device*) override;

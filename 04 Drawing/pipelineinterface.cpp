@@ -66,10 +66,10 @@ bool PipelineInterface::ClosePipeline()
 }
 
 
-XMMATRIX PipelineInterface::GetProjectionMatrix()
-{
-	return m_projectionMatrix;
-}
+//XMMATRIX PipelineInterface::GetProjectionMatrix()
+//{
+//	return m_projectionMatrix;
+//}
 
 
 XMMATRIX PipelineInterface::GetWorldMatrix()
@@ -158,8 +158,8 @@ void PipelineInterface::InitializeViewport(int screenWidth, int screenHeight, fl
 	fieldOfView = PI / 4.0f;
 	screenAspect = (float)screenWidth / (float)screenHeight;
 
-	// Create the projection matrix for 3D rendering.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+	//// Create the projection matrix for 3D rendering.
+	//m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
 
 	// Initialize the world matrix to the identity matrix.
 	m_worldMatrix = XMMatrixIdentity();

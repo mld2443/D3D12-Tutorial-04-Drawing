@@ -72,7 +72,7 @@ void SoloPipelineClass::Shutdown()
 }
 
 
-bool SoloPipelineClass::SetPipelineParameters(unsigned int frameIndex, XMMATRIX viewMatrix)
+bool SoloPipelineClass::SetPipelineParameters(unsigned int frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	HRESULT result;
 	D3D12_RANGE range;
@@ -100,7 +100,7 @@ bool SoloPipelineClass::SetPipelineParameters(unsigned int frameIndex, XMMATRIX 
 	// Transpose and copy the matrices into the constant buffer.
 	dataPtr->world = XMMatrixTranspose(m_worldMatrix);
 	dataPtr->view = XMMatrixTranspose(viewMatrix);
-	dataPtr->projection = XMMatrixTranspose(m_projectionMatrix);
+	dataPtr->projection = XMMatrixTranspose(projectionMatrix);
 
 	// Set the range of data that we wrote to.
 	range.Begin =	frameIndex * m_matrixBufferWidth;

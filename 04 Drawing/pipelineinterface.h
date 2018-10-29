@@ -20,9 +20,9 @@ public:
 	bool OpenPipeline(unsigned int);
 	bool ClosePipeline();
 
-	virtual bool SetPipelineParameters(unsigned int, XMMATRIX) = 0;
+	virtual bool SetPipelineParameters(unsigned int, XMMATRIX, XMMATRIX) = 0;
 
-	XMMATRIX GetProjectionMatrix();
+	//XMMATRIX GetProjectionMatrix();
 	XMMATRIX GetWorldMatrix();
 	XMMATRIX GetOrthoMatrix();
 	ID3D12GraphicsCommandList* GetCommandList();
@@ -54,7 +54,7 @@ protected:
 	D3D12_DEPTH_STENCIL_DESC				m_depthStencilDesc;
 	std::vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc;
 
-	XMMATRIX	m_projectionMatrix;
+	//XMMATRIX	m_projectionMatrix;
 	XMMATRIX	m_worldMatrix;
 	XMMATRIX	m_orthoMatrix;
 

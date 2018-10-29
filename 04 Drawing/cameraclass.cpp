@@ -5,39 +5,39 @@
 #include "cameraclass.h"
 
 
-void CameraClass::SetPosition(float x, float y, float z)
+CameraClass::CameraClass(float fieldOfView, float aspectRatio, float screenNear, float screenFar):
+	m_fieldOfView(fieldOfView),
+	m_aspectRatio(aspectRatio),
+	m_screenNear(screenNear),
+	m_screenFar(screenFar)
 {
-	m_position = XMFLOAT3(x, y, z);
+	UpdateProjectionMatrix();
 }
 
 
-void CameraClass::SetLookDirection(float x, float y, float z)
+void CameraClass::SetFieldOfView(float fieldOfView)
 {
-	m_lookDirection = XMFLOAT3(x, y, z);
+	m_fieldOfView = fieldOfView;
+
+	UpdateProjectionMatrix();
+}
+
+
+void CameraClass::SetPosition(float x, float y, float z)
+{
+	m_position = XMVectorSet(x, y, z, 0.0f);
 }
 
 
 void CameraClass::SetRotationInDegrees(float x, float y, float z)
 {
-	m_rotation = XMFLOAT3(x * PI_180, y * PI_180, z * PI_180);
+	m_rotation = XMVectorSet(x * PI_180, y * PI_180, z * PI_180, 0.0f);
 }
 
 
-XMFLOAT3 CameraClass::GetPosition()
+void CameraClass::SetLookDirection(float x, float y, float z)
 {
-	return m_position;
-}
-
-
-XMFLOAT3 CameraClass::GetLookDirection()
-{
-	return m_lookDirection;
-}
-
-
-XMFLOAT3 CameraClass::GetRotation()
-{
-	return m_rotation;
+	m_lookDirection = XMVector3Normalize(XMVectorSet(x, y, z, 0.0f));
 }
 
 
@@ -47,31 +47,41 @@ XMMATRIX CameraClass::GetViewMatrix()
 }
 
 
+XMMATRIX CameraClass::GetProjectionMatrix()
+{
+	return m_projectionMatrix;
+}
+
+
 void CameraClass::Render()
 {
-	XMVECTOR cameraUp, position, lookAt;
+	XMVECTOR upDirection, lookAt;
 	XMMATRIX rotationMatrix;
 
 
 	// Setup the vector that points upwards relative to the camera.
-	cameraUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	// Setup the position of the camera in the world.
-	position = XMLoadFloat3(&m_position);
+	upDirection = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 	// Setup where the camera is looking by default.
-	lookAt = XMLoadFloat3(&m_lookDirection);
+	lookAt = m_lookDirection;
 
 	// Create the rotation matrix from the yaw, pitch, and roll values.
-	rotationMatrix = XMMatrixRotationRollPitchYaw(m_rotation.x, m_rotation.y, m_rotation.z);
+	rotationMatrix = XMMatrixRotationRollPitchYawFromVector(m_rotation);
 
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
 	lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
-	cameraUp = XMVector3TransformCoord(cameraUp, rotationMatrix);
+	upDirection = XMVector3TransformCoord(upDirection, rotationMatrix);
 
 	// Translate the rotated camera position to the location of the viewer.
-	lookAt = position + lookAt;
+	lookAt = m_position + m_lookDirection;
 
 	// Finally create the view matrix from the three updated vectors.
-	m_viewMatrix = XMMatrixLookAtLH(position, lookAt, cameraUp);
+	m_viewMatrix = XMMatrixLookAtLH(m_position, lookAt, upDirection);
+}
+
+
+void CameraClass::UpdateProjectionMatrix()
+{
+	// Create the projection matrix for 3D rendering.
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fieldOfView, m_aspectRatio, m_screenNear, m_screenFar);
 }

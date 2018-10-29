@@ -5,9 +5,11 @@
 #include "cameraclass.h"
 
 
-CameraClass::CameraClass(float fieldOfView, float aspectRatio, float screenNear, float screenFar):
+CameraClass::CameraClass(UINT screenWidth, UINT screenHeight, float fieldOfView, float screenNear, float screenFar) :
+	m_screenWidth(screenWidth),
+	m_screenHeight(screenHeight),
 	m_fieldOfView(fieldOfView),
-	m_aspectRatio(aspectRatio),
+	m_aspectRatio((float)screenWidth / (float)screenHeight),
 	m_screenNear(screenNear),
 	m_screenFar(screenFar)
 {
@@ -38,6 +40,30 @@ void CameraClass::SetRotationInDegrees(float x, float y, float z)
 void CameraClass::SetLookDirection(float x, float y, float z)
 {
 	m_lookDirection = XMVector3Normalize(XMVectorSet(x, y, z, 0.0f));
+}
+
+
+UINT CameraClass::GetScreenWidth()
+{
+	return m_screenWidth;
+}
+
+
+UINT CameraClass::GetScreenHeight()
+{
+	return m_screenHeight;
+}
+
+
+float CameraClass::GetScreenNear()
+{
+	return m_screenNear;
+}
+
+
+float CameraClass::GetScreenFar()
+{
+	return m_screenFar;
 }
 
 

@@ -14,15 +14,14 @@ public:
 	PipelineInterface(const PipelineInterface&);
 	~PipelineInterface();
 
-	virtual bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float) = 0;
+	virtual bool Initialize(ID3D12Device*, UINT, UINT, UINT, float, float) = 0;
 	virtual void Shutdown() = 0;
 
 	bool OpenPipeline(unsigned int);
 	bool ClosePipeline();
 
-	virtual bool SetPipelineParameters(unsigned int, XMMATRIX, XMMATRIX) = 0;
+	virtual bool SetPipelineParameters(UINT, XMMATRIX, XMMATRIX) = 0;
 
-	//XMMATRIX GetProjectionMatrix();
 	XMMATRIX GetWorldMatrix();
 	XMMATRIX GetOrthoMatrix();
 	ID3D12GraphicsCommandList* GetCommandList();
@@ -30,8 +29,8 @@ public:
 protected:
 	virtual bool InitializeRootSignature(ID3D12Device*) = 0;
 	bool InitializePipeline(ID3D12Device*);
-	bool InitializeCommandList(ID3D12Device*, unsigned int);
-	virtual void InitializeViewport(int, int, float, float);
+	bool InitializeCommandList(ID3D12Device*, UINT);
+	virtual void InitializeViewport(UINT, UINT, float, float);
 	void ShutdownPipeline();
 	void ShutdownCommandList();
 
@@ -54,7 +53,6 @@ protected:
 	D3D12_DEPTH_STENCIL_DESC				m_depthStencilDesc;
 	std::vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc;
 
-	//XMMATRIX	m_projectionMatrix;
 	XMMATRIX	m_worldMatrix;
 	XMMATRIX	m_orthoMatrix;
 

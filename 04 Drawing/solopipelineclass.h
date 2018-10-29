@@ -35,10 +35,10 @@ public:
 	SoloPipelineClass(const SoloPipelineClass&);
 	~SoloPipelineClass();
 
-	bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float) override;
+	bool Initialize(ID3D12Device*, UINT, UINT, UINT, float, float) override;
 	void Shutdown() override;
 
-	bool SetPipelineParameters(unsigned int, XMMATRIX, XMMATRIX) override;
+	bool SetPipelineParameters(UINT, XMMATRIX, XMMATRIX) override;
 
 protected:
 	bool InitializeRootSignature(ID3D12Device*) override;

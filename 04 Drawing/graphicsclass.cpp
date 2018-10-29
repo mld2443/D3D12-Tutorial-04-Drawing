@@ -30,6 +30,15 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 	float aspectRatio;
 
 
+	// Calculate the ratio of the screen for the camera.
+	aspectRatio = (float)screenWidth / (float)screenHeight;
+
+	// Create the camera object.
+	m_Camera = new CameraClass(screenWidth, screenHeight, PI / 4.0f);
+
+	// Set the initial parameters of the camera.
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+
 	// Create and initialize the Direct3D object.
 	m_Direct3D = new D3DClass(hwnd, screenHeight, screenWidth, VSYNC_ENABLED, FULL_SCREEN);
 
@@ -37,7 +46,7 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 	m_Pipeline = new SoloPipelineClass;
 
 	// Initialize the pipeline object.
-	result = m_Pipeline->Initialize(m_Direct3D->GetDevice(), hwnd, m_Direct3D->GetBufferIndex(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
+	result = m_Pipeline->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex(), screenWidth, screenHeight, m_Camera->GetScreenNear(), m_Camera->GetScreenFar());
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize pipeline object.", L"Error", MB_OK);
@@ -46,15 +55,6 @@ bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
 
 	// Create the triangle object.
 	m_Geometry = new TriangleClass(m_Direct3D->GetDevice());
-
-	// Calculate the ratio of the scree for the camera.
-	aspectRatio = (float)screenWidth / (float)screenHeight;
-
-	// Create the camera object.
-	m_Camera = new CameraClass(PI / 4.0f, aspectRatio);
-
-	// Set the initial parameters of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 
 	return true;
 }

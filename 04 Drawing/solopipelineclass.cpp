@@ -20,8 +20,8 @@ SoloPipelineClass::~SoloPipelineClass()
 }
 
 
-bool SoloPipelineClass::Initialize(ID3D12Device* device, HWND hwnd, unsigned int frameIndex,
-	int screenWidth, int screenHeight, float screenDepth, float screenNear)
+bool SoloPipelineClass::Initialize(ID3D12Device* device, UINT frameIndex,
+	UINT screenWidth, UINT screenHeight, float screenNear, float screenFar)
 {
 	bool result;
 
@@ -30,7 +30,7 @@ bool SoloPipelineClass::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 	result = InitializeRootSignature(device);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Unable to initialize the root signature.", L"Initializer Error", MB_OK);
+		MessageBox(NULL, L"Unable to initialize the root signature.", L"Initializer Error", MB_OK);
 		return false;
 	}
 
@@ -38,7 +38,7 @@ bool SoloPipelineClass::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 	result = InitializePipeline(device);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Unable to initialize the pipeline.", L"Initializer Error", MB_OK);
+		MessageBox(NULL, L"Unable to initialize the pipeline.", L"Initializer Error", MB_OK);
 		return false;
 	}
 
@@ -46,12 +46,12 @@ bool SoloPipelineClass::Initialize(ID3D12Device* device, HWND hwnd, unsigned int
 	result = InitializeCommandList(device, frameIndex);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Unable to initialize the command list.", L"Initializer Error", MB_OK);
+		MessageBox(NULL, L"Unable to initialize the command list.", L"Initializer Error", MB_OK);
 		return false;
 	}
 
 	// Initialize the viewport and scissor rectangle.
-	InitializeViewport(screenWidth, screenHeight, screenDepth, screenNear);
+	InitializeViewport(screenWidth, screenHeight, screenNear, screenFar);
 
 	// For the final step, we will name all of our objects for graphics debugging.
 	NameResources();
@@ -72,7 +72,7 @@ void SoloPipelineClass::Shutdown()
 }
 
 
-bool SoloPipelineClass::SetPipelineParameters(unsigned int frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+bool SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	HRESULT result;
 	D3D12_RANGE range;

@@ -115,7 +115,7 @@ bool PipelineInterface::InitializePipeline(ID3D12Device* device)
 }
 
 
-bool PipelineInterface::InitializeCommandList(ID3D12Device* device, unsigned int frameIndex)
+bool PipelineInterface::InitializeCommandList(ID3D12Device* device, UINT frameIndex)
 {
 	HRESULT result;
 
@@ -148,24 +148,13 @@ bool PipelineInterface::InitializeCommandList(ID3D12Device* device, unsigned int
 }
 
 
-void PipelineInterface::InitializeViewport(int screenWidth, int screenHeight, float screenDepth, float screenNear)
+void PipelineInterface::InitializeViewport(UINT screenWidth, UINT screenHeight, float screenNear, float screenFar)
 {
-	float fieldOfView, screenAspect;
-
-
-	// TODO: the FOV and projection matrix feel like they belong to the camera.
-	// Set up the projection matrix.
-	fieldOfView = PI / 4.0f;
-	screenAspect = (float)screenWidth / (float)screenHeight;
-
-	//// Create the projection matrix for 3D rendering.
-	//m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
-
 	// Initialize the world matrix to the identity matrix.
 	m_worldMatrix = XMMatrixIdentity();
 
 	// Create an orthographic projection matrix for 2D rendering.
-	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar);
 
 	// Set up the viewport for rendering.
 	ZeroMemory(&m_viewport, sizeof(m_viewport));

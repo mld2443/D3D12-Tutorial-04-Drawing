@@ -14,7 +14,7 @@ public:
 	CameraClass(const CameraClass&) = delete;
 	CameraClass& operator=(const CameraClass&) = delete;
 
-	CameraClass(float, float, float = 0.1f, float = 1000.0f);
+	CameraClass(UINT, UINT, float, float = 0.1f, float = 1000.0f);
 	~CameraClass() = default;
 
 	void SetFieldOfView(float);
@@ -22,6 +22,10 @@ public:
 	void SetRotationInDegrees(float, float, float);
 	void SetLookDirection(float, float, float);
 
+	UINT GetScreenWidth();
+	UINT GetScreenHeight();
+	float GetScreenNear();
+	float GetScreenFar();
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjectionMatrix();
 
@@ -31,6 +35,7 @@ private:
 	void UpdateProjectionMatrix();
 
 private:
+	UINT		m_screenWidth, m_screenHeight;
 	float		m_fieldOfView, m_aspectRatio;
 	float		m_screenNear, m_screenFar;
 

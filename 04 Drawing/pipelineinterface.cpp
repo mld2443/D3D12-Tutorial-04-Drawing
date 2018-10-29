@@ -153,11 +153,11 @@ void PipelineInterface::InitializeViewport(int screenWidth, int screenHeight, fl
 	float fieldOfView, screenAspect;
 
 
+	// TODO: the FOV and projection matrix feel like they belong to the camera.
 	// Set up the projection matrix.
 	fieldOfView = PI / 4.0f;
 	screenAspect = (float)screenWidth / (float)screenHeight;
 
-	//TODO: The projection matrix feels like it belongs in the camera class.
 	// Create the projection matrix for 3D rendering.
 	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
 
@@ -171,15 +171,15 @@ void PipelineInterface::InitializeViewport(int screenWidth, int screenHeight, fl
 	ZeroMemory(&m_viewport, sizeof(m_viewport));
 	m_viewport.Width =		(float)screenWidth;
 	m_viewport.Height =		(float)screenHeight;
-	m_viewport.MinDepth =	0.0f;
+	m_viewport.MinDepth =	D3D12_DEFAULT_VIEWPORT_MIN_DEPTH;
 	m_viewport.MaxDepth =	1.0f;
-	m_viewport.TopLeftX =	0.0f;
-	m_viewport.TopLeftY =	0.0f;
+	m_viewport.TopLeftX =	D3D12_DEFAULT_VIEWPORT_TOPLEFTX;
+	m_viewport.TopLeftY =	D3D12_DEFAULT_VIEWPORT_TOPLEFTY;
 
 	// Set up the scissor rect for the viewport.
 	ZeroMemory(&m_scissorRect, sizeof(m_scissorRect));
-	m_scissorRect.left =	0;
-	m_scissorRect.top =		0;
+	m_scissorRect.left =	D3D12_DEFAULT_SCISSOR_STARTX;
+	m_scissorRect.top =		D3D12_DEFAULT_SCISSOR_STARTY;
 	m_scissorRect.right =	screenWidth;
 	m_scissorRect.bottom =	screenHeight;
 

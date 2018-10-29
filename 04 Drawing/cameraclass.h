@@ -28,8 +28,8 @@ public:
 	void Render();
 
 private:
-	XMFLOAT3	m_position =		XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3	m_lookDirection =	XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3	m_rotation =		XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3	m_position =		XMFLOAT3();
+	XMFLOAT3	m_lookDirection =	XMFLOAT3();
+	XMFLOAT3	m_rotation =		XMFLOAT3();
 	XMMATRIX	m_viewMatrix =		XMMatrixIdentity();
 };

@@ -23,18 +23,18 @@ public:
 	GeometryInterface() = default;
 	~GeometryInterface();
 
-	void Render(ID3D12GraphicsCommandList*);
-
 	UINT GetVertexCount();
 	UINT GetIndexCount();
+
+	void Render(ID3D12GraphicsCommandList*);
 
 protected:
 	void InitializeVertexBuffer(ID3D12Device*, const std::vector<VertexType>&);
 	void InitializeIndexBuffer(ID3D12Device*, const std::vector<UINT32>&);
 
 private:
-	template<typename T>
-	bool InitializeBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<T>&, D3D12_RESOURCE_STATES, std::wstring = L"GI buffer");
+	template<typename BufferType>
+	static void InitializeBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<BufferType>&, D3D12_RESOURCE_STATES, std::wstring = L"GI buffer");
 
 private:
 	ID3D12Resource*				m_vertexBuffer =	nullptr;

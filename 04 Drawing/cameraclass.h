@@ -17,17 +17,17 @@ public:
 	CameraClass(UINT, UINT, float, float = 0.1f, float = 1000.0f);
 	~CameraClass() = default;
 
-	void SetFieldOfView(float);
-	void SetPosition(float, float, float);
-	void SetRotationInDegrees(float, float, float);
-	void SetLookDirection(float, float, float);
-
 	UINT GetScreenWidth();
 	UINT GetScreenHeight();
 	float GetScreenNear();
 	float GetScreenFar();
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjectionMatrix();
+
+	void SetFieldOfView(float);
+	void SetPosition(float, float, float);
+	void SetRotationInDegrees(float, float, float);
+	void SetLookDirection(float, float, float);
 
 	void Render();
 

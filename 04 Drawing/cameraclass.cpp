@@ -17,32 +17,6 @@ CameraClass::CameraClass(UINT screenWidth, UINT screenHeight, float fieldOfView,
 }
 
 
-void CameraClass::SetFieldOfView(float fieldOfView)
-{
-	m_fieldOfView = fieldOfView;
-
-	UpdateProjectionMatrix();
-}
-
-
-void CameraClass::SetPosition(float x, float y, float z)
-{
-	m_position = XMVectorSet(x, y, z, 0.0f);
-}
-
-
-void CameraClass::SetRotationInDegrees(float x, float y, float z)
-{
-	m_rotation = XMVectorSet(x * PI_180, y * PI_180, z * PI_180, 0.0f);
-}
-
-
-void CameraClass::SetLookDirection(float x, float y, float z)
-{
-	m_lookDirection = XMVector3Normalize(XMVectorSet(x, y, z, 0.0f));
-}
-
-
 UINT CameraClass::GetScreenWidth()
 {
 	return m_screenWidth;
@@ -76,6 +50,32 @@ XMMATRIX CameraClass::GetViewMatrix()
 XMMATRIX CameraClass::GetProjectionMatrix()
 {
 	return m_projectionMatrix;
+}
+
+
+void CameraClass::SetFieldOfView(float fieldOfView)
+{
+	m_fieldOfView = fieldOfView;
+
+	UpdateProjectionMatrix();
+}
+
+
+void CameraClass::SetPosition(float x, float y, float z)
+{
+	m_position = XMVectorSet(x, y, z, 0.0f);
+}
+
+
+void CameraClass::SetRotationInDegrees(float x, float y, float z)
+{
+	m_rotation = XMVectorSet(x * PI_180, y * PI_180, z * PI_180, 0.0f);
+}
+
+
+void CameraClass::SetLookDirection(float x, float y, float z)
+{
+	m_lookDirection = XMVector3Normalize(XMVectorSet(x, y, z, 0.0f));
 }
 
 

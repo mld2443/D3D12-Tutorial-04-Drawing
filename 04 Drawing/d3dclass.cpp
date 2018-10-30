@@ -128,14 +128,18 @@ void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
 	m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
 
 	// Signal and increment the fence value.
-	THROW_IF_FAILED(m_commandQueue->Signal(m_fence[m_bufferIndex], m_fenceValue[m_bufferIndex]),
+	THROW_IF_FAILED(
+		m_commandQueue->Signal(m_fence[m_bufferIndex], m_fenceValue[m_bufferIndex]),
 		L"Unable to signal fence object.",
-		L"Signal Failure");
+		L"Signal Failure"
+	);
 
 	// Finally present the back buffer to the screen since rendering is complete.
-	THROW_IF_FAILED(m_swapChain->Present(m_vsyncEnabled, 0),
+	THROW_IF_FAILED(
+		m_swapChain->Present(m_vsyncEnabled, 0),
 		L"Unable to present frame to the display.",
-		L"Display Error");
+		L"Display Error"
+	);
 }
 
 
@@ -166,9 +170,11 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 	if (m_fence[frameIndex]->GetCompletedValue() < m_fenceValue[frameIndex])
 	{
 		// We have the fence create an event which is signaled once the fence's current value is "fenceValue"
-		THROW_IF_FAILED(m_fence[frameIndex]->SetEventOnCompletion( m_fenceValue[frameIndex], m_fenceEvent),
+		THROW_IF_FAILED(
+			m_fence[frameIndex]->SetEventOnCompletion( m_fenceValue[frameIndex], m_fenceEvent),
 			L"Unable to set the fence event.",
-			L"Fence Event Error.");
+			L"Fence Event Error."
+		);
 
 		// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
 		// has reached "fenceValue", we know the command queue has finished executing
@@ -191,9 +197,11 @@ void D3DClass::InitializeDevice()
 
 #if defined(_DEBUG)
 	// Create the Direct3D 12 debug controller.
-	THROW_IF_FAILED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)),
+	THROW_IF_FAILED(
+		D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)),
 		L"Unable to create the Direct3D 12 debug layer.",
-		L"Device Debug Error");
+		L"Device Debug Error"
+	);
 
 	// Enable the debug layer.
 	debugController->EnableDebugLayer();
@@ -203,9 +211,11 @@ void D3DClass::InitializeDevice()
 #endif
 
 	// Create the Direct3D 12 device.
-	THROW_IF_FAILED(D3D12CreateDevice(nullptr, featureLevel, IID_PPV_ARGS(&m_device)),
+	THROW_IF_FAILED(
+		D3D12CreateDevice(nullptr, featureLevel, IID_PPV_ARGS(&m_device)),
 		L"Unable to create a DirectX 12.1 device.  The default video card does not support DirectX 12.1.",
-		L"DirectX Device Failure");
+		L"DirectX Device Failure"
+	);
 }
 
 
@@ -222,9 +232,11 @@ void D3DClass::InitializeCommandQueue()
 	commandQueueDesc.NodeMask =	0;
 
 	// Create the command queue.
-	THROW_IF_FAILED(m_device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_commandQueue)),
+	THROW_IF_FAILED(
+		m_device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_commandQueue)),
 		L"Unable to create a command queue on the graphics device.",
-		L"Command Queue Error");
+		L"Command Queue Error"
+	);
 }
 
 
@@ -250,32 +262,42 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 #endif
 
 	// Create a DirectX graphics interface factory.
-	THROW_IF_FAILED(CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&factory)),
+	THROW_IF_FAILED(
+		CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&factory)),
 		L"Unable to create a device factory.",
-		L"DirectX Failure");
+		L"DirectX Failure"
+	);
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
-	THROW_IF_FAILED(factory->EnumAdapters(0, &adapter),
+	THROW_IF_FAILED(
+		factory->EnumAdapters(0, &adapter),
 		L"Unable to enumerate adapters.",
-		L"Factory Failure");
+		L"Factory Failure"
+	);
 
 	// Enumerate the primary adapter output (monitor).
-	THROW_IF_FAILED(adapter->EnumOutputs(0, &adapterOutput),
+	THROW_IF_FAILED(
+		adapter->EnumOutputs(0, &adapterOutput),
 		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure");
+		L"Adapter Failure"
+	);
 
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
-	THROW_IF_FAILED(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr),
+	THROW_IF_FAILED(
+		adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr),
 		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure");
+		L"Adapter Failure"
+	);
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
 	displayModeList = new DXGI_MODE_DESC[numModes];
 
 	// Now fill the display mode list structures.
-	THROW_IF_FAILED(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList),
+	THROW_IF_FAILED(
+		adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList),
 		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure");
+		L"Adapter Failure"
+	);
 
 	// Now go through all the display modes and find the one that matches the screen height and width.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
@@ -292,9 +314,11 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	}
 
 	// Get the adapter (video card) description.
-	THROW_IF_FAILED(adapter->GetDesc(&adapterDesc),
+	THROW_IF_FAILED(
+		adapter->GetDesc(&adapterDesc),
 		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure");
+		L"Adapter Failure"
+	);
 
 	// Store the dedicated video card memory in megabytes.
 	m_videoCardMemory = static_cast<UINT>(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
@@ -334,15 +358,19 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	}
 
 	// Create the swap chain using the swap chain description.	
-	THROW_IF_FAILED(factory->CreateSwapChain(m_commandQueue, &swapChainDesc, &swapChain),
+	THROW_IF_FAILED(
+		factory->CreateSwapChain(m_commandQueue, &swapChainDesc, &swapChain),
 		L"Unable to create the swap chain on the graphics device.",
-		L"Swap Chain Failure");
+		L"Swap Chain Failure"
+	);
 
 	// Finally, upgrade the swap chain to a IDXGISwapChain3 interface and store it in the private member variable m_swapChain.
 	// This will allow us to use the function GetCurrentBackBufferIndex().
-	THROW_IF_FAILED(swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain)),
+	THROW_IF_FAILED(
+		swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain)),
 		L"This graphics device does not support the IDXGISwapChain3 Interface.",
-		L"Swap Chain Unsupported");
+		L"Swap Chain Unsupported"
+	);
 
 	// Clear the pointer to the original swap chain interface since we no longer need it.
 	swapChain = nullptr;
@@ -368,9 +396,11 @@ void D3DClass::InitializeRenderTargets()
 	renderTargetViewHeapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	// Create the render target view heap for the back buffers.
-	THROW_IF_FAILED(m_device->CreateDescriptorHeap(&renderTargetViewHeapDesc, IID_PPV_ARGS(&m_renderTargetViewHeap)),
+	THROW_IF_FAILED(
+		m_device->CreateDescriptorHeap(&renderTargetViewHeapDesc, IID_PPV_ARGS(&m_renderTargetViewHeap)),
 		L"Unable to create the render target heap on the graphics device.",
-		L"Heap Allocation Error");
+		L"Heap Allocation Error"
+	);
 
 	// Get a handle to the starting memory location in the render target view heap to identify where the render target views will be located for the two back buffers.
 	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
@@ -381,9 +411,11 @@ void D3DClass::InitializeRenderTargets()
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		// Get a pointer to the next back buffer from the swap chain.
-		THROW_IF_FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBufferRenderTarget[i])),
+		THROW_IF_FAILED(
+			m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBufferRenderTarget[i])),
 			L"Unable to communicate with the swap chain.",
-			L"Swap Chain Error");
+			L"Swap Chain Error"
+		);
 
 		// Create a render target view for this back buffer.
 		m_device->CreateRenderTargetView(m_backBufferRenderTarget[i], nullptr, renderTargetViewHandle);
@@ -437,9 +469,11 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 	//
-	THROW_IF_FAILED(m_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &depthOptimizedClearValue, IID_PPV_ARGS(&m_depthStencil)),
+	THROW_IF_FAILED(
+		m_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &depthOptimizedClearValue, IID_PPV_ARGS(&m_depthStencil)),
 		L"Unable to allocate the depth buffer on the graphics device.",
-		L"Resource Allocation Error");
+		L"Resource Allocation Error"
+	);
 
 	//
 	ZeroMemory(&heapDesc, sizeof(heapDesc));
@@ -448,9 +482,11 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 	heapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	//
-	THROW_IF_FAILED(m_device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_depthStencilViewHeap)),
+	THROW_IF_FAILED(
+		m_device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_depthStencilViewHeap)),
 		L"Unable to create the render target heap on the graphics device.",
-		L"Heap Allocation Error");
+		L"Heap Allocation Error"
+	);
 
 	//
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
@@ -468,9 +504,11 @@ void D3DClass::InitializeFences()
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		// Create fences for GPU synchronization.
-		THROW_IF_FAILED(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence[i])),
+		THROW_IF_FAILED(
+			m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence[i])),
 			L"Unable to create synchronization fences on the graphics device.",
-			L"Fence Error");
+			L"Fence Error"
+		);
 
 		// Initialize the starting fence values.
 		m_fenceValue[i] = 0;
@@ -478,9 +516,11 @@ void D3DClass::InitializeFences()
 
 	// Create an event object for the fences.
 	m_fenceEvent = CreateEventEx(NULL, FALSE, FALSE, EVENT_ALL_ACCESS);
-	THROW_IF_TRUE(m_fenceEvent == NULL,
+	THROW_IF_TRUE(
+		m_fenceEvent == NULL,
 		L"Unable to create a windows system event for hardware synchronization.",
-		L"Windows Event Failure");
+		L"Windows Event Failure"
+	);
 }
 
 

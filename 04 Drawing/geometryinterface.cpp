@@ -35,8 +35,6 @@ void GeometryInterface::Render(ID3D12GraphicsCommandList* commandList)
 
 	// Issue the draw call for this geometry.
 	commandList->DrawIndexedInstanced(m_indexCount, 1, 0, 0, 0);
-
-	return;
 }
 
 
@@ -136,9 +134,11 @@ void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_NONE;
 
 	// Allocate space on the GPU for the defualt heap.
-	THROW_IF_FAILED(device->CreateCommittedResource(
+	THROW_IF_FAILED(
+		device->CreateCommittedResource(
 			&heapProps,
-			D3D12_HEAP_FLAG_NONE, &resourceDesc,
+			D3D12_HEAP_FLAG_NONE,
+			&resourceDesc,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
 			IID_PPV_ARGS(buffer)),
@@ -153,7 +153,8 @@ void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 	heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
 
 	// Allocate space on the GPU for the upload heap for this resource.
-	THROW_IF_FAILED(device->CreateCommittedResource(
+	THROW_IF_FAILED(
+		device->CreateCommittedResource(
 			&heapProps,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
@@ -169,7 +170,8 @@ void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 	uploadBuffer->SetName(uploadName.c_str());
 
 	// Create a single-use command allocator.
-	THROW_IF_FAILED(device->CreateCommandAllocator(
+	THROW_IF_FAILED(
+		device->CreateCommandAllocator(
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
 			IID_PPV_ARGS(&commandAllocator)),
 		L"Unable to create Command Allocator on the device.",
@@ -177,7 +179,8 @@ void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 	);
 
 	// Create a command list using our new command allocator.
-	THROW_IF_FAILED(device->CreateCommandList(
+	THROW_IF_FAILED(
+		device->CreateCommandList(
 			0,
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
 			commandAllocator,
@@ -195,18 +198,15 @@ void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 	queueDesc.NodeMask =	0;
 
 	// Create a single-use command queue.
-	THROW_IF_FAILED(device->CreateCommandQueue(
-			&queueDesc,
-			IID_PPV_ARGS(&commandQueue)),
+	THROW_IF_FAILED(
+		device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue)),
 		L"Unable to create a command queue on the device.",
 		L"Command Queue Creation Failure"
 	);
 
 	// Lock the upload buffer.
-	THROW_IF_FAILED(uploadBuffer->Map(
-			0,
-			nullptr,
-			reinterpret_cast<void**>(&rawData)),
+	THROW_IF_FAILED(
+		uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&rawData)),
 		L"Unable to communicate with device buffer.",
 		L"Memory Access Failure"
 	);
@@ -242,40 +242,38 @@ void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 	commandQueue->ExecuteCommandLists(1, ppCommandLists);
 
 	// Create our fence to track the commands.
-	THROW_IF_FAILED(device->CreateFence(
-			0,
-			D3D12_FENCE_FLAG_NONE,
-			IID_PPV_ARGS(&fence)),
+	THROW_IF_FAILED(
+		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)),
 		L"Unable to create fence to time the buffer upload.",
 		L"Fence Creation Failure"
 	);
 
 	// Create an event that will block until our task is done.
 	fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-	THROW_IF_TRUE(fenceEvent == NULL,
+	THROW_IF_TRUE(
+		fenceEvent == NULL,
 		L"Unable to create system event for synchronization.",
 		L"System Event Error"
 	);
 
 	// Tell the command queue what fence to use and the value we're waiting for.
-	THROW_IF_FAILED(commandQueue->Signal(
-			fence,
-			1),
+	THROW_IF_FAILED(
+		commandQueue->Signal(fence, 1),
 		L"Unable to signal to the fence when to stop execution.",
 		L"Fence Communication Failure"
 	);
 
 	// Give our fence the event to use and the value to wait for.
-	THROW_IF_FAILED(fence->SetEventOnCompletion(
-			1,
-			fenceEvent),
+	THROW_IF_FAILED(
+		fence->SetEventOnCompletion(1, fenceEvent),
 		L"Unable to set a fence event for synchronization.",
 		L"Fence Communication failure"
 	);
 
 	// Wait up to 10 seconds for our task to complete or give up. This function is blocking.
 	waitValue = WaitForSingleObject(fenceEvent, 10000);
-	THROW_IF_FALSE(waitValue == WAIT_OBJECT_0,
+	THROW_IF_FALSE(
+		waitValue == WAIT_OBJECT_0,
 		L"The Buffer took longer than 10 seconds to upload to the graphics device.",
 		L"Buffer Upload Timed Out"
 	);

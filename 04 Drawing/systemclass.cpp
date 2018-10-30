@@ -8,11 +8,21 @@
 SystemClass::SystemClass() :
 	m_applicationName(L"04 Drawing")
 {
-}
+	UINT windowHeight, windowWidth;
 
 
-SystemClass::SystemClass(const SystemClass& other)
-{
+	// Initialize the width and height of the screen to zero before sending the variables into the function.
+	windowHeight = 0;
+	windowWidth = 0;
+
+	// Initialize the windows API.
+	InitializeWindows(windowHeight, windowWidth);
+
+	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
+	m_Input = new InputClass();
+
+	// Create the graphics object.  This object will handle rendering all the graphics for this application.
+	m_Graphics = new GraphicsClass(m_hwnd, windowWidth, windowHeight);
 }
 
 
@@ -24,36 +34,6 @@ SystemClass::~SystemClass()
 
 	// Shutdown the window.
 	ShutdownWindows();
-}
-
-
-bool SystemClass::Initialize()
-{
-	UINT windowHeight, windowWidth;
-
-
-	// Initialize the width and height of the screen to zero before sending the variables into the function.
-	windowHeight = 0;
-	windowWidth = 0;
-
-	try
-	{
-		// Initialize the windows API.
-		InitializeWindows(windowHeight, windowWidth);
-
-		// Create the input object.  This object will be used to handle reading the keyboard input from the user.
-		m_Input = new InputClass();
-
-		// Create the graphics object.  This object will handle rendering all the graphics for this application.
-		m_Graphics = new GraphicsClass(m_hwnd, windowWidth, windowHeight);
-	}
-	catch (MessageBoxType exception)
-	{
-		MessageBox(m_hwnd, exception.message, exception.title, exception.type);
-		return false;
-	}
-
-	return true;
 }
 
 
@@ -107,13 +87,7 @@ bool SystemClass::Frame()
 	}
 
 	// Do the frame processing for the graphics object.
-	try {
-		m_Graphics->Frame();
-	}
-	catch (MessageBoxType exception) {
-		MessageBox(m_hwnd, exception.title, exception.message, exception.type);
-		return false;
-	}
+	m_Graphics->Frame();
 
 	return true;
 }

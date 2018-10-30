@@ -17,12 +17,12 @@
 class SystemClass
 {
 public:
+	SystemClass(const SystemClass&) = delete;
+
 	SystemClass();
-	SystemClass(const SystemClass&);
 	~SystemClass();
 
 	bool Initialize();
-	void Shutdown();
 	void Run();
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);

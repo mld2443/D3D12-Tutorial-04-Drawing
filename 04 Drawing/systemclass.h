@@ -37,6 +37,6 @@ private:
 	HINSTANCE	m_hinstance;
 	HWND		m_hwnd;
 
-	InputClass*		m_Input;
-	GraphicsClass*	m_Graphics;
+	InputClass*		m_Input =		nullptr;
+	GraphicsClass*	m_Graphics =	nullptr;
 };

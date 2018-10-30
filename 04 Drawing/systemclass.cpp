@@ -5,10 +5,9 @@
 #include "systemclass.h"
 
 
-SystemClass::SystemClass()
+SystemClass::SystemClass() :
+	m_applicationName(L"04 Drawing")
 {
-	m_Input = nullptr;
-	m_Graphics = nullptr;
 }
 
 
@@ -19,6 +18,12 @@ SystemClass::SystemClass(const SystemClass& other)
 
 SystemClass::~SystemClass()
 {
+	// Release the graphics and input objects.
+	SAFE_DELETE(m_Graphics);
+	SAFE_DELETE(m_Input);
+
+	// Shutdown the window.
+	ShutdownWindows();
 }
 
 
@@ -52,29 +57,6 @@ bool SystemClass::Initialize()
 }
 
 
-void SystemClass::Shutdown()
-{
-	// Release the graphics object.
-	if (m_Graphics)
-	{
-		delete m_Graphics;
-		m_Graphics = nullptr;
-	}
-
-	// Release the input object.
-	if (m_Input)
-	{
-		delete m_Input;
-		m_Input = nullptr;
-	}
-
-	// Shutdown the window.
-	ShutdownWindows();
-
-	return;
-}
-
-
 void SystemClass::Run()
 {
 	MSG msg;
@@ -82,7 +64,7 @@ void SystemClass::Run()
 
 
 	// Initialize the message structure.
-	ZeroMemory(&msg, sizeof(MSG));
+	ZeroMemory(&msg, sizeof(msg));
 
 	// Loop until there is a quit message from the window or the user.
 	done = false;
@@ -143,25 +125,19 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 	{
 		// Check if a key has been pressed on the keyboard.
 	case WM_KEYDOWN:
-	{
 		// If a key is pressed send it to the input object so it can record that state.
 		m_Input->KeyDown((unsigned int)wparam);
 		return 0;
-	}
 
 	// Check if a key has been released on the keyboard.
 	case WM_KEYUP:
-	{
 		// If a key is released then send it to the input object so it can unset the state for that key.
 		m_Input->KeyUp((unsigned int)wparam);
 		return 0;
-	}
 
 	// Any other messages send to the default message handler as our application won't make use of them.
 	default:
-	{
 		return DefWindowProc(hwnd, umsg, wparam, lparam);
-	}
 	}
 }
 
@@ -178,9 +154,6 @@ bool SystemClass::InitializeWindows(UINT& screenHeight, UINT& screenWidth)
 
 	// Get the instance of this application.
 	m_hinstance = GetModuleHandle(NULL);
-
-	// Give the application a name.
-	m_applicationName = L"04 Drawing";
 
 	// Setup the windows class with default settings.
 	wc.style =			CS_HREDRAW | CS_VREDRAW | CS_OWNDC;

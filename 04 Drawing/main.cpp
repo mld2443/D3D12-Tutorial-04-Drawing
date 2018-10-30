@@ -8,25 +8,24 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
 	SystemClass* System;
-	bool result;
 
 
-	// Create the system object.
-	System = new SystemClass;
-	if (!System)
+	try
 	{
+		// Create and initialize the system object.
+		System = new SystemClass();
+
+		// Run the system
+		System->Run();
+	}
+	catch (MessageBoxType exception)
+	{
+		MessageBox(nullptr, exception.message, exception.title, exception.type);
 		return 1;
 	}
 
-	// Initialize and run the system object.
-	result = System->Initialize();
-	if (result)
-	{
-		System->Run();
-	}
-
 	// Shutdown and release the system object.
-	SAFE_SHUTDOWN(System);
+	SAFE_DELETE(System);
 
 	return 0;
 }

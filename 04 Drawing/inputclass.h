@@ -16,10 +16,10 @@ public:
 	InputClass() = default;
 	~InputClass() = default;
 
-	void KeyDown(unsigned int);
-	void KeyUp(unsigned int);
+	void KeyDown(UINT);
+	void KeyUp(UINT);
 
-	bool IsKeyDown(unsigned int);
+	bool IsKeyDown(UINT);
 
 private:
 	std::vector<bool>	m_keys =	std::vector<bool>(256, false);

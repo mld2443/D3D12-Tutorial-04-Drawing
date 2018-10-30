@@ -22,7 +22,6 @@ public:
 	SystemClass();
 	~SystemClass();
 
-	bool Initialize();
 	void Run();
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
@@ -33,7 +32,7 @@ private:
 	void ShutdownWindows();
 
 private:
-	LPCWSTR		m_applicationName;
+	LPCWSTR		m_applicationName =	L"04 Drawing";
 	HINSTANCE	m_hinstance;
 	HWND		m_hwnd;
 

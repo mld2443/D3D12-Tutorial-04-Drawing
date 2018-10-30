@@ -87,7 +87,7 @@ void D3DClass::BeginScene(ID3D12GraphicsCommandList* commandList,
 	depthStencilViewHandle = m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
 
 	// Set the back buffer as the render target.
-	commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, nullptr);
+	commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, &depthStencilViewHandle);
 
 	// Then set the color to clear the window to.
 	color[0] = red;
@@ -98,8 +98,6 @@ void D3DClass::BeginScene(ID3D12GraphicsCommandList* commandList,
 
 	// Finally, clear the depth stencil.
 	commandList->ClearDepthStencilView(depthStencilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-	return;
 }
 
 

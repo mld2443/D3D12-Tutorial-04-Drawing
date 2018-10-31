@@ -82,10 +82,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="color.vs.hlsl">
+    <FxCompile Include="shaders\color.ps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="color.ps.hlsl">
+    <FxCompile Include="shaders\color.vs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

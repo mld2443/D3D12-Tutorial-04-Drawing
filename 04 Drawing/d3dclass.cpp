@@ -115,8 +115,6 @@ void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
 	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	commandList->ResourceBarrier(1, &barrier);
-
-	return;
 }
 
 

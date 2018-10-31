@@ -27,13 +27,13 @@ TriangleClass::TriangleClass(ID3D12Device* device) : GeometryInterface()
 	vertices[2].position = XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
 	vertices[2].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-	vertices[3].position = XMFLOAT3(0.0f, 0.0f, 0.1f);  // Bottom left.
+	vertices[3].position = XMFLOAT3(0.0f, 0.0f, 2.0f);  // Bottom left.
 	vertices[3].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 
-	vertices[4].position = XMFLOAT3(1.0f, 2.0f, 0.1f);  // Top middle.
+	vertices[4].position = XMFLOAT3(1.0f, 2.0f, 2.0f);  // Top middle.
 	vertices[4].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 
-	vertices[5].position = XMFLOAT3(2.0f, 0.0f, 0.1f);  // Bottom right.
+	vertices[5].position = XMFLOAT3(2.0f, 0.0f, 2.0f);  // Bottom right.
 	vertices[5].color = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 
 	// Load the index array with data.

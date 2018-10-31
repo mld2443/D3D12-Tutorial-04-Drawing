@@ -206,6 +206,7 @@ void PipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
 	pipelineStateDesc.PrimitiveTopologyType =			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	pipelineStateDesc.NumRenderTargets =				1;
 	pipelineStateDesc.RTVFormats[0] =					DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.DSVFormat =						DXGI_FORMAT_D32_FLOAT;
 	pipelineStateDesc.SampleDesc.Count =				1;
 	pipelineStateDesc.SampleDesc.Quality =				0;
 	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;

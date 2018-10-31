@@ -37,10 +37,10 @@ private:
 	static void InitializeBuffer(ID3D12Device*, ID3D12Resource**, const vector<BufferType>&, D3D12_RESOURCE_STATES, wstring = L"GI buffer");
 
 private:
-	ID3D12Resource*				m_vertexBuffer =	nullptr;
-	UINT						m_vertexCount =		0;
-	ID3D12Resource*				m_indexBuffer =		nullptr;
-	UINT						m_indexCount =		0;
-	D3D12_VERTEX_BUFFER_VIEW	m_vertexBufferView;
-	D3D12_INDEX_BUFFER_VIEW		m_indexBufferView;
+	ID3D12Resource*				m_vertexBuffer =		nullptr;
+	ID3D12Resource*				m_indexBuffer =			nullptr;
+	UINT						m_vertexCount =			0;
+	UINT						m_indexCount =			0;
+	D3D12_VERTEX_BUFFER_VIEW	m_vertexBufferView =	D3D12_VERTEX_BUFFER_VIEW();
+	D3D12_INDEX_BUFFER_VIEW		m_indexBufferView =		D3D12_INDEX_BUFFER_VIEW();
 };

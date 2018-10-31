@@ -49,6 +49,6 @@ private:
 	void NameResources();
 
 private:
-	UINT			m_matrixBufferWidth;
-	ID3D12Resource*	m_matrixBuffer;
+	ID3D12Resource*	m_matrixBuffer =		nullptr;
+	UINT			m_matrixBufferWidth =	0;
 };

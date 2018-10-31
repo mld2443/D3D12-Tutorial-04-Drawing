@@ -37,8 +37,8 @@ private:
 	UINT		m_xResolution =		1024;
 	UINT		m_yResolution =		768;
 	LPCWSTR		m_applicationName =	L"04 Drawing";
-	HINSTANCE	m_hinstance;
-	HWND		m_hwnd;
+	HINSTANCE	m_hinstance =		NULL;
+	HWND		m_hwnd =			NULL;
 
 	InputClass*		m_Input =		nullptr;
 	GraphicsClass*	m_Graphics =	nullptr;

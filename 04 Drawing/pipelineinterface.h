@@ -43,16 +43,17 @@ protected:
 	vector<ID3D12CommandAllocator*>	m_commandAllocators =	vector<ID3D12CommandAllocator*>(FRAME_BUFFER_COUNT, nullptr);
 	ID3D12GraphicsCommandList*		m_commandList =			nullptr;
 
-	D3D12_SHADER_BYTECODE				m_vsBytecode, m_psBytecode;
-	D3D12_BLEND_DESC					m_blendDesc;
-	D3D12_RASTERIZER_DESC				m_rasterDesc;
-	D3D12_DEPTH_STENCIL_DESC			m_depthStencilDesc;
-	vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc;
+	D3D12_SHADER_BYTECODE				m_vsBytecode =			D3D12_SHADER_BYTECODE();
+	D3D12_SHADER_BYTECODE				m_psBytecode =			D3D12_SHADER_BYTECODE();
+	D3D12_BLEND_DESC					m_blendDesc =			D3D12_BLEND_DESC();
+	D3D12_RASTERIZER_DESC				m_rasterDesc =			D3D12_RASTERIZER_DESC();
+	D3D12_DEPTH_STENCIL_DESC			m_depthStencilDesc =	D3D12_DEPTH_STENCIL_DESC();
+	vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc =		vector<D3D12_INPUT_ELEMENT_DESC>();
 
 	XMMATRIX	m_worldMatrix =	XMMatrixIdentity();
 	XMMATRIX	m_orthoMatrix = XMMatrixIdentity();
 
-	D3D12_VIEWPORT	m_viewport;
-	D3D12_RECT		m_scissorRect;
+	D3D12_VIEWPORT	m_viewport =	D3D12_VIEWPORT();
+	D3D12_RECT		m_scissorRect =	D3D12_RECT();
 };
 

@@ -5,7 +5,10 @@
 #include "systemclass.h"
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
+int WINAPI WinMain(__in HINSTANCE hInstance,
+				   __in_opt HINSTANCE hPrevInstance,
+				   __in PSTR pScmdline,
+				   __in int iCmdshow)
 {
 	SystemClass* System;
 
@@ -20,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	}
 	catch (MessageBoxType exception)
 	{
-		MessageBox(nullptr, exception.message, exception.title, exception.type);
+		MessageBox(NULL, exception.message, exception.title, exception.type);
 		return 1;
 	}
 

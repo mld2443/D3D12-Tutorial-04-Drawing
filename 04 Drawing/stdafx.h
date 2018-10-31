@@ -87,3 +87,4 @@ static void* g_ApplicationHandle = nullptr;
 //////////////////////
 
 using namespace DirectX;
+using namespace std;

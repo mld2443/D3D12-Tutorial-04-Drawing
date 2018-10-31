@@ -39,7 +39,7 @@ void GeometryInterface::Render(ID3D12GraphicsCommandList* commandList)
 
 
 void GeometryInterface::InitializeVertexBuffer(ID3D12Device* device,
-											   const std::vector<VertexType>& vertices)
+											   const vector<VertexType>& vertices)
 {
 	// Set up default and upload heaps for the vertices, load the data and wait for completion.
 	InitializeBuffer(
@@ -62,7 +62,7 @@ void GeometryInterface::InitializeVertexBuffer(ID3D12Device* device,
 
 
 void GeometryInterface::InitializeIndexBuffer(ID3D12Device* device,
-											  const std::vector<UINT32>& indices)
+											  const vector<UINT32>& indices)
 {
 	// Set up default and upload heaps for the indices, load the data and wait for completion.
 	InitializeBuffer(
@@ -87,15 +87,15 @@ void GeometryInterface::InitializeIndexBuffer(ID3D12Device* device,
 template<typename BufferType>
 void GeometryInterface::InitializeBuffer(ID3D12Device* device,
 										 ID3D12Resource** buffer,
-										 const std::vector<BufferType>& data,
+										 const vector<BufferType>& data,
 										 D3D12_RESOURCE_STATES finalState,
-										 std::wstring name)
+										 wstring name)
 {
 	UINT bufferSize;
 	D3D12_HEAP_PROPERTIES heapProps;
 	D3D12_RESOURCE_DESC resourceDesc;
 	ID3D12Resource* uploadBuffer;
-	std::wstring uploadName;
+	wstring uploadName;
 	ID3D12CommandAllocator* commandAllocator;
 	ID3D12GraphicsCommandList* commandList;
 	D3D12_COMMAND_QUEUE_DESC queueDesc;

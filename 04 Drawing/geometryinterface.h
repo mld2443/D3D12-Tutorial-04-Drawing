@@ -29,12 +29,12 @@ public:
 	void Render(ID3D12GraphicsCommandList*);
 
 protected:
-	void InitializeVertexBuffer(ID3D12Device*, const std::vector<VertexType>&);
-	void InitializeIndexBuffer(ID3D12Device*, const std::vector<UINT32>&);
+	void InitializeVertexBuffer(ID3D12Device*, const vector<VertexType>&);
+	void InitializeIndexBuffer(ID3D12Device*, const vector<UINT32>&);
 
 private:
 	template<typename BufferType>
-	static void InitializeBuffer(ID3D12Device*, ID3D12Resource**, const std::vector<BufferType>&, D3D12_RESOURCE_STATES, std::wstring = L"GI buffer");
+	static void InitializeBuffer(ID3D12Device*, ID3D12Resource**, const vector<BufferType>&, D3D12_RESOURCE_STATES, wstring = L"GI buffer");
 
 private:
 	ID3D12Resource*				m_vertexBuffer =	nullptr;

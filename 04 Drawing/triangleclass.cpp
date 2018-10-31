@@ -7,8 +7,8 @@
 
 TriangleClass::TriangleClass(ID3D12Device* device) : GeometryInterface()
 {
-	std::vector<VertexType> vertices;
-	std::vector<UINT32> indices;
+	vector<VertexType> vertices;
+	vector<UINT32> indices;
 
 
 	// Create the new vertex array.

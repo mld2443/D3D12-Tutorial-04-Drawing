@@ -117,7 +117,7 @@ void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
 }
 
 
-void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists, bool vsync)
+void D3DClass::SubmitToQueue(vector<ID3D12CommandList*> lists, bool vsync)
 {
 	// Execute the list of commands.
 	m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
@@ -547,7 +547,7 @@ void D3DClass::InitializeFences()
 
 void D3DClass::NameResources()
 {
-	std::wstring name;
+	wstring name;
 
 
 	// Name all DirectX objects.
@@ -556,14 +556,14 @@ void D3DClass::NameResources()
 	m_renderTargetViewHeap->SetName(L"D3DC render target view heap");
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		name = std::wstring(L"D3DC back buffer render target ") + std::to_wstring(i);
+		name = wstring(L"D3DC back buffer render target ") + to_wstring(i);
 		m_backBufferRenderTarget[i]->SetName(name.c_str());
 	}
 	m_depthStencilViewHeap->SetName(L"D3DC depth stencil view heap");
 	m_depthStencil->SetName(L"D3DC depth stencil");
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		name = std::wstring(L"D3DC fence ") + std::to_wstring(i);
+		name = wstring(L"D3DC fence ") + to_wstring(i);
 		m_fence[i]->SetName(name.c_str());
 	}
 }

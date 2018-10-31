@@ -38,16 +38,16 @@ protected:
 	virtual void InitializePipelineStateObject(ID3D12Device*);
 
 protected:
-	ID3D12RootSignature*					m_rootSignature =		nullptr;
-	ID3D12PipelineState*					m_pipelineState =		nullptr;
-	std::vector<ID3D12CommandAllocator*>	m_commandAllocators =	std::vector<ID3D12CommandAllocator*>(FRAME_BUFFER_COUNT, nullptr);
-	ID3D12GraphicsCommandList*				m_commandList =			nullptr;
+	ID3D12RootSignature*			m_rootSignature =		nullptr;
+	ID3D12PipelineState*			m_pipelineState =		nullptr;
+	vector<ID3D12CommandAllocator*>	m_commandAllocators =	vector<ID3D12CommandAllocator*>(FRAME_BUFFER_COUNT, nullptr);
+	ID3D12GraphicsCommandList*		m_commandList =			nullptr;
 
-	D3D12_SHADER_BYTECODE					m_vsBytecode, m_psBytecode;
-	D3D12_BLEND_DESC						m_blendDesc;
-	D3D12_RASTERIZER_DESC					m_rasterDesc;
-	D3D12_DEPTH_STENCIL_DESC				m_depthStencilDesc;
-	std::vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc;
+	D3D12_SHADER_BYTECODE				m_vsBytecode, m_psBytecode;
+	D3D12_BLEND_DESC					m_blendDesc;
+	D3D12_RASTERIZER_DESC				m_rasterDesc;
+	D3D12_DEPTH_STENCIL_DESC			m_depthStencilDesc;
+	vector<D3D12_INPUT_ELEMENT_DESC>	m_inputLayoutDesc;
 
 	XMMATRIX	m_worldMatrix =	XMMatrixIdentity();
 	XMMATRIX	m_orthoMatrix = XMMatrixIdentity();

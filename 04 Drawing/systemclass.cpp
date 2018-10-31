@@ -146,6 +146,7 @@ void SystemClass::InitializeWindows()
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
 	if (m_fullscreen)
 	{
+		// If we're in fullscreen, update the resolution with that of the display.
 		m_xResolution = screenWidth;
 		m_yResolution = screenHeight;
 
@@ -165,10 +166,6 @@ void SystemClass::InitializeWindows()
 	}
 	else
 	{
-		// If windowed then set it to a default resolution.
-		m_xResolution = 1280;
-		m_yResolution = 720;
-
 		// Place the window in the middle of the screen.
 		posX = (screenWidth - m_xResolution) / 2;
 		posY = (screenHeight - m_yResolution) / 2;

@@ -64,6 +64,7 @@ struct MessageBoxType {
 // CONSTANTS //
 ///////////////
 
+#define FRAME_BUFFER_COUNT 2
 #define PI_180 0.0174532925f
 
 
@@ -79,9 +80,6 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 /////////////
 
 static void* g_ApplicationHandle = nullptr;
-constexpr bool FULL_SCREEN = false;
-constexpr bool VSYNC_ENABLED = true;
-constexpr UINT FRAME_BUFFER_COUNT = 2;
 
 
 //////////////////////

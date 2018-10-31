@@ -5,19 +5,19 @@
 #include "graphicsclass.h"
 
 
-GraphicsClass::GraphicsClass(HWND hwnd, UINT screenWidth, UINT screenHeight)
+GraphicsClass::GraphicsClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen)
 {
 	// Create the camera object with a field of view of 45 degrees.
-	m_Camera = new CameraClass(screenWidth, screenHeight, 45.0f);
+	m_Camera = new CameraClass(xResolution, yResolution, 45.0f);
 
 	// Move the camera back so we can see our scene.
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 
 	// Create and initialize the Direct3D object.
-	m_Direct3D = new D3DClass(hwnd, screenWidth, screenHeight, VSYNC_ENABLED, FULL_SCREEN);
+	m_Direct3D = new D3DClass(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled);
 
 	// Create and initialize the pipeline object.
-	m_Pipeline = new SoloPipelineClass(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex(), screenWidth, screenHeight, m_Camera->GetScreenNear(), m_Camera->GetScreenFar());
+	m_Pipeline = new SoloPipelineClass(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar());
 
 	// Create and initialize the triangle object.
 	m_Geometry = new TriangleClass(m_Direct3D->GetDevice());
@@ -82,5 +82,5 @@ void GraphicsClass::Render()
 	lists.push_back(m_Pipeline->GetCommandList());
 
 	// Finish the scene and submit our lists for drawing.
-	m_Direct3D->SubmitToQueue(lists);
+	m_Direct3D->SubmitToQueue(lists, m_vsyncEnabled);
 }

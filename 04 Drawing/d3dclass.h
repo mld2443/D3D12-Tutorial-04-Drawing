@@ -22,7 +22,7 @@ public:
 
 	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
 	void EndScene(ID3D12GraphicsCommandList*);
-	void SubmitToQueue(std::vector<ID3D12CommandList*>);
+	void SubmitToQueue(std::vector<ID3D12CommandList*>, bool);
 
 	void WaitForNextAvailableFrame();
 	void WaitForAllFrames();
@@ -32,7 +32,7 @@ private:
 
 	void InitializeDevice();
 	void InitializeCommandQueue();
-	void InitializeSwapChain(HWND, UINT, UINT, bool);
+	void InitializeSwapChain(HWND, UINT, UINT, bool, bool);
 	void InitializeRenderTargets();
 	void InitializeDepthStencil(UINT, UINT);
 	void InitializeFences();
@@ -40,7 +40,6 @@ private:
 	void NameResources();
 
 private:
-	bool	m_vsyncEnabled;
 	UINT	m_bufferIndex =		0;
 	UINT	m_videoCardMemory =	0;
 

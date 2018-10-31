@@ -23,7 +23,7 @@ public:
 	GraphicsClass(const GraphicsClass&) = delete;
 	GraphicsClass& operator=(const GraphicsClass&) = delete;
 
-	GraphicsClass(HWND, UINT, UINT);
+	GraphicsClass(HWND, UINT, UINT, bool);
 	~GraphicsClass();
 
 	void Frame();
@@ -32,6 +32,8 @@ private:
 	void Render();
 
 private:
+	bool m_vsyncEnabled =	true;
+
 	D3DClass*			m_Direct3D =	nullptr;
 	CameraClass*		m_Camera =		nullptr;
 	GeometryInterface*	m_Geometry =	nullptr;

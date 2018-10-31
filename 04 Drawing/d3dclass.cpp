@@ -5,13 +5,12 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool vsync, bool fullscreen):
-	m_vsyncEnabled(vsync)
+D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
 {
 	// Initialize the device and all the resources we will need while rendering.
 	InitializeDevice();
 	InitializeCommandQueue();
-	InitializeSwapChain(hwnd, screenWidth, screenHeight, fullscreen);
+	InitializeSwapChain(hwnd, screenWidth, screenHeight, fullscreen, vsync);
 	InitializeRenderTargets();
 	InitializeDepthStencil(screenWidth, screenHeight);
 	InitializeFences();
@@ -118,7 +117,7 @@ void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
 }
 
 
-void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
+void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists, bool vsync)
 {
 	// Execute the list of commands.
 	m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
@@ -134,7 +133,7 @@ void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
 
 	// Finally present the back buffer to the screen since rendering is complete.
 	THROW_IF_FAILED(
-		m_swapChain->Present(m_vsyncEnabled, 0),
+		m_swapChain->Present(vsync, 0),
 		L"Unable to present frame to the display.",
 		L"Display Error"
 	);
@@ -240,7 +239,7 @@ void D3DClass::InitializeCommandQueue()
 }
 
 
-void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen)
+void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
 {
 	UINT dxgiFlags;
 	IDXGIFactory4* factory;
@@ -354,7 +353,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	swapChainDesc.BufferDesc.ScanlineOrdering =	DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling =			DXGI_MODE_SCALING_UNSPECIFIED;
 	swapChainDesc.Flags =						0;
-	if (m_vsyncEnabled)
+	if (vsync)
 	{
 		swapChainDesc.BufferDesc.RefreshRate.Numerator =	numerator;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator =	denominator;

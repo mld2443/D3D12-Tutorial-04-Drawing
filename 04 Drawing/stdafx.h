@@ -37,10 +37,46 @@
 #include <vector>
 
 
+///////////////
+// CONSTANTS //
+///////////////
+
+// Defines the number of back buffers and other variable length resources.
+#define FRAME_BUFFER_COUNT 2
+
+// The value of pi divided by 180.  Used to convert degrees to radians.
+#define PI_180 0.0174532925f
+
+
+//////////////////////
+// USING DIRECTIVES //
+//////////////////////
+
+using namespace DirectX;
+using namespace std;
+
+
+/////////////////////////
+// FUNCTION PROTOTYPES //
+/////////////////////////
+
+// Global function callback for windows messages.
+static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+
+//////////////////////
+// GLOBAL VARIABLES //
+//////////////////////
+
+// Global pointer to our SystemClass instantiation.  Used to redirect windows messages to SystemClass.
+static void* g_ApplicationHandle = nullptr;
+
+
 ////////////////////
 // ERROR HANDLING //
 ////////////////////
 
+// Struct representing the arguments to a MessageBox call.
 struct MessageBoxType {
 	LPCWSTR message;
 	LPCWSTR title;
@@ -58,33 +94,3 @@ struct MessageBoxType {
 #define THROW_IF_FAILED(hr, message, title) if (FAILED(hr)) { THROW_MESSAGE(message, title); }
 #define THROW_IF_TRUE(cond, message, title) if (cond) { THROW_MESSAGE(message, title); }
 #define THROW_IF_FALSE(cond, message, title) THROW_IF_TRUE(!cond, message, title)
-
-
-///////////////
-// CONSTANTS //
-///////////////
-
-#define FRAME_BUFFER_COUNT 2
-#define PI_180 0.0174532925f
-
-
-/////////////////////////
-// FUNCTION PROTOTYPES //
-/////////////////////////
-
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-
-/////////////
-// GLOBALS //
-/////////////
-
-static void* g_ApplicationHandle = nullptr;
-
-
-//////////////////////
-// USING DIRECTIVES //
-//////////////////////
-
-using namespace DirectX;
-using namespace std;

@@ -125,7 +125,9 @@ void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists)
 
 	// Signal and increment the fence value.
 	THROW_IF_FAILED(
-		m_commandQueue->Signal(m_fence[m_bufferIndex], m_fenceValue[m_bufferIndex]),
+		m_commandQueue->Signal(
+			m_fence[m_bufferIndex],
+			m_fenceValue[m_bufferIndex]),
 		L"Unable to signal fence object.",
 		L"Signal Failure"
 	);
@@ -167,7 +169,9 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 	{
 		// We have the fence create an event which is signaled once the fence's current value is "fenceValue"
 		THROW_IF_FAILED(
-			m_fence[frameIndex]->SetEventOnCompletion( m_fenceValue[frameIndex], m_fenceEvent),
+			m_fence[frameIndex]->SetEventOnCompletion(
+				m_fenceValue[frameIndex],
+				m_fenceEvent),
 			L"Unable to set the fence event.",
 			L"Fence Event Error."
 		);
@@ -280,7 +284,11 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
 	THROW_IF_FAILED(
-		adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, nullptr),
+		adapterOutput->GetDisplayModeList(
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			DXGI_ENUM_MODES_INTERLACED,
+			&numModes,
+			nullptr),
 		L"Unable to communicate with graphics adapter.",
 		L"Adapter Failure"
 	);
@@ -290,7 +298,11 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 
 	// Now fill the display mode list structures.
 	THROW_IF_FAILED(
-		adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList),
+		adapterOutput->GetDisplayModeList(
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			DXGI_ENUM_MODES_INTERLACED,
+			&numModes,
+			displayModeList),
 		L"Unable to communicate with graphics adapter.",
 		L"Adapter Failure"
 	);
@@ -383,17 +395,18 @@ void D3DClass::InitializeRenderTargets()
 	UINT renderTargetViewDescriptorSize;
 
 
-	// Initialize the render target view heap description for the two back buffers.
+	// Set the number of descriptors to two for our two back buffers.
+	// Also set the heap type to render target views.
 	ZeroMemory(&renderTargetViewHeapDesc, sizeof(renderTargetViewHeapDesc));
-
-	// Set the number of descriptors to two for our two back buffers.  Also set the heap type to render target views.
 	renderTargetViewHeapDesc.NumDescriptors =	FRAME_BUFFER_COUNT;
 	renderTargetViewHeapDesc.Type =				D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	renderTargetViewHeapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	// Create the render target view heap for the back buffers.
 	THROW_IF_FAILED(
-		m_device->CreateDescriptorHeap(&renderTargetViewHeapDesc, IID_PPV_ARGS(&m_renderTargetViewHeap)),
+		m_device->CreateDescriptorHeap(
+			&renderTargetViewHeapDesc,
+			IID_PPV_ARGS(&m_renderTargetViewHeap)),
 		L"Unable to create the render target heap on the graphics device.",
 		L"Heap Allocation Error"
 	);
@@ -408,7 +421,9 @@ void D3DClass::InitializeRenderTargets()
 	{
 		// Get a pointer to the next back buffer from the swap chain.
 		THROW_IF_FAILED(
-			m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBufferRenderTarget[i])),
+			m_swapChain->GetBuffer(
+				i,
+				IID_PPV_ARGS(&m_backBufferRenderTarget[i])),
 			L"Unable to communicate with the swap chain.",
 			L"Swap Chain Error"
 		);
@@ -466,7 +481,13 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 
 	//
 	THROW_IF_FAILED(
-		m_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &depthOptimizedClearValue, IID_PPV_ARGS(&m_depthStencil)),
+		m_device->CreateCommittedResource(
+			&heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&resourceDesc,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			&depthOptimizedClearValue,
+			IID_PPV_ARGS(&m_depthStencil)),
 		L"Unable to allocate the depth buffer on the graphics device.",
 		L"Resource Allocation Error"
 	);
@@ -479,7 +500,9 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 
 	//
 	THROW_IF_FAILED(
-		m_device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_depthStencilViewHeap)),
+		m_device->CreateDescriptorHeap(
+			&heapDesc,
+			IID_PPV_ARGS(&m_depthStencilViewHeap)),
 		L"Unable to create the render target heap on the graphics device.",
 		L"Heap Allocation Error"
 	);
@@ -501,7 +524,10 @@ void D3DClass::InitializeFences()
 	{
 		// Create fences for GPU synchronization.
 		THROW_IF_FAILED(
-			m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence[i])),
+			m_device->CreateFence(
+				0,
+				D3D12_FENCE_FLAG_NONE,
+				IID_PPV_ARGS(&m_fence[i])),
 			L"Unable to create synchronization fences on the graphics device.",
 			L"Fence Error"
 		);

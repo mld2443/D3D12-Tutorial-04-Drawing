@@ -21,23 +21,29 @@ PipelineInterface::~PipelineInterface()
 void PipelineInterface::OpenPipeline(UINT frameIndex)
 {
 	// Reset the memory that was holding the previously submitted command list.
-	THROW_IF_FAILED(m_commandAllocators[frameIndex]->Reset(),
+	THROW_IF_FAILED(
+		m_commandAllocators[frameIndex]->Reset(),
 		L"Unable to reset command allocator.  Its associated memory may still be in use.",
-		L"Pipeline Access Error");
+		L"Pipeline Access Error"
+	);
 
 	// Reset our command list to prepare it for new commands.
-	THROW_IF_FAILED(m_commandList->Reset(m_commandAllocators[frameIndex], m_pipelineState),
+	THROW_IF_FAILED(
+		m_commandList->Reset(m_commandAllocators[frameIndex], m_pipelineState),
 		L"Unable to reset command list.  It may not have been closed or submitted properly.",
-		L"Command List Reset Error");
+		L"Command List Reset Error"
+	);
 }
 
 
 void PipelineInterface::ClosePipeline()
 {
 	// Close the command list so it can be submitted to a command queue.
-	THROW_IF_FAILED(m_commandList->Close(),
+	THROW_IF_FAILED(
+		m_commandList->Close(),
 		L"Unable to close command list.  It may not have been reset properly.",
-		L"Command List Close Error");
+		L"Command List Close Error"
+	);
 }
 
 
@@ -62,9 +68,11 @@ ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
 void PipelineInterface::InitializePipeline(ID3D12Device* device)
 {
 	// Check that the root signature is properly set up before using.
-	THROW_IF_FALSE(m_rootSignature,
+	THROW_IF_FALSE(
+		m_rootSignature,
 		L"Pipeline failed to initialize root signature correctly.",
-		L"Graphics Pipeline Initialization Failure");
+		L"Graphics Pipeline Initialization Failure"
+	);
 
 	// First we need to set all the descriptions for the pipeline.
 	SetShaderBytecode();
@@ -83,20 +91,32 @@ void PipelineInterface::InitializeCommandList(ID3D12Device* device, UINT frameIn
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		// Create command allocators, one for each frame.
-		THROW_IF_FAILED(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators[i])),
+		THROW_IF_FAILED(
+			device->CreateCommandAllocator(
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				IID_PPV_ARGS(&m_commandAllocators[i])),
 			L"Unable to create the command allocator object.",
-			L"Graphics Pipeline Initialization Failure");
+			L"Graphics Pipeline Initialization Failure"
+		);
 	}
 
 	// Create a command list.
-	THROW_IF_FAILED(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocators[frameIndex], nullptr, IID_PPV_ARGS(&m_commandList)),
+	THROW_IF_FAILED(
+		device->CreateCommandList(
+			0,
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			m_commandAllocators[frameIndex],
+			nullptr, IID_PPV_ARGS(&m_commandList)),
 		L"Unable to create the command list object.",
-		L"Graphics Pipeline Initialization Failure");
+		L"Graphics Pipeline Initialization Failure"
+	);
 
 	// Initially we need to close the command list during initialization as it is created in a recording state.
-	THROW_IF_FAILED(m_commandList->Close(),
+	THROW_IF_FAILED(
+		m_commandList->Close(),
 		L"Unable to close command list after creation.",
-		L"Graphics Pipeline Initialization Failure");
+		L"Graphics Pipeline Initialization Failure"
+	);
 }
 
 
@@ -212,7 +232,11 @@ void PipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
 	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	// Create the pipeline state.
-	THROW_IF_FAILED(device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&m_pipelineState)),
+	THROW_IF_FAILED(
+		device->CreateGraphicsPipelineState(
+			&pipelineStateDesc,
+			IID_PPV_ARGS(&m_pipelineState)),
 		L"The pipeline state object failed to initialize.",
-		L"Pipeline Initializer Failure");
+		L"Pipeline Initializer Failure"
+	);
 }

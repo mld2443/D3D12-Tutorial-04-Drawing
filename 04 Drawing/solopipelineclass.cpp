@@ -46,9 +46,11 @@ void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatr
 	ZeroMemory(&range, sizeof(range));
 
 	// Lock the constant buffer so it can be written to.
-	THROW_IF_FAILED(m_matrixBuffer->Map(0, &range, reinterpret_cast<void**>(&mappedResource)),
+	THROW_IF_FAILED(
+		m_matrixBuffer->Map(0, &range, reinterpret_cast<void**>(&mappedResource)),
 		L"Unable to access the memory of the graphics device.",
-		L"Graphics Device Communication Failure");
+		L"Graphics Device Communication Failure"
+	);
 
 	// Get a pointer to the correct buffer offset location.
 	dataPtr = reinterpret_cast<MatrixBufferType*>(&mappedResource[frameIndex * m_matrixBufferWidth]);
@@ -114,9 +116,17 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_NONE;
 
 	// Allocate the memory on the GPU.
-	THROW_IF_FAILED(device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&m_matrixBuffer)),
+	THROW_IF_FAILED(
+		device->CreateCommittedResource(
+			&heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&resourceDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&m_matrixBuffer)),
 		L"Unable to allocate space on the graphics device.",
-		L"Hardware Memory Allocation Failure");
+		L"Hardware Memory Allocation Failure"
+	);
 
 	// Name the buffer for use while debugging.
 	m_matrixBuffer->SetName(L"SPC matrix buffer");
@@ -144,14 +154,26 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 	rootSignatureDesc.Flags =				rootSignatureFlags;
 
 	// Serialize the signature, preparing it for creation on the device.
-	THROW_IF_FAILED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, nullptr),
+	THROW_IF_FAILED(
+		D3D12SerializeRootSignature(
+			&rootSignatureDesc,
+			D3D_ROOT_SIGNATURE_VERSION_1,
+			&signature,
+			nullptr),
 		L"Unable to serialize the root signature for initialization on the graphics device.",
-		L"Root Signature Initialization Failure");
+		L"Root Signature Initialization Failure"
+	);
 
 	// Create the root signature on our device.
-	THROW_IF_FAILED(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)),
+	THROW_IF_FAILED(
+		device->CreateRootSignature(
+			0,
+			signature->GetBufferPointer(),
+			signature->GetBufferSize(),
+			IID_PPV_ARGS(&m_rootSignature)),
 		L"Unable to create the root signature for this graphics pipeline.",
-		L"Root Signature Initialization Failure");
+		L"Root Signature Initialization Failure"
+	);
 }
 
 

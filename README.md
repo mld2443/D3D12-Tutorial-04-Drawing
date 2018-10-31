@@ -1,10 +1,10 @@
 # Tutorial 04: Drawing
 This tutorial is currently a work in progress. This particular tutorial will eventually be part 4, but it is currently a prototype of my implementation and style. Check the issues for info about progress toward completion.
 
-![04 drawing](https://user-images.githubusercontent.com/5340992/47532732-cbb24a80-d876-11e8-99ee-40c7c556ffc3.png)
+![04 drawing](https://user-images.githubusercontent.com/5340992/47807384-e6b70b80-dd09-11e8-89d8-f569826e07eb.png)
 
 ## Motivation
-This project was inspired by [RasterTek](http://rastertek.com/tutindex.html) where I found excellent tutorials on DirectX 11, and who started working on DirectX 12, but stopped abruptly for some reason. He didn't get very far, and so it's my intent to pick up where he left off, and do a DirecX 12 tutorial my way.
+This project was inspired by [RasterTek](http://rastertek.com/tutindex.html) where I found excellent tutorials on DirectX 11, and who started working on DirectX 12, but stopped abruptly for some reason. He didn't get very far, so it's my intent to pick up where he left off, and do a DirectX 12 tutorial my way.
 
 ## Other Resources
 * [RasterTek](http://rastertek.com/tutindex.html): For DirectX 11 API reference, and others.

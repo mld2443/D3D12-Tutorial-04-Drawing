@@ -61,14 +61,14 @@ void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatr
 	dataPtr->projection = XMMatrixTranspose(projectionMatrix);
 
 	// Set the range of data that we wrote to.
-	range.Begin =	frameIndex * m_matrixBufferWidth;
+	range.Begin =	static_cast<SIZE_T>(frameIndex) * static_cast<SIZE_T>(m_matrixBufferWidth);
 	range.End =		range.Begin + m_matrixBufferWidth;
 
 	// Unlock the constant buffer.
 	m_matrixBuffer->Unmap(0, &range);
 
 	// Tell the root descriptor where the data for our matrix buffer is located.
-	m_commandList->SetGraphicsRootConstantBufferView(0, m_matrixBuffer->GetGPUVirtualAddress() + frameIndex * m_matrixBufferWidth);
+	m_commandList->SetGraphicsRootConstantBufferView(0, m_matrixBuffer->GetGPUVirtualAddress() + range.Begin);
 
 	// Set the window viewport.
 	m_commandList->RSSetViewports(1, &m_viewport);
@@ -91,7 +91,7 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 	m_matrixBufferWidth = (sizeof(MatrixBufferType) + 255) & ~255;
 
 	// Because CPU and GPU are asynchronus, we need to make room for multiple frames worth of matrices.
-	bufferSize = m_matrixBufferWidth * FRAME_BUFFER_COUNT;
+	bufferSize = static_cast<UINT64>(m_matrixBufferWidth) * FRAME_BUFFER_COUNT;
 
 	// Create description for our constant buffer heap type.
 	ZeroMemory(&heapProps, sizeof(heapProps));

@@ -80,7 +80,7 @@ void D3DClass::BeginScene(ID3D12GraphicsCommandList* commandList,
 	// Get the render target view handle for the current back buffer.
 	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
 	renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * m_bufferIndex;
+	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * static_cast<SIZE_T>(m_bufferIndex);
 
 	// Get the depth stencil view handle.
 	depthStencilViewHandle = m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
@@ -244,7 +244,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	IDXGIFactory4* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
-	unsigned int numModes, numerator, denominator;
+	UINT numModes, numerator, denominator;
 	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
@@ -280,6 +280,9 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 		L"Adapter Failure"
 	);
 
+	// Initialize numModes to zero.
+	numModes = 0;
+
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
 	THROW_IF_FAILED(
 		adapterOutput->GetDisplayModeList(
@@ -305,17 +308,17 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 		L"Adapter Failure"
 	);
 
+	// Initialize numerator and denominator to 0.
+	numerator = denominator = 0;
+
 	// Now go through all the display modes and find the one that matches the screen height and width.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
 	for (UINT i = 0; i < numModes; ++i)
 	{
-		if (displayModeList[i].Height == screenHeight)
+		if (displayModeList[i].Height == screenHeight && displayModeList[i].Width == screenWidth)
 		{
-			if (displayModeList[i].Width == screenWidth)
-			{
-				numerator = displayModeList[i].RefreshRate.Numerator;
-				denominator = displayModeList[i].RefreshRate.Denominator;
-			}
+			numerator = displayModeList[i].RefreshRate.Numerator;
+			denominator = displayModeList[i].RefreshRate.Denominator;
 		}
 	}
 

@@ -111,7 +111,7 @@ D3D12_GPU_VIRTUAL_ADDRESS PipelineInterface::SetConstantBuffer(UINT frameIndex, 
 	bufferOffset = static_cast<SIZE_T>(frameIndex) * m_constantBufferWidth;
 
 	// Create a zero-width read range, [0, 0].
-	// This is a signal to the GPU to not worry about the accuracy of the data within.
+	// This is a signal to the GPU that we won't be reading the data within.
 	ZeroMemory(&range, sizeof(range));
 
 	// Lock the constant buffer so it can be written to.
@@ -122,8 +122,7 @@ D3D12_GPU_VIRTUAL_ADDRESS PipelineInterface::SetConstantBuffer(UINT frameIndex, 
 	);
 
 	// Copy the data to the buffer.
-	memcpy(&mappedResource[bufferOffset], data, dataSize);
-	//memcpy(mappedResource + bufferOffset, data, dataSize);
+	memcpy(mappedResource + bufferOffset, data, dataSize);
 
 	// Set the range of data that we wrote to.
 	range.Begin =	bufferOffset;
@@ -132,6 +131,6 @@ D3D12_GPU_VIRTUAL_ADDRESS PipelineInterface::SetConstantBuffer(UINT frameIndex, 
 	// Unlock the constant buffer.
 	m_constantBuffer->Unmap(0, &range);
 
-	// Tell the root descriptor where the data for our matrix buffer is located.
+	// Return an address to where the data for this matrix buffer is located.
 	return m_constantBuffer->GetGPUVirtualAddress() + bufferOffset;
 }

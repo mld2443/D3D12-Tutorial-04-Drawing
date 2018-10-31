@@ -5,11 +5,11 @@
 #include "cameraclass.h"
 
 
-CameraClass::CameraClass(UINT screenWidth, UINT screenHeight, float fieldOfView, float screenNear, float screenFar) :
-	m_screenWidth(screenWidth),
-	m_screenHeight(screenHeight),
-	m_fieldOfView(fieldOfView),
-	m_aspectRatio((float)screenWidth / (float)screenHeight),
+CameraClass::CameraClass(UINT xResolution, UINT yResolution, float fieldOfView, float screenNear, float screenFar) :
+	m_xResolution(xResolution),
+	m_yResolution(yResolution),
+	m_fieldOfView(fieldOfView * PI_180),
+	m_aspectRatio((float)xResolution / (float)yResolution),
 	m_screenNear(screenNear),
 	m_screenFar(screenFar)
 {
@@ -17,15 +17,15 @@ CameraClass::CameraClass(UINT screenWidth, UINT screenHeight, float fieldOfView,
 }
 
 
-UINT CameraClass::GetScreenWidth()
+UINT CameraClass::GeXResolution()
 {
-	return m_screenWidth;
+	return m_xResolution;
 }
 
 
-UINT CameraClass::GetScreenHeight()
+UINT CameraClass::GetYResolution()
 {
-	return m_screenHeight;
+	return m_yResolution;
 }
 
 
@@ -53,9 +53,9 @@ XMMATRIX CameraClass::GetProjectionMatrix()
 }
 
 
-void CameraClass::SetFieldOfView(float fieldOfView)
+void CameraClass::SetFieldOfViewInDegrees(float fieldOfView)
 {
-	m_fieldOfView = fieldOfView;
+	m_fieldOfView = fieldOfView * PI_180;
 
 	UpdateProjectionMatrix();
 }

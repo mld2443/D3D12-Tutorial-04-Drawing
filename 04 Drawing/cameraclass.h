@@ -17,14 +17,14 @@ public:
 	CameraClass(UINT, UINT, float, float = 0.1f, float = 1'000.0f);
 	~CameraClass() = default;
 
-	UINT GetScreenWidth();
-	UINT GetScreenHeight();
+	UINT GeXResolution();
+	UINT GetYResolution();
 	float GetScreenNear();
 	float GetScreenFar();
 	XMMATRIX GetViewMatrix();
 	XMMATRIX GetProjectionMatrix();
 
-	void SetFieldOfView(float);
+	void SetFieldOfViewInDegrees(float);
 	void SetPosition(float, float, float);
 	void SetRotationInDegrees(float, float, float);
 	void SetLookDirection(float, float, float);
@@ -35,7 +35,7 @@ private:
 	void UpdateProjectionMatrix();
 
 private:
-	UINT		m_screenWidth, m_screenHeight;
+	UINT		m_xResolution, m_yResolution;
 	float		m_fieldOfView, m_aspectRatio;
 	float		m_screenNear, m_screenFar;
 

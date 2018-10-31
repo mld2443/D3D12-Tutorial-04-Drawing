@@ -64,8 +64,7 @@ struct MessageBoxType {
 // CONSTANTS //
 ///////////////
 
-constexpr auto PI = 3.141592654f;
-constexpr auto PI_180 = 0.0174532925f;
+#define PI_180 0.0174532925f
 
 
 /////////////////////////

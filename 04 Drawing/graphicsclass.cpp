@@ -8,7 +8,7 @@
 GraphicsClass::GraphicsClass(HWND hwnd, UINT screenWidth, UINT screenHeight)
 {
 	// Create the camera object with a field of view of 45 degrees.
-	m_Camera = new CameraClass(screenWidth, screenHeight, PI / 4.0f);
+	m_Camera = new CameraClass(screenWidth, screenHeight, 45.0f);
 
 	// Move the camera back so we can see our scene.
 	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);

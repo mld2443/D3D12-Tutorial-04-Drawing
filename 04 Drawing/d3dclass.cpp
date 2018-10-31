@@ -162,11 +162,11 @@ void D3DClass::WaitForAllFrames()
 
 void D3DClass::WaitForFrameIndex(UINT frameIndex)
 {
-	// if the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
-	// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command
+	// If the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
+	// the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command.
 	if (m_fence[frameIndex]->GetCompletedValue() < m_fenceValue[frameIndex])
 	{
-		// We have the fence create an event which is signaled once the fence's current value is "fenceValue"
+		// We have the fence signal the fenceEvent once the fence's current value is "fenceValue".
 		THROW_IF_FAILED(
 			m_fence[frameIndex]->SetEventOnCompletion(
 				m_fenceValue[frameIndex],
@@ -175,8 +175,7 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 			L"Fence Event Error."
 		);
 
-		// We will wait until the fence has triggered the event that it's current value has reached "fenceValue". once it's value
-		// has reached "fenceValue", we know the command queue has finished executing
+		// Wait for the fence event to complete, with no timeout.
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
 
@@ -441,22 +440,30 @@ void D3DClass::InitializeRenderTargets()
 
 void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 {
-	D3D12_CLEAR_VALUE depthOptimizedClearValue;
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
 	D3D12_HEAP_PROPERTIES heapProps;
 	D3D12_RESOURCE_DESC resourceDesc;
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
+	D3D12_CLEAR_VALUE depthOptimizedClearValue;
 	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 
 
-	//TODO: Fill out these comments.
+	// Define the heap where we'll keep the DSV.
+	ZeroMemory(&heapDesc, sizeof(heapDesc));
+	heapDesc.NumDescriptors =	1;
+	heapDesc.Type =				D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	heapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	//
-	ZeroMemory(&depthOptimizedClearValue, sizeof(depthOptimizedClearValue));
-	depthOptimizedClearValue.Format =				DXGI_FORMAT_D32_FLOAT;
-	depthOptimizedClearValue.DepthStencil.Depth =	1.0f;
-	depthOptimizedClearValue.DepthStencil.Stencil =	0;
+	// Create our heap.  It must be created before it can be used to create the DSV.
+	THROW_IF_FAILED(
+		m_device->CreateDescriptorHeap(
+			&heapDesc,
+			IID_PPV_ARGS(&m_depthStencilViewHeap)),
+		L"Unable to create the render target heap on the graphics device.",
+		L"Heap Allocation Error"
+	);
 
-	//
+	// Set the heap properties for the heap where we keep the DSV.  This heap
+	// is inaccessible from the CPU, and everythin else is set to defaults.
 	ZeroMemory(&heapProps, sizeof(heapProps));
 	heapProps.Type =					D3D12_HEAP_TYPE_DEFAULT;
 	heapProps.CPUPageProperty =			D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -464,7 +471,8 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 	heapProps.CreationNodeMask =		1;
 	heapProps.VisibleNodeMask =			1;
 
-	//
+	// Define the resource attributes of our DSV.  It is a 2D texture, with a resolution, and
+	// the format is a D32 float.  This format should match our pipeline state object DSVformat.
 	ZeroMemory(&resourceDesc, sizeof(resourceDesc));
 	resourceDesc.Dimension =			D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Alignment =			0;
@@ -478,7 +486,14 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 	resourceDesc.Layout =				D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-	//
+	// Just like how the RTV needs a color to clear to, the DSV needs a value to
+	// clear to.  We set this value as infimite depth, and black for the stencil.
+	ZeroMemory(&depthOptimizedClearValue, sizeof(depthOptimizedClearValue));
+	depthOptimizedClearValue.Format =				DXGI_FORMAT_D32_FLOAT;
+	depthOptimizedClearValue.DepthStencil.Depth =	1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil =	0;
+
+	// Create the resource our depth stencil will be using.
 	THROW_IF_FAILED(
 		m_device->CreateCommittedResource(
 			&heapProps,
@@ -491,28 +506,14 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 		L"Resource Allocation Error"
 	);
 
-	//
-	ZeroMemory(&heapDesc, sizeof(heapDesc));
-	heapDesc.NumDescriptors =	1;
-	heapDesc.Type =				D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	heapDesc.Flags =			D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-	//
-	THROW_IF_FAILED(
-		m_device->CreateDescriptorHeap(
-			&heapDesc,
-			IID_PPV_ARGS(&m_depthStencilViewHeap)),
-		L"Unable to create the render target heap on the graphics device.",
-		L"Heap Allocation Error"
-	);
-
-	//
+	// Define the attributes of our depth stencil.  These need to match what we
+	// have used so far, as well as what is stated in the pipeline state object.
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 	depthStencilViewDesc.Format =			DXGI_FORMAT_D32_FLOAT;
 	depthStencilViewDesc.ViewDimension =	D3D12_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Flags =			D3D12_DSV_FLAG_NONE;
 
-	//
+	// Finally, we can create the depth stencil view itself.
 	m_device->CreateDepthStencilView(m_depthStencil, &depthStencilViewDesc, m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart());
 }
 

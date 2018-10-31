@@ -4,43 +4,45 @@
 #pragma once
 
 
-//////////////
-// INCLUDES //
-//////////////
-#include <directxmath.h>
-
-
-///////////////
-// CONSTANTS //
-///////////////
-#define PI_180 0.0174532925f
-
-using namespace DirectX;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: CameraClass
 ////////////////////////////////////////////////////////////////////////////////
 class CameraClass
 {
 public:
-	CameraClass();
-	CameraClass(const CameraClass&);
-	~CameraClass();
+	CameraClass() = delete;
+	CameraClass(const CameraClass&) = delete;
+	CameraClass& operator=(const CameraClass&) = delete;
 
+	CameraClass(UINT, UINT, float, float = 0.1f, float = 1'000.0f);
+	~CameraClass() = default;
+
+	UINT GeXResolution();
+	UINT GetYResolution();
+	float GetScreenNear();
+	float GetScreenFar();
+	XMMATRIX GetViewMatrix();
+	XMMATRIX GetProjectionMatrix();
+
+	void SetFieldOfViewInDegrees(float);
 	void SetPosition(float, float, float);
+	void SetRotationInDegrees(float, float, float);
 	void SetLookDirection(float, float, float);
-	void SetRotation(float, float, float);
-
-	XMFLOAT3 GetPosition();
-	XMFLOAT3 GetLookDirection();
-	XMFLOAT3 GetRotation();
 
 	void Render();
-	XMMATRIX GetViewMatrix();
 
 private:
-	XMFLOAT3	m_position;
-	XMFLOAT3	m_lookDirection;
-	XMFLOAT3	m_rotation;
-	XMMATRIX	m_viewMatrix;
+	void UpdateProjectionMatrix();
+
+private:
+	UINT		m_xResolution, m_yResolution;
+	float		m_fieldOfView, m_aspectRatio;
+	float		m_screenNear, m_screenFar;
+
+	XMVECTOR	m_position =			XMVectorZero();
+	XMVECTOR	m_rotation =			XMVectorZero();
+	XMVECTOR	m_lookDirection =		XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+
+	XMMATRIX	m_viewMatrix =			XMMatrixIdentity();
+	XMMATRIX	m_projectionMatrix =	XMMatrixIdentity();
 };

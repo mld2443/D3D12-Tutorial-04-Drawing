@@ -10,17 +10,17 @@
 class InputClass
 {
 public:
-	InputClass();
-	InputClass(const InputClass&);
-	~InputClass();
+	InputClass(const InputClass&) = delete;
+	InputClass& operator=(const InputClass&) = delete;
 
-	void Initialize();
+	InputClass() = default;
+	~InputClass() = default;
 
-	void KeyDown(unsigned int);
-	void KeyUp(unsigned int);
+	void KeyDown(UINT);
+	void KeyUp(UINT);
 
-	bool IsKeyDown(unsigned int);
+	bool IsKeyDown(UINT);
 
 private:
-	bool	m_keys[256];
+	std::vector<bool>	m_keys =	std::vector<bool>(256, false);
 };

@@ -1,73 +1,49 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: pipelineinterface.cpp
 ////////////////////////////////////////////////////////////////////////////////
+#include "stdafx.h"
 #include "pipelineinterface.h"
-
-
-PipelineInterface::PipelineInterface()
-{
-	m_rootSignature = nullptr;
-	m_pipelineState = nullptr;
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		m_commandAllocator[i] = nullptr;
-	}
-	m_commandList = nullptr;
-}
-
-
-PipelineInterface::PipelineInterface(const PipelineInterface& other)
-{
-}
 
 
 PipelineInterface::~PipelineInterface()
 {
+	// Release reserved resources.
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		SAFE_RELEASE(m_commandAllocators[i]);
+	}
+	SAFE_RELEASE(m_commandList);
+	SAFE_RELEASE(m_pipelineState);
+	SAFE_RELEASE(m_rootSignature);
 }
 
 
-bool PipelineInterface::OpenPipeline(unsigned int frameIndex)
+void PipelineInterface::OpenPipeline(UINT frameIndex)
 {
-	HRESULT result;
-
-
 	// Reset the memory that was holding the previously submitted command list.
-	result = m_commandAllocator[frameIndex]->Reset();
-	if (FAILED(result))
-	{
-		return false;
-	}
+	THROW_IF_FAILED(
+		m_commandAllocators[frameIndex]->Reset(),
+		L"Unable to reset command allocator.  Its associated memory may still be in use.",
+		L"Pipeline Access Error"
+	);
 
 	// Reset our command list to prepare it for new commands.
-	result = m_commandList->Reset(m_commandAllocator[frameIndex], m_pipelineState);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
+	THROW_IF_FAILED(
+		m_commandList->Reset(m_commandAllocators[frameIndex], m_pipelineState),
+		L"Unable to reset command list.  It may not have been closed or submitted properly.",
+		L"Command List Reset Error"
+	);
 }
 
 
-bool PipelineInterface::ClosePipeline()
+void PipelineInterface::ClosePipeline()
 {
-	HRESULT result;
-
-
 	// Close the command list so it can be submitted to a command queue.
-	result = m_commandList->Close();
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
-}
-
-
-XMMATRIX PipelineInterface::GetProjectionMatrix()
-{
-	return m_projectionMatrix;
+	THROW_IF_FAILED(
+		m_commandList->Close(),
+		L"Unable to close command list.  It may not have been reset properly.",
+		L"Command List Close Error"
+	);
 }
 
 
@@ -89,12 +65,14 @@ ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
 }
 
 
-bool PipelineInterface::InitializePipeline(ID3D12Device* device)
+void PipelineInterface::InitializePipeline(ID3D12Device* device)
 {
-	bool result;
-
-
-	//TODO: Check that the root signature is set up. Maybe remove the InitializeRootSignature pure function.
+	// Check that the root signature is properly set up before using.
+	THROW_IF_FALSE(
+		m_rootSignature,
+		L"Pipeline failed to initialize root signature correctly.",
+		L"Graphics Pipeline Initialization Failure"
+	);
 
 	// First we need to set all the descriptions for the pipeline.
 	SetShaderBytecode();
@@ -104,128 +82,67 @@ bool PipelineInterface::InitializePipeline(ID3D12Device* device)
 	SetInputLayoutDesc();
 
 	// Then we can initialize the pipeline state and parameters.
-	result = InitializePipelineStateObject(device);
-	if (!result)
-	{
-		return false;
-	}
-
-	return true;
+	InitializePipelineStateObject(device);
 }
 
 
-bool PipelineInterface::InitializeCommandList(ID3D12Device* device, unsigned int frameIndex)
+void PipelineInterface::InitializeCommandList(ID3D12Device* device, UINT frameIndex)
 {
-	HRESULT result;
-
-
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		// Create command allocators, one for each frame.
-		result = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator[i]));
-		if (FAILED(result))
-		{
-			return false;
-		}
+		THROW_IF_FAILED(
+			device->CreateCommandAllocator(
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				IID_PPV_ARGS(&m_commandAllocators[i])),
+			L"Unable to create the command allocator object.",
+			L"Graphics Pipeline Initialization Failure"
+		);
 	}
 
 	// Create a command list.
-	result = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator[frameIndex], nullptr, IID_PPV_ARGS(&m_commandList));
-	if (FAILED(result))
-	{
-		return false;
-	}
+	THROW_IF_FAILED(
+		device->CreateCommandList(
+			0,
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			m_commandAllocators[frameIndex],
+			nullptr, IID_PPV_ARGS(&m_commandList)),
+		L"Unable to create the command list object.",
+		L"Graphics Pipeline Initialization Failure"
+	);
 
 	// Initially we need to close the command list during initialization as it is created in a recording state.
-	result = m_commandList->Close();
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
+	THROW_IF_FAILED(
+		m_commandList->Close(),
+		L"Unable to close command list after creation.",
+		L"Graphics Pipeline Initialization Failure"
+	);
 }
 
 
-void PipelineInterface::InitializeViewport(int screenWidth, int screenHeight, float screenDepth, float screenNear)
+void PipelineInterface::InitializeViewport(UINT screenWidth, UINT screenHeight, float screenNear, float screenFar)
 {
-	float fieldOfView, screenAspect;
-
-
-	// Set up the projection matrix.
-	fieldOfView = PI / 4.0f;
-	screenAspect = (float)screenWidth / (float)screenHeight;
-
-	//TODO: The projection matrix feels like it belongs in the camera class.
-	// Create the projection matrix for 3D rendering.
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
-
 	// Initialize the world matrix to the identity matrix.
 	m_worldMatrix = XMMatrixIdentity();
 
 	// Create an orthographic projection matrix for 2D rendering.
-	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar);
 
 	// Set up the viewport for rendering.
 	ZeroMemory(&m_viewport, sizeof(m_viewport));
 	m_viewport.Width =		(float)screenWidth;
 	m_viewport.Height =		(float)screenHeight;
-	m_viewport.MinDepth =	0.0f;
+	m_viewport.MinDepth =	D3D12_DEFAULT_VIEWPORT_MIN_DEPTH;
 	m_viewport.MaxDepth =	1.0f;
-	m_viewport.TopLeftX =	0.0f;
-	m_viewport.TopLeftY =	0.0f;
+	m_viewport.TopLeftX =	D3D12_DEFAULT_VIEWPORT_TOPLEFTX;
+	m_viewport.TopLeftY =	D3D12_DEFAULT_VIEWPORT_TOPLEFTY;
 
 	// Set up the scissor rect for the viewport.
 	ZeroMemory(&m_scissorRect, sizeof(m_scissorRect));
-	m_scissorRect.left =	0;
-	m_scissorRect.top =		0;
+	m_scissorRect.left =	D3D12_DEFAULT_SCISSOR_STARTX;
+	m_scissorRect.top =		D3D12_DEFAULT_SCISSOR_STARTY;
 	m_scissorRect.right =	screenWidth;
 	m_scissorRect.bottom =	screenHeight;
-
-	return;
-}
-
-
-void PipelineInterface::ShutdownPipeline()
-{
-	// Release the pipeline state object.
-	if (m_pipelineState)
-	{
-		m_pipelineState->Release();
-		m_pipelineState = nullptr;
-	}
-
-	// Release the root signature.
-	if (m_rootSignature)
-	{
-		m_rootSignature->Release();
-		m_rootSignature = nullptr;
-	}
-
-	return;
-}
-
-
-void PipelineInterface::ShutdownCommandList()
-{
-	// Release the command list.
-	if (m_commandList)
-	{
-		m_commandList->Release();
-		m_commandList = nullptr;
-	}
-
-	// Release the command allocators.
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		if (m_commandAllocator[i])
-		{
-			m_commandAllocator[i]->Release();
-			m_commandAllocator[i] = nullptr;
-		}
-	}
-
-	return;
 }
 
 
@@ -244,8 +161,6 @@ void PipelineInterface::SetBlendDesc()
 	m_blendDesc.RenderTarget[0].DestBlendAlpha =		D3D12_BLEND_ZERO;
 	m_blendDesc.RenderTarget[0].BlendOpAlpha =			D3D12_BLEND_OP_ADD;
 	m_blendDesc.RenderTarget[0].RenderTargetWriteMask =	0x0f;
-
-	return;
 }
 
 
@@ -264,8 +179,6 @@ void PipelineInterface::SetRasterDesc()
 	m_rasterDesc.AntialiasedLineEnable =	false;
 	m_rasterDesc.ForcedSampleCount =		0;
 	m_rasterDesc.ConservativeRaster =		D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-
-	return;
 }
 
 
@@ -291,14 +204,11 @@ void PipelineInterface::SetDepthStencilDesc()
 	m_depthStencilDesc.BackFace.StencilDepthFailOp =	D3D12_STENCIL_OP_DECR;
 	m_depthStencilDesc.BackFace.StencilPassOp =			D3D12_STENCIL_OP_KEEP;
 	m_depthStencilDesc.BackFace.StencilFunc =			D3D12_COMPARISON_FUNC_ALWAYS;
-
-	return;
 }
 
 
-bool PipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
+void PipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
 {
-	HRESULT result;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
 
@@ -316,16 +226,17 @@ bool PipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
 	pipelineStateDesc.PrimitiveTopologyType =			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	pipelineStateDesc.NumRenderTargets =				1;
 	pipelineStateDesc.RTVFormats[0] =					DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.DSVFormat =						DXGI_FORMAT_D32_FLOAT;
 	pipelineStateDesc.SampleDesc.Count =				1;
 	pipelineStateDesc.SampleDesc.Quality =				0;
 	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	// Create the pipeline state.
-	result = device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&m_pipelineState));
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	return true;
+	THROW_IF_FAILED(
+		device->CreateGraphicsPipelineState(
+			&pipelineStateDesc,
+			IID_PPV_ARGS(&m_pipelineState)),
+		L"The pipeline state object failed to initialize.",
+		L"Pipeline Initializer Failure"
+	);
 }

@@ -7,13 +7,12 @@
 //////////////
 // INCLUDES //
 //////////////
-#include <string>
-
-
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
 #include "pipelineinterface.h"
+
+
+/////////////
+// SHADERS //
+/////////////
 #include "color.vs.h"
 #include "color.ps.h"
 
@@ -32,17 +31,17 @@ private:
 	};
 
 public:
-	SoloPipelineClass();
-	SoloPipelineClass(const SoloPipelineClass&);
+	SoloPipelineClass() = delete;
+	SoloPipelineClass(const SoloPipelineClass&) = delete;
+	SoloPipelineClass& operator=(const SoloPipelineClass&) = delete;
+
+	SoloPipelineClass(ID3D12Device*, UINT, UINT, UINT, float, float);
 	~SoloPipelineClass();
 
-	bool Initialize(ID3D12Device*, HWND, unsigned int, int, int, float, float) override;
-	void Shutdown() override;
-
-	bool SetPipelineParameters(unsigned int, XMMATRIX) override;
+	void SetPipelineParameters(UINT, XMMATRIX, XMMATRIX) override;
 
 protected:
-	bool InitializeRootSignature(ID3D12Device*) override;
+	void InitializeRootSignature(ID3D12Device*);
 	void SetShaderBytecode() override;
 	void SetInputLayoutDesc() override;
 

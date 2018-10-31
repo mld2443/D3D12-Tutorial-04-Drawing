@@ -4,21 +4,9 @@
 #pragma once
 
 
-///////////////////////////////
-// PRE-PROCESSING DIRECTIVES //
-///////////////////////////////
-#define WIN32_LEAN_AND_MEAN
-
-
 //////////////
 // INCLUDES //
 //////////////
-#include <windows.h>
-
-
-///////////////////////
-// MY CLASS INCLUDES //
-///////////////////////
 #include "inputclass.h"
 #include "graphicsclass.h"
 
@@ -29,38 +17,29 @@
 class SystemClass
 {
 public:
+	SystemClass(const SystemClass&) = delete;
+	SystemClass& operator=(const SystemClass&) = delete;
+
 	SystemClass();
-	SystemClass(const SystemClass&);
 	~SystemClass();
 
-	bool Initialize();
-	void Shutdown();
 	void Run();
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 private:
 	bool Frame();
-	bool InitializeWindows(int&, int&);
+	void InitializeWindows();
 	void ShutdownWindows();
 
 private:
-	LPCWSTR		m_applicationName;
+	bool		m_fullscreen =		false;
+	UINT		m_xResolution =		1024;
+	UINT		m_yResolution =		768;
+	LPCWSTR		m_applicationName =	L"04 Drawing";
 	HINSTANCE	m_hinstance;
 	HWND		m_hwnd;
 
-	InputClass*		m_Input;
-	GraphicsClass*	m_Graphics;
+	InputClass*		m_Input =		nullptr;
+	GraphicsClass*	m_Graphics =	nullptr;
 };
-
-
-/////////////////////////
-// FUNCTION PROTOTYPES //
-/////////////////////////
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-
-/////////////
-// GLOBALS //
-/////////////
-static SystemClass* g_ApplicationHandle = 0;

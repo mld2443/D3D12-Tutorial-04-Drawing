@@ -1,185 +1,73 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: graphicsclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
+#include "stdafx.h"
 #include "graphicsclass.h"
 
 
-GraphicsClass::GraphicsClass()
+GraphicsClass::GraphicsClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen)
 {
-	m_Direct3D = nullptr;
-	m_Camera = nullptr;
-	m_Geometry = nullptr;
-	m_Pipeline = nullptr;
-}
+	// Create the camera object with a field of view of 45 degrees.
+	m_Camera = new CameraClass(xResolution, yResolution, 45.0f);
 
+	// Move the camera back so we can see our scene.
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 
-GraphicsClass::GraphicsClass(const GraphicsClass& other)
-{
+	// Create and initialize the Direct3D object.
+	m_Direct3D = new D3DClass(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled);
+
+	// Create and initialize the pipeline object.
+	m_Pipeline = new SoloPipelineClass(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar());
+
+	// Create and initialize the triangle object.
+	m_Geometry = new TriangleClass(m_Direct3D->GetDevice());
 }
 
 
 GraphicsClass::~GraphicsClass()
 {
-}
-
-
-bool GraphicsClass::Initialize(int screenHeight, int screenWidth, HWND hwnd)
-{
-	bool result;
-
-
-	// Create the Direct3D object.
-	m_Direct3D = new D3DClass;
-	if (!m_Direct3D)
-	{
-		return false;
-	}
-
-	// Initialize the Direct3D object.
-	result = m_Direct3D->Initialize(hwnd, screenHeight, screenWidth, VSYNC_ENABLED, FULL_SCREEN);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the pipeline object.
-	m_Pipeline = new SoloPipelineClass;
-	if (!m_Pipeline)
-	{
-		return false;
-	}
-
-	// Initialize the pipeline object.
-	result = m_Pipeline->Initialize(m_Direct3D->GetDevice(), hwnd, m_Direct3D->GetBufferIndex(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize pipeline object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the triangle object.
-	m_Geometry = new TriangleClass;
-	if (!m_Geometry)
-	{
-		return false;
-	}
-
-	// Initialize the triangle object.
-	result = m_Geometry->Initialize(m_Direct3D->GetDevice());
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize geometry object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the camera object.
-	m_Camera = new CameraClass;
-	if (!m_Camera)
-	{
-		return false;
-	}
-
-	// Set the initial parameters of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
-	m_Camera->SetLookDirection(0.0f, 0.0f, 1.0f);
-
-	return true;
-}
-
-
-void GraphicsClass::Shutdown()
-{
 	// Wait for all frames to finish before releasing anything.
-	m_Direct3D->WaitOnAllFrames();
+	m_Direct3D->WaitForAllFrames();
 
-	// Release the camera object.
-	if (m_Camera)
-	{
-		delete m_Camera;
-		m_Camera = nullptr;
-	}
-
-	// Release the geometry object.
-	if (m_Geometry)
-	{
-		m_Geometry->Shutdown();
-		delete m_Geometry;
-		m_Geometry = nullptr;
-	}
-
-	// Release the pipeline object.
-	if (m_Pipeline)
-	{
-		m_Pipeline->Shutdown();
-		delete m_Pipeline;
-		m_Pipeline = nullptr;
-	}
-
-	// Release the Direct3D object.
-	if (m_Direct3D)
-	{
-		m_Direct3D->Shutdown();
-		delete m_Direct3D;
-		m_Direct3D = nullptr;
-	}
-
-	return;
+	// Release the objects.
+	SAFE_DELETE(m_Camera);
+	SAFE_DELETE(m_Geometry);
+	SAFE_DELETE(m_Pipeline);
+	SAFE_DELETE(m_Direct3D);
 }
 
 
-bool GraphicsClass::Frame()
+void GraphicsClass::Frame()
 {
-	bool result;
-
-
 	// Render the graphics scene.
-	result = Render();
-	if (!result)
-	{
-		return false;
-	}
-
-	return true;
+	Render();
 }
 
 
-bool GraphicsClass::Render()
+void GraphicsClass::Render()
 {
-	bool result;
-	XMMATRIX view;
+	XMMATRIX view, projection;
 	std::vector<ID3D12CommandList*> lists;
 
 
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
 
-	// Get the camera's view matrix.
+	// Get the camera's view and projection matrices.
 	view = m_Camera->GetViewMatrix();
+	projection = m_Camera->GetProjectionMatrix();
 
-	// Wait on the frame last in this buffer index.
-	result = m_Direct3D->WaitForPreviousFrame();
-	if (!result)
-	{
-		return false;
-	}
+	// Advance the buffer index and wait for the corresponding buffer to be available.
+	m_Direct3D->WaitForNextAvailableFrame();
 
 	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
-	if (!result)
-	{
-		return false;
-	}
+	m_Pipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
 
 	// Put the first transition barrier on the command list and clear the RTV and DSV.
 	m_Direct3D->BeginScene(m_Pipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
 
-	// Start our pipeline, preparing it for drawing commands.
-	result = m_Pipeline->SetPipelineParameters(m_Direct3D->GetBufferIndex(), view);
-	if (!result)
-	{
-		return false;
-	}
+	// Communicate the world, view, and projection matrices to the vertex shader.
+	m_Pipeline->SetPipelineParameters(m_Direct3D->GetBufferIndex(), view, projection);
 
 	// Submit the geometry buffers to the render pipeline.
 	m_Geometry->Render(m_Pipeline->GetCommandList());
@@ -188,17 +76,11 @@ bool GraphicsClass::Render()
 	m_Direct3D->EndScene(m_Pipeline->GetCommandList());
 
 	// Close our pipeline so its command list can be queued.
-	result = m_Pipeline->ClosePipeline();
-	if (!result)
-	{
-		return false;
-	}
+	m_Pipeline->ClosePipeline();
 
 	// Collect all one of our command lists to be drawn this frame.
 	lists.push_back(m_Pipeline->GetCommandList());
 
 	// Finish the scene and submit our lists for drawing.
-	result = m_Direct3D->SubmitToQueue(lists);
-
-	return true;
+	m_Direct3D->SubmitToQueue(lists, m_vsyncEnabled);
 }

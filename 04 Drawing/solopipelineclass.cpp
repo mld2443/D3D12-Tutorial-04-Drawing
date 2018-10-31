@@ -5,8 +5,9 @@
 #include "solopipelineclass.h"
 
 
-SoloPipelineClass::SoloPipelineClass(ID3D12Device* device, UINT frameIndex, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
-	PipelineInterface()
+SoloPipelineClass::SoloPipelineClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
+	GraphicsPipelineInterface(device),
+	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
 {
 	// We need to set up the root signature before creating the pipeline state object.
 	InitializeRootSignature(device);
@@ -14,122 +15,59 @@ SoloPipelineClass::SoloPipelineClass(ID3D12Device* device, UINT frameIndex, UINT
 	// Then we can initialize the pipeline state and parameters.
 	InitializePipeline(device);
 
-	// Initialize the command list and allocators.
-	InitializeCommandList(device, frameIndex);
-
 	// Initialize the viewport and scissor rectangle.
-	InitializeViewport(screenWidth, screenHeight, screenNear, screenFar);
+	InitializeViewport(screenWidth, screenHeight);
 
 	// After all the resources are initialized, we will name all of our objects for graphics debugging.
-	NameResources();
+	NameD3D12Resources();
 }
 
 
-SoloPipelineClass::~SoloPipelineClass()
+XMMATRIX SoloPipelineClass::GetWorldMatrix()
 {
-	SAFE_RELEASE(m_matrixBuffer);
+	return m_worldMatrix;
+}
+
+
+XMMATRIX SoloPipelineClass::GetOrthoMatrix()
+{
+	return m_orthoMatrix;
 }
 
 
 void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
-	D3D12_RANGE range;
-	BYTE* mappedResource;
-	MatrixBufferType* dataPtr;
+	MatrixBufferType matrices;
 
-
-	// Declare the root signature.
-	m_commandList->SetGraphicsRootSignature(m_rootSignature);
-
-	// Create a zero-width read range, [0, 0].
-	// This is a signal to the GPU to not worry about the accuracy of the data within.
-	ZeroMemory(&range, sizeof(range));
-
-	// Lock the constant buffer so it can be written to.
-	THROW_IF_FAILED(
-		m_matrixBuffer->Map(0, &range, reinterpret_cast<void**>(&mappedResource)),
-		L"Unable to access the memory of the graphics device.",
-		L"Graphics Device Communication Failure"
-	);
-
-	// Get a pointer to the correct buffer offset location.
-	dataPtr = reinterpret_cast<MatrixBufferType*>(&mappedResource[frameIndex * m_matrixBufferWidth]);
 
 	// Transpose and copy the matrices into the constant buffer.
-	dataPtr->world = XMMatrixTranspose(m_worldMatrix);
-	dataPtr->view = XMMatrixTranspose(viewMatrix);
-	dataPtr->projection = XMMatrixTranspose(projectionMatrix);
+	matrices.world = XMMatrixTranspose(m_worldMatrix);
+	matrices.view = XMMatrixTranspose(viewMatrix);
+	matrices.projection = XMMatrixTranspose(projectionMatrix);
 
-	// Set the range of data that we wrote to.
-	range.Begin =	static_cast<SIZE_T>(frameIndex) * static_cast<SIZE_T>(m_matrixBufferWidth);
-	range.End =		range.Begin + m_matrixBufferWidth;
-
-	// Unlock the constant buffer.
-	m_matrixBuffer->Unmap(0, &range);
-
-	// Tell the root descriptor where the data for our matrix buffer is located.
-	m_commandList->SetGraphicsRootConstantBufferView(0, m_matrixBuffer->GetGPUVirtualAddress() + range.Begin);
+	// Set the root signature and the data on the constant buffer.
+	UpdateConstantBuffer(frameIndex, reinterpret_cast<BYTE*>(&matrices), sizeof(matrices));
 
 	// Set the window viewport.
-	m_commandList->RSSetViewports(1, &m_viewport);
-	m_commandList->RSSetScissorRects(1, &m_scissorRect);
+	m_graphicsCommands->RSSetViewports(1, &m_viewport);
+	m_graphicsCommands->RSSetScissorRects(1, &m_scissorRect);
 }
 
 
 void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 {
-	UINT64 bufferSize;
-	D3D12_HEAP_PROPERTIES heapProps;
-	D3D12_RESOURCE_DESC resourceDesc;
 	D3D12_ROOT_PARAMETER matrixBufferDesc;
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags;
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
 	ID3D10Blob *signature;
 
 
+	//TODO: Make this a macro function.
 	// Calculate the size of the matrices as they appear in memory.
-	m_matrixBufferWidth = (sizeof(MatrixBufferType) + 255) & ~255;
+	m_constantBufferWidth = (sizeof(MatrixBufferType) + 255) & ~255;
 
-	// Because CPU and GPU are asynchronus, we need to make room for multiple frames worth of matrices.
-	bufferSize = static_cast<UINT64>(m_matrixBufferWidth) * FRAME_BUFFER_COUNT;
-
-	// Create description for our constant buffer heap type.
-	ZeroMemory(&heapProps, sizeof(heapProps));
-	heapProps.Type =					D3D12_HEAP_TYPE_UPLOAD;
-	heapProps.CPUPageProperty =			D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProps.MemoryPoolPreference =	D3D12_MEMORY_POOL_UNKNOWN;
-	heapProps.CreationNodeMask =		1;
-	heapProps.VisibleNodeMask =			1;
-
-	// Create a description for the memory resource itself.
-	ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-	resourceDesc.Dimension =			D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Alignment =			0;
-	resourceDesc.Width =				bufferSize;
-	resourceDesc.Height =				1;
-	resourceDesc.DepthOrArraySize =		1;
-	resourceDesc.MipLevels =			1;
-	resourceDesc.Format =				DXGI_FORMAT_UNKNOWN;
-	resourceDesc.SampleDesc.Count =		1;
-	resourceDesc.SampleDesc.Quality =	0;
-	resourceDesc.Layout =				D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_NONE;
-
-	// Allocate the memory on the GPU.
-	THROW_IF_FAILED(
-		device->CreateCommittedResource(
-			&heapProps,
-			D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&m_matrixBuffer)),
-		L"Unable to allocate space on the graphics device.",
-		L"Hardware Memory Allocation Failure"
-	);
-
-	// Name the buffer for use while debugging.
-	m_matrixBuffer->SetName(L"SPC matrix buffer");
+	// Create the constant buffer.
+	InitializeConstantBuffer(device);
 
 	// Create a descriptor for the matrix buffer.
 	ZeroMemory(&matrixBufferDesc, sizeof(matrixBufferDesc));
@@ -216,7 +154,7 @@ void SoloPipelineClass::SetInputLayoutDesc()
 }
 
 
-void SoloPipelineClass::NameResources()
+void SoloPipelineClass::NameD3D12Resources()
 {
 	std::wstring name;
 
@@ -229,5 +167,6 @@ void SoloPipelineClass::NameResources()
 		name = std::wstring(L"SPC command allocator ") + std::to_wstring(i);
 		m_commandAllocators[i]->SetName(name.c_str());
 	}
-	m_commandList->SetName(L"SPC command list");
+	m_commandList->SetName(L"SPC graphics command list");
+	m_constantBuffer->SetName(L"SPC matrix buffer");
 }

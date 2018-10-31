@@ -18,6 +18,7 @@ class SystemClass
 {
 public:
 	SystemClass(const SystemClass&) = delete;
+	SystemClass& operator=(const SystemClass&) = delete;
 
 	SystemClass();
 	~SystemClass();
@@ -28,10 +29,13 @@ public:
 
 private:
 	bool Frame();
-	bool InitializeWindows(UINT&, UINT&);
+	void InitializeWindows();
 	void ShutdownWindows();
 
 private:
+	bool		m_fullscreen =		false;
+	UINT		m_xResolution =		0;
+	UINT		m_yResolution =		0;
 	LPCWSTR		m_applicationName =	L"04 Drawing";
 	HINSTANCE	m_hinstance;
 	HWND		m_hwnd;

@@ -84,6 +84,7 @@
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="graphicspipelineinterface.h" />
+    <ClInclude Include="particlepipelineclass.h" />
     <ClInclude Include="pipelineinterface.h" />
     <ClInclude Include="solopipelineclass.h" />
     <ClInclude Include="stdafx.h" />
@@ -99,6 +100,7 @@
     <ClCompile Include="inputclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="graphicspipelineinterface.cpp" />
+    <ClCompile Include="particlepipelineclass.cpp" />
     <ClCompile Include="pipelineinterface.cpp" />
     <ClCompile Include="solopipelineclass.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -125,9 +127,9 @@
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_colorvs</VariableName>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_colorvs</VariableName>
     </FxCompile>
-    <FxCompile Include="shaders\particles.cs.hlsl">
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_particlescs</VariableName>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_particlescs</VariableName>
+    <FxCompile Include="shaders\particle.cs.hlsl">
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_particlecs</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_particlecs</VariableName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>

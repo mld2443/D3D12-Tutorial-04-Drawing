@@ -117,12 +117,10 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 void SoloPipelineClass::SetShaderBytecode()
 {
 	// Create the descriptor for the vertex shader bytecode.
-	ZeroMemory(&m_vsBytecode, sizeof(m_vsBytecode));
 	m_vsBytecode.pShaderBytecode =	g_colorvs;
 	m_vsBytecode.BytecodeLength =	sizeof(g_colorvs);
 
 	// Create the descriptor for the pixel shader bytecode.
-	ZeroMemory(&m_psBytecode, sizeof(m_psBytecode));
 	m_psBytecode.pShaderBytecode =	g_colorps;
 	m_psBytecode.BytecodeLength =	sizeof(g_colorps);
 }

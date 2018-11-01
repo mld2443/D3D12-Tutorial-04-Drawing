@@ -49,6 +49,9 @@
     <ClInclude Include="computepipelineinterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="particlepipelineclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="systemclass.cpp">
@@ -86,6 +89,9 @@
     <ClCompile Include="computepipelineinterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="particlepipelineclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\color.ps.hlsl">
@@ -94,7 +100,7 @@
     <FxCompile Include="shaders\color.vs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="shaders\particles.cs.hlsl">
+    <FxCompile Include="shaders\particle.cs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

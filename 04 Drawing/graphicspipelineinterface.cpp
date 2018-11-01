@@ -52,31 +52,40 @@ void GraphicsPipelineInterface::InitializeViewport(UINT screenWidth, UINT screen
 
 void GraphicsPipelineInterface::InitializeStateObject(ID3D12Device* device)
 {
+	D3D12_PIPELINE_STATE_FLAGS stateFlags;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
 
+	// Set the default state flags.
+	stateFlags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+#if defined(_DEBUG)
+	// If this is a debug build, enable debugging.
+	stateFlags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
+#endif // _DEBUG
+
 	// Set up the Pipeline State for this render pipeline.
 	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
-	pipelineStateDesc.pRootSignature = m_rootSignature;
-	pipelineStateDesc.VS = m_vsBytecode;
-	pipelineStateDesc.HS = m_hsBytecode;
-	pipelineStateDesc.DS = m_dsBytecode;
-	pipelineStateDesc.GS = m_gsBytecode;
-	pipelineStateDesc.PS = m_psBytecode;
-	pipelineStateDesc.BlendState = m_blendDesc;
-	pipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	pipelineStateDesc.RasterizerState = m_rasterDesc;
-	pipelineStateDesc.DepthStencilState = m_depthStencilDesc;
-	pipelineStateDesc.InputLayout.NumElements = static_cast<UINT>(m_inputLayoutDesc.size());
-	pipelineStateDesc.InputLayout.pInputElementDescs = m_inputLayoutDesc.data();
-	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	pipelineStateDesc.NumRenderTargets = 1;
-	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	pipelineStateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	pipelineStateDesc.SampleDesc.Count = 1;
-	pipelineStateDesc.SampleDesc.Quality = 0;
-	pipelineStateDesc.NodeMask = 0;
-	pipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+	pipelineStateDesc.pRootSignature =					m_rootSignature;
+	pipelineStateDesc.VS =								m_vsBytecode;
+	pipelineStateDesc.HS =								m_hsBytecode;
+	pipelineStateDesc.DS =								m_dsBytecode;
+	pipelineStateDesc.GS =								m_gsBytecode;
+	pipelineStateDesc.PS =								m_psBytecode;
+	pipelineStateDesc.BlendState =						m_blendDesc;
+	pipelineStateDesc.SampleMask =						D3D12_DEFAULT_SAMPLE_MASK;
+	pipelineStateDesc.RasterizerState =					m_rasterDesc;
+	pipelineStateDesc.DepthStencilState =				m_depthStencilDesc;
+	pipelineStateDesc.InputLayout.NumElements =			static_cast<UINT>(m_inputLayoutDesc.size());
+	pipelineStateDesc.InputLayout.pInputElementDescs =	m_inputLayoutDesc.data();
+	pipelineStateDesc.PrimitiveTopologyType =			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateDesc.NumRenderTargets =				1;
+	pipelineStateDesc.RTVFormats[0] =					DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.DSVFormat =						DXGI_FORMAT_D32_FLOAT;
+	pipelineStateDesc.SampleDesc.Count =				1;
+	pipelineStateDesc.SampleDesc.Quality =				0;
+	pipelineStateDesc.NodeMask =						0;
+	pipelineStateDesc.Flags =							stateFlags;
 
 	// Create the pipeline state.
 	THROW_IF_FAILED(

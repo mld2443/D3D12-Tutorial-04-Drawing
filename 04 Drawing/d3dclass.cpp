@@ -206,7 +206,7 @@ void D3DClass::InitializeDevice()
 
 	// Release the debug controller.
 	SAFE_RELEASE(debugController);
-#endif
+#endif // _DEBUG
 
 	// Create the Direct3D 12 device.
 	THROW_IF_FAILED(
@@ -257,7 +257,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 #if defined(_DEBUG)
 	// Enable debugging our DXGI device.
 	dxgiFlags = DXGI_CREATE_FACTORY_DEBUG;
-#endif
+#endif // _DEBUG
 
 	// Create a DirectX graphics interface factory.
 	THROW_IF_FAILED(

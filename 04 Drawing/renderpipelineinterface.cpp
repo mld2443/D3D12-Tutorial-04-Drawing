@@ -1,17 +1,17 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: graphicspipelineinterface.cpp
+// Filename: renderpipelineinterface.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "graphicspipelineinterface.h"
+#include "renderpipelineinterface.h"
 
 
-GraphicsPipelineInterface::GraphicsPipelineInterface(ID3D12Device* device):
+RenderPipelineInterface::RenderPipelineInterface(ID3D12Device* device):
 	PipelineInterface(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
 {
 }
 
 
-void GraphicsPipelineInterface::InitializePipeline(ID3D12Device* device)
+void RenderPipelineInterface::InitializePipeline(ID3D12Device* device)
 {
 	// Check that the root signature is properly set up before using.
 	THROW_IF_FALSE(
@@ -32,7 +32,7 @@ void GraphicsPipelineInterface::InitializePipeline(ID3D12Device* device)
 }
 
 
-void GraphicsPipelineInterface::InitializeViewport(UINT screenWidth, UINT screenHeight)
+void RenderPipelineInterface::InitializeViewport(UINT screenWidth, UINT screenHeight)
 {
 	// Set up the viewport for rendering.
 	m_viewport.Width =		(float)screenWidth;
@@ -50,7 +50,7 @@ void GraphicsPipelineInterface::InitializeViewport(UINT screenWidth, UINT screen
 }
 
 
-void GraphicsPipelineInterface::InitializeStateObject(ID3D12Device* device)
+void RenderPipelineInterface::InitializeStateObject(ID3D12Device* device)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
@@ -89,7 +89,7 @@ void GraphicsPipelineInterface::InitializeStateObject(ID3D12Device* device)
 }
 
 
-void GraphicsPipelineInterface::SetBlendDesc()
+void RenderPipelineInterface::SetBlendDesc()
 {
 	// Create an alpha enabled blend state description.
 	m_blendDesc.AlphaToCoverageEnable =					FALSE;
@@ -106,7 +106,7 @@ void GraphicsPipelineInterface::SetBlendDesc()
 }
 
 
-void GraphicsPipelineInterface::SetRasterDesc()
+void RenderPipelineInterface::SetRasterDesc()
 {
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	m_rasterDesc.FillMode =					D3D12_FILL_MODE_SOLID;
@@ -123,7 +123,7 @@ void GraphicsPipelineInterface::SetRasterDesc()
 }
 
 
-void GraphicsPipelineInterface::SetDepthStencilDesc()
+void RenderPipelineInterface::SetDepthStencilDesc()
 {
 	// Set up the description of the stencil state.
 	m_depthStencilDesc.DepthEnable =		true;
@@ -147,7 +147,7 @@ void GraphicsPipelineInterface::SetDepthStencilDesc()
 }
 
 
-void GraphicsPipelineInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
+void RenderPipelineInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
 

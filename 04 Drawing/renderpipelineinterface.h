@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: graphicspipelineinterface.h
+// Filename: renderpipelineinterface.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -11,17 +11,17 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Interface name: GraphicsPipelineInterface
+// Interface name: RenderPipelineInterface
 ////////////////////////////////////////////////////////////////////////////////
-class GraphicsPipelineInterface : public PipelineInterface
+class RenderPipelineInterface : public PipelineInterface
 {
 protected:
-	GraphicsPipelineInterface() = delete;
-	GraphicsPipelineInterface(const GraphicsPipelineInterface&) = delete;
-	GraphicsPipelineInterface& operator=(const GraphicsPipelineInterface&) = delete;
+	RenderPipelineInterface() = delete;
+	RenderPipelineInterface(const RenderPipelineInterface&) = delete;
+	RenderPipelineInterface& operator=(const RenderPipelineInterface&) = delete;
 
-	GraphicsPipelineInterface(ID3D12Device*);
-	~GraphicsPipelineInterface() = default;
+	RenderPipelineInterface(ID3D12Device*);
+	~RenderPipelineInterface() = default;
 
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	void InitializePipeline(ID3D12Device*) override;

@@ -83,7 +83,7 @@
     <ClInclude Include="geometryinterface.h" />
     <ClInclude Include="graphicsclass.h" />
     <ClInclude Include="inputclass.h" />
-    <ClInclude Include="graphicspipelineinterface.h" />
+    <ClInclude Include="renderpipelineinterface.h" />
     <ClInclude Include="particlecomputeclass.h" />
     <ClInclude Include="pipelineinterface.h" />
     <ClInclude Include="solopipelineclass.h" />
@@ -99,7 +99,7 @@
     <ClCompile Include="graphicsclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="graphicspipelineinterface.cpp" />
+    <ClCompile Include="renderpipelineinterface.cpp" />
     <ClCompile Include="particlecomputeclass.cpp" />
     <ClCompile Include="pipelineinterface.cpp" />
     <ClCompile Include="solopipelineclass.cpp" />

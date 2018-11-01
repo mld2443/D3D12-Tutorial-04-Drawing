@@ -7,7 +7,7 @@
 //////////////
 // INCLUDES //
 //////////////
-#include "graphicspipelineinterface.h"
+#include "renderpipelineinterface.h"
 
 
 /////////////
@@ -20,7 +20,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: SoloPipelineClass
 ////////////////////////////////////////////////////////////////////////////////
-class SoloPipelineClass : public GraphicsPipelineInterface
+class SoloPipelineClass : public RenderPipelineInterface
 {
 private:
 	struct MatrixBufferType

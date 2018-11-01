@@ -6,7 +6,7 @@
 
 
 SoloPipelineClass::SoloPipelineClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
-	GraphicsPipelineInterface(device),
+	RenderPipelineInterface(device),
 	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
 {
 	// We need to set up the root signature before creating the pipeline state object.

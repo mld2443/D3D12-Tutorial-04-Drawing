@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 class PipelineInterface
 {
-protected:
+public:
 	PipelineInterface() = delete;
 	PipelineInterface(const PipelineInterface&) = delete;
 	PipelineInterface& operator=(const PipelineInterface&) = delete;
@@ -17,7 +17,6 @@ protected:
 	PipelineInterface(ID3D12Device*, D3D12_COMMAND_LIST_TYPE);
 	~PipelineInterface();
 
-public:
 	ID3D12GraphicsCommandList* GetCommandList();
 
 	void OpenPipeline(UINT);

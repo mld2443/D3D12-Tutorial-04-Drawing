@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 class RenderPipelineInterface : public PipelineInterface
 {
-protected:
+public:
 	RenderPipelineInterface() = delete;
 	RenderPipelineInterface(const RenderPipelineInterface&) = delete;
 	RenderPipelineInterface& operator=(const RenderPipelineInterface&) = delete;
@@ -23,6 +23,7 @@ protected:
 	RenderPipelineInterface(ID3D12Device*);
 	~RenderPipelineInterface() = default;
 
+protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	void InitializePipeline(ID3D12Device*) override;
 	virtual void InitializeViewport(UINT, UINT);

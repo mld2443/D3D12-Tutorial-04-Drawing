@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 class ComputePipelineInterface : public PipelineInterface
 {
-protected:
+public:
 	ComputePipelineInterface() = delete;
 	ComputePipelineInterface(const ComputePipelineInterface&) = delete;
 	ComputePipelineInterface& operator=(const ComputePipelineInterface&) = delete;
@@ -23,6 +23,7 @@ protected:
 	ComputePipelineInterface(ID3D12Device*);
 	~ComputePipelineInterface() = default;
 
+protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	void InitializePipeline(ID3D12Device*) override;
 	virtual void InitializeStateObject(ID3D12Device*) override;

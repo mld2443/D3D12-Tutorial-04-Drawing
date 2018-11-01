@@ -16,13 +16,13 @@ protected:
 		XMFLOAT4 color;
 	};
 
-public:
 	GeometryInterface(const GeometryInterface&) = delete;
 	GeometryInterface& operator=(const GeometryInterface&) = delete;
 
 	GeometryInterface() = default;
 	~GeometryInterface();
 
+public:
 	UINT GetVertexCount();
 	UINT GetIndexCount();
 

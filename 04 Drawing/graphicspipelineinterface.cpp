@@ -6,7 +6,7 @@
 
 
 GraphicsPipelineInterface::GraphicsPipelineInterface(ID3D12Device* device):
-	PipelineInterface(device)
+	PipelineInterface(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
 {
 }
 

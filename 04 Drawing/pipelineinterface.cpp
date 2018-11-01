@@ -5,14 +5,14 @@
 #include "pipelineinterface.h"
 
 
-PipelineInterface::PipelineInterface(ID3D12Device* device)
+PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 {
 	// Create command allocators, one for each frame.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
 		THROW_IF_FAILED(
 			device->CreateCommandAllocator(
-				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				type,
 				IID_PPV_ARGS(&m_commandAllocators[i])),
 			L"Unable to create the command allocator object.",
 			L"Graphics Pipeline Initialization Failure"
@@ -23,7 +23,7 @@ PipelineInterface::PipelineInterface(ID3D12Device* device)
 	THROW_IF_FAILED(
 		device->CreateCommandList(
 			0,
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			type,
 			m_commandAllocators[0],
 			nullptr,
 			IID_PPV_ARGS(&m_commandList)),

@@ -12,8 +12,8 @@ class GeometryInterface
 protected:
 	struct BufferType
 	{
-		ID3D12Resource*	buffer =	nullptr;
-		SIZE_T			count =		0;
+		ComPtr<ID3D12Resource>	buffer =	nullptr;
+		SIZE_T					count =		0;
 		union
 		{
 			D3D12_VERTEX_BUFFER_VIEW	vertexView;
@@ -38,5 +38,5 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList*) = 0;
 
 private:
-	static void InitializeBuffer(ID3D12Device*, ID3D12Resource*&, BYTE*, SIZE_T, D3D12_RESOURCE_STATES, wstring);
+	static ComPtr<ID3D12Resource> InitializeBuffer(ID3D12Device*, BYTE*, SIZE_T, D3D12_RESOURCE_STATES, wstring);
 };

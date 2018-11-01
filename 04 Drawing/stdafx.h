@@ -26,6 +26,7 @@
 
 // Windows
 #include <windows.h>
+#include <wrl/client.h>
 
 // DirectX
 #include <d3d12.h>
@@ -54,6 +55,7 @@
 
 using namespace DirectX;
 using namespace std;
+using namespace Microsoft::WRL;
 
 
 /////////////////////////

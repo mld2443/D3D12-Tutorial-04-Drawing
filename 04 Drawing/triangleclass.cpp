@@ -66,13 +66,6 @@ TriangleClass::TriangleClass(ID3D12Device* device): GeometryInterface()
 }
 
 
-TriangleClass::~TriangleClass()
-{
-	SAFE_RELEASE(m_indexBuffer.buffer);
-	SAFE_RELEASE(m_vertexBuffer.buffer);
-}
-
-
 void TriangleClass::Render(ID3D12GraphicsCommandList* commandList)
 {
 	// Set the type of primitive that the input assembler will try to assemble next.

@@ -43,33 +43,31 @@ GeometryInterface::BufferType::BufferType(
 	SIZE_T valueSize,
 	D3D12_RESOURCE_STATES finalState,
 	wstring name) :
+	buffer(InitializeBuffer(device, data, count * valueSize, finalState, name)),
 	count(count)
 {
-	// Set up default and upload heaps for the buffer, load the data, and wait for completion.
-	InitializeBuffer(device, buffer, data, count * valueSize, finalState, name);
 }
 
 
-void GeometryInterface::InitializeBuffer(
+ComPtr<ID3D12Resource> GeometryInterface::InitializeBuffer(
 	ID3D12Device* device,
-	ID3D12Resource*& buffer,
 	BYTE* data,
 	SIZE_T dataSize,
 	D3D12_RESOURCE_STATES finalState,
 	wstring name)
 {
+	ComPtr<ID3D12Resource> defaultBuffer, uploadBuffer;
+	ComPtr<ID3D12CommandAllocator> commandAllocator;
+	ComPtr<ID3D12GraphicsCommandList> commandList;
+	ComPtr<ID3D12CommandQueue> commandQueue;
+	ComPtr<ID3D12Fence> fence;
 	D3D12_HEAP_PROPERTIES heapProps;
 	D3D12_RESOURCE_DESC resourceDesc;
-	ID3D12Resource* uploadBuffer;
 	wstring uploadName;
-	ID3D12CommandAllocator* commandAllocator;
-	ID3D12GraphicsCommandList* commandList;
 	D3D12_COMMAND_QUEUE_DESC queueDesc;
-	ID3D12CommandQueue* commandQueue;
 	BYTE* rawData;
 	D3D12_RESOURCE_BARRIER barrierDesc;
 	ID3D12CommandList* ppCommandLists[1];
-	ID3D12Fence* fence;
 	HANDLE fenceEvent;
 	DWORD waitValue;
 
@@ -104,13 +102,13 @@ void GeometryInterface::InitializeBuffer(
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
-			IID_PPV_ARGS(&buffer)),
+			IID_PPV_ARGS(defaultBuffer.ReleaseAndGetAddressOf())),
 		L"Unable to allocate room on the device for the buffer heap.",
 		L"Heap Allocation Failure"
 	);
 
 	// Set the name of the default heap for use in debugging.
-	buffer->SetName(name.c_str());
+	defaultBuffer->SetName(name.c_str());
 
 	// Change the heap type for the upload heap; this allows the CPU to write to it.
 	heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -123,7 +121,7 @@ void GeometryInterface::InitializeBuffer(
 			&resourceDesc,
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&uploadBuffer)),
+			IID_PPV_ARGS(uploadBuffer.ReleaseAndGetAddressOf())),
 		L"Unable to allocate room on the device for the buffer upload heap.",
 		L"Heap Allocation Failure"
 	);
@@ -136,7 +134,7 @@ void GeometryInterface::InitializeBuffer(
 	THROW_IF_FAILED(
 		device->CreateCommandAllocator(
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			IID_PPV_ARGS(&commandAllocator)),
+			IID_PPV_ARGS(commandAllocator.ReleaseAndGetAddressOf())),
 		L"Unable to create Command Allocator on the device.",
 		L"Command Allocator Creation Failure"
 	);
@@ -146,9 +144,9 @@ void GeometryInterface::InitializeBuffer(
 		device->CreateCommandList(
 			0,
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			commandAllocator,
+			commandAllocator.Get(),
 			nullptr,
-			IID_PPV_ARGS(&commandList)),
+			IID_PPV_ARGS(commandList.ReleaseAndGetAddressOf())),
 		L"Unable to create a command list on the device.",
 		L"Command List Creation Failure"
 	);
@@ -162,7 +160,9 @@ void GeometryInterface::InitializeBuffer(
 
 	// Create a single-use command queue.
 	THROW_IF_FAILED(
-		device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue)),
+		device->CreateCommandQueue(
+			&queueDesc,
+			IID_PPV_ARGS(commandQueue.ReleaseAndGetAddressOf())),
 		L"Unable to create a command queue on the device.",
 		L"Command Queue Creation Failure"
 	);
@@ -181,13 +181,13 @@ void GeometryInterface::InitializeBuffer(
 	uploadBuffer->Unmap(0, nullptr);
 
 	// Add the copy command to the command list.
-	commandList->CopyBufferRegion(buffer, 0, uploadBuffer, 0, dataSize);
+	commandList->CopyBufferRegion(defaultBuffer.Get(), 0, uploadBuffer.Get(), 0, dataSize);
 
 	// Fill out the description for our resource barrier.
 	ZeroMemory(&barrierDesc, sizeof(barrierDesc));
 	barrierDesc.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrierDesc.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrierDesc.Transition.pResource =		buffer;
+	barrierDesc.Transition.pResource =		defaultBuffer.Get();
 	barrierDesc.Transition.StateBefore =	D3D12_RESOURCE_STATE_COPY_DEST;
 	barrierDesc.Transition.StateAfter =		finalState;
 	barrierDesc.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -199,14 +199,17 @@ void GeometryInterface::InitializeBuffer(
 	commandList->Close();
 
 	// Prepare the list to be queued.
-	ppCommandLists[0] = commandList;
+	ppCommandLists[0] = commandList.Get();
 
 	// Queue the list, starting the execution.
 	commandQueue->ExecuteCommandLists(1, ppCommandLists);
 
 	// Create our fence to track the commands.
 	THROW_IF_FAILED(
-		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)),
+		device->CreateFence(
+			0,
+			D3D12_FENCE_FLAG_NONE,
+			IID_PPV_ARGS(fence.ReleaseAndGetAddressOf())),
 		L"Unable to create fence to time the buffer upload.",
 		L"Fence Creation Failure"
 	);
@@ -221,7 +224,7 @@ void GeometryInterface::InitializeBuffer(
 
 	// Tell the command queue what fence to use and the value we're waiting for.
 	THROW_IF_FAILED(
-		commandQueue->Signal(fence, 1),
+		commandQueue->Signal(fence.Get(), 1),
 		L"Unable to signal to the fence when to stop execution.",
 		L"Fence Communication Failure"
 	);
@@ -241,12 +244,5 @@ void GeometryInterface::InitializeBuffer(
 		L"Buffer Upload Timed Out"
 	);
 
-	// Release temporary resources.
-	rawData = nullptr;
-
-	SAFE_RELEASE(uploadBuffer);
-	SAFE_RELEASE(commandAllocator);
-	SAFE_RELEASE(commandList);
-	SAFE_RELEASE(commandQueue);
-	SAFE_RELEASE(fence);
+	return defaultBuffer;
 }

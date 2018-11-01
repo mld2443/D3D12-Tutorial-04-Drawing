@@ -28,7 +28,7 @@ public:
 	TriangleClass& operator=(const TriangleClass&) = delete;
 
 	TriangleClass(ID3D12Device*);
-	~TriangleClass();
+	~TriangleClass() = default;
 
 	void Render(ID3D12GraphicsCommandList*) override;
 

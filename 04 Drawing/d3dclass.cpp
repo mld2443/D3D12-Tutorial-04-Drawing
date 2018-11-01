@@ -30,25 +30,12 @@ D3DClass::~D3DClass()
 
 	// Close the object handle to the fence event.
 	CloseHandle(m_fenceEvent);
-
-	// Release reserved resources.
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		SAFE_RELEASE(m_fence[i]);
-		SAFE_RELEASE(m_backBufferRenderTarget[i]);
-	}
-	SAFE_RELEASE(m_depthStencil);
-	SAFE_RELEASE(m_depthStencilViewHeap);
-	SAFE_RELEASE(m_renderTargetViewHeap);
-	SAFE_RELEASE(m_swapChain);
-	SAFE_RELEASE(m_commandQueue);
-	SAFE_RELEASE(m_device);
 }
 
 
 ID3D12Device* D3DClass::GetDevice()
 {
-	return m_device;
+	return m_device.Get();
 }
 
 
@@ -58,8 +45,9 @@ unsigned int D3DClass::GetBufferIndex()
 }
 
 
-void D3DClass::BeginScene(ID3D12GraphicsCommandList* commandList,
-						  float red, float green, float blue, float alpha)
+void D3DClass::BeginScene(
+	ID3D12GraphicsCommandList* commandList,
+	float red, float green, float blue, float alpha)
 {
 	D3D12_RESOURCE_BARRIER barrier;
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle, depthStencilViewHandle;
@@ -70,7 +58,7 @@ void D3DClass::BeginScene(ID3D12GraphicsCommandList* commandList,
 	// Start by setting the resource barrier.
 	ZeroMemory(&barrier, sizeof(barrier));
 	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex];
+	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
 	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -108,7 +96,7 @@ void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
 	// Indicate that the back buffer will now be used to present.
 	ZeroMemory(&barrier, sizeof(barrier));
 	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex];
+	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
 	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -125,7 +113,7 @@ void D3DClass::SubmitToQueue(vector<ID3D12CommandList*> lists, bool vsync)
 	// Signal and increment the fence value.
 	THROW_IF_FAILED(
 		m_commandQueue->Signal(
-			m_fence[m_bufferIndex],
+			m_fence[m_bufferIndex].Get(),
 			m_fenceValue[m_bufferIndex]),
 		L"Unable to signal fence object.",
 		L"Signal Failure"
@@ -187,7 +175,7 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 void D3DClass::InitializeDevice()
 {
 	D3D_FEATURE_LEVEL featureLevel;
-	ID3D12Debug* debugController;
+	ComPtr<ID3D12Debug> debugController;
 
 
 	// Set the feature level to DirectX 12.1 to enable using all the DirectX 12 features.
@@ -196,21 +184,21 @@ void D3DClass::InitializeDevice()
 #if defined(_DEBUG)
 	// Create the Direct3D 12 debug controller.
 	THROW_IF_FAILED(
-		D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)),
+		D3D12GetDebugInterface(IID_PPV_ARGS(debugController.ReleaseAndGetAddressOf())),
 		L"Unable to create the Direct3D 12 debug layer.",
 		L"Device Debug Error"
 	);
 
 	// Enable the debug layer.
 	debugController->EnableDebugLayer();
-
-	// Release the debug controller.
-	SAFE_RELEASE(debugController);
 #endif // _DEBUG
 
 	// Create the Direct3D 12 device.
 	THROW_IF_FAILED(
-		D3D12CreateDevice(nullptr, featureLevel, IID_PPV_ARGS(&m_device)),
+		D3D12CreateDevice(
+			nullptr,
+			featureLevel,
+			IID_PPV_ARGS(m_device.ReleaseAndGetAddressOf())),
 		L"Unable to create a DirectX 12.1 device.  The default video card does not support DirectX 12.1.",
 		L"DirectX Device Failure"
 	);
@@ -231,7 +219,9 @@ void D3DClass::InitializeCommandQueue()
 
 	// Create the command queue.
 	THROW_IF_FAILED(
-		m_device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&m_commandQueue)),
+		m_device->CreateCommandQueue(
+			&commandQueueDesc,
+			IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf())),
 		L"Unable to create a command queue on the graphics device.",
 		L"Command Queue Error"
 	);
@@ -240,15 +230,15 @@ void D3DClass::InitializeCommandQueue()
 
 void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
 {
+	ComPtr<IDXGIFactory4> factory;
+	ComPtr<IDXGIAdapter> adapter;
+	ComPtr<IDXGIOutput> adapterOutput;
+	ComPtr<IDXGISwapChain> swapChain;
 	UINT dxgiFlags;
-	IDXGIFactory4* factory;
-	IDXGIAdapter* adapter;
-	IDXGIOutput* adapterOutput;
 	UINT numModes, numerator, denominator;
 	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	IDXGISwapChain* swapChain;
 
 
 	// Set the default DXGI factory flags.
@@ -261,21 +251,23 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 
 	// Create a DirectX graphics interface factory.
 	THROW_IF_FAILED(
-		CreateDXGIFactory2(dxgiFlags, IID_PPV_ARGS(&factory)),
+		CreateDXGIFactory2(
+			dxgiFlags,
+			IID_PPV_ARGS(factory.ReleaseAndGetAddressOf())),
 		L"Unable to create a device factory.",
 		L"DirectX Failure"
 	);
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
 	THROW_IF_FAILED(
-		factory->EnumAdapters(0, &adapter),
+		factory->EnumAdapters(0, adapter.ReleaseAndGetAddressOf()),
 		L"Unable to enumerate adapters.",
 		L"Factory Failure"
 	);
 
 	// Enumerate the primary adapter output (monitor).
 	THROW_IF_FAILED(
-		adapter->EnumOutputs(0, &adapterOutput),
+		adapter->EnumOutputs(0, adapterOutput.ReleaseAndGetAddressOf()),
 		L"Unable to communicate with graphics adapter.",
 		L"Adapter Failure"
 	);
@@ -336,10 +328,6 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	delete[] displayModeList;
 	displayModeList = nullptr;
 
-	// Release the adapter and adapter output.
-	SAFE_RELEASE(adapterOutput);
-	SAFE_RELEASE(adapter);
-
 	// Create a description for the swap chain.
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferCount =					FRAME_BUFFER_COUNT;
@@ -368,7 +356,10 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 
 	// Create the swap chain using the swap chain description.	
 	THROW_IF_FAILED(
-		factory->CreateSwapChain(m_commandQueue, &swapChainDesc, &swapChain),
+		factory->CreateSwapChain(
+			m_commandQueue.Get(),
+			&swapChainDesc,
+			swapChain.ReleaseAndGetAddressOf()),
 		L"Unable to create the swap chain on the graphics device.",
 		L"Swap Chain Failure"
 	);
@@ -376,16 +367,10 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	// Finally, upgrade the swap chain to a IDXGISwapChain3 interface and store it in the private member variable m_swapChain.
 	// This will allow us to use the function GetCurrentBackBufferIndex().
 	THROW_IF_FAILED(
-		swapChain->QueryInterface(IID_PPV_ARGS(&m_swapChain)),
-		L"This graphics device does not support the IDXGISwapChain3 Interface.",
+		swapChain.As(&m_swapChain),
+		L"This graphics device does not support the 'IDXGISwapChain3' Interface.",
 		L"Swap Chain Unsupported"
 	);
-
-	// Clear the pointer to the original swap chain interface since we no longer need it.
-	swapChain = nullptr;
-
-	// Release the factory now that the swap chain has been created.
-	SAFE_RELEASE(factory);
 }
 
 
@@ -407,7 +392,7 @@ void D3DClass::InitializeRenderTargets()
 	THROW_IF_FAILED(
 		m_device->CreateDescriptorHeap(
 			&renderTargetViewHeapDesc,
-			IID_PPV_ARGS(&m_renderTargetViewHeap)),
+			IID_PPV_ARGS(m_renderTargetViewHeap.ReleaseAndGetAddressOf())),
 		L"Unable to create the render target heap on the graphics device.",
 		L"Heap Allocation Error"
 	);
@@ -424,13 +409,13 @@ void D3DClass::InitializeRenderTargets()
 		THROW_IF_FAILED(
 			m_swapChain->GetBuffer(
 				i,
-				IID_PPV_ARGS(&m_backBufferRenderTarget[i])),
+				IID_PPV_ARGS(m_backBufferRenderTarget[i].ReleaseAndGetAddressOf())),
 			L"Unable to communicate with the swap chain.",
 			L"Swap Chain Error"
 		);
 
 		// Create a render target view for this back buffer.
-		m_device->CreateRenderTargetView(m_backBufferRenderTarget[i], nullptr, renderTargetViewHandle);
+		m_device->CreateRenderTargetView(m_backBufferRenderTarget[i].Get(), nullptr, renderTargetViewHandle);
 
 		// Increment the view handle to the next descriptor location in the render target view heap.
 		renderTargetViewHandle.ptr += renderTargetViewDescriptorSize;
@@ -517,7 +502,11 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 	depthStencilViewDesc.Flags =			D3D12_DSV_FLAG_NONE;
 
 	// Finally, we can create the depth stencil view itself.
-	m_device->CreateDepthStencilView(m_depthStencil, &depthStencilViewDesc, m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart());
+	m_device->CreateDepthStencilView(
+		m_depthStencil.Get(),
+		&depthStencilViewDesc,
+		m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart()
+	);
 }
 
 
@@ -530,7 +519,7 @@ void D3DClass::InitializeFences()
 			m_device->CreateFence(
 				0,
 				D3D12_FENCE_FLAG_NONE,
-				IID_PPV_ARGS(&m_fence[i])),
+				IID_PPV_ARGS(m_fence[i].ReleaseAndGetAddressOf())),
 			L"Unable to create synchronization fences on the graphics device.",
 			L"Fence Error"
 		);

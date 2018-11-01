@@ -8,14 +8,21 @@
 ParticleComputeClass::ParticleComputeClass(ID3D12Device* device) :
 	ComputePipelineInterface(device)
 {
+	InitializePipeline(device);
+}
+
+
+void ParticleComputeClass::SetPipelineParameters(UINT, float)
+{
+
 }
 
 
 void ParticleComputeClass::InitializeRootSignature(ID3D12Device* device)
 {
-	D3D12_ROOT_PARAMETER matrixBufferDesc;
+	ComPtr<ID3D10Blob> signature;
+	D3D12_ROOT_PARAMETER elapsedBufferDesc;
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-	ID3D10Blob *signature;
 
 
 	// Calculate the size of the matrices as they appear in memory.
@@ -24,18 +31,17 @@ void ParticleComputeClass::InitializeRootSignature(ID3D12Device* device)
 	// Create the constant buffer.
 	//InitializeConstantBuffer(device);
 
-	D3D12_ROOT_PARAMETER csElapsedTimeCb;
-	ZeroMemory(&csElapsedTimeCb, sizeof(csElapsedTimeCb));
-	csElapsedTimeCb.ParameterType =				D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	csElapsedTimeCb.Constants.RegisterSpace =	0;
-	csElapsedTimeCb.Constants.ShaderRegister =	0;
-	csElapsedTimeCb.Constants.Num32BitValues =	2;
-	csElapsedTimeCb.ShaderVisibility =			D3D12_SHADER_VISIBILITY_ALL;
+	ZeroMemory(&elapsedBufferDesc, sizeof(elapsedBufferDesc));
+	elapsedBufferDesc.ParameterType =				D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	elapsedBufferDesc.Constants.RegisterSpace =		0;
+	elapsedBufferDesc.Constants.ShaderRegister =	0;
+	elapsedBufferDesc.Constants.Num32BitValues =	1;
+	elapsedBufferDesc.ShaderVisibility =			D3D12_SHADER_VISIBILITY_ALL;
 
 	// Fill out the root signature layout description.
 	ZeroMemory(&rootSignatureDesc, sizeof(rootSignatureDesc));
 	rootSignatureDesc.NumParameters =		1;
-	rootSignatureDesc.pParameters =			&matrixBufferDesc;
+	rootSignatureDesc.pParameters =			&elapsedBufferDesc;
 	rootSignatureDesc.NumStaticSamplers =	0;
 	rootSignatureDesc.pStaticSamplers =		nullptr;
 	rootSignatureDesc.Flags =				D3D12_ROOT_SIGNATURE_FLAG_NONE;
@@ -45,7 +51,7 @@ void ParticleComputeClass::InitializeRootSignature(ID3D12Device* device)
 		D3D12SerializeRootSignature(
 			&rootSignatureDesc,
 			D3D_ROOT_SIGNATURE_VERSION_1,
-			&signature,
+			signature.ReleaseAndGetAddressOf(),
 			nullptr),
 		L"Unable to serialize the root signature for initialization on the graphics device.",
 		L"Compute Pipeline Failure"
@@ -57,7 +63,7 @@ void ParticleComputeClass::InitializeRootSignature(ID3D12Device* device)
 			0,
 			signature->GetBufferPointer(),
 			signature->GetBufferSize(),
-			IID_PPV_ARGS(&m_rootSignature)),
+			IID_PPV_ARGS(m_rootSignature.ReleaseAndGetAddressOf())),
 		L"Unable to create the root signature for this graphics pipeline.",
 		L"Compute Pipeline Failure"
 	);

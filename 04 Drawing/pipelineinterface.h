@@ -15,7 +15,7 @@ public:
 	PipelineInterface& operator=(const PipelineInterface&) = delete;
 
 	PipelineInterface(ID3D12Device*, D3D12_COMMAND_LIST_TYPE);
-	~PipelineInterface();
+	~PipelineInterface() = default;
 
 	ID3D12GraphicsCommandList* GetCommandList();
 
@@ -36,11 +36,11 @@ protected:
 	virtual void NameD3D12Resources() = 0;
 
 protected:
-	ID3D12RootSignature*			m_rootSignature =		nullptr;
-	ID3D12PipelineState*			m_pipelineState =		nullptr;
-	vector<ID3D12CommandAllocator*>	m_commandAllocators =	vector<ID3D12CommandAllocator*>(FRAME_BUFFER_COUNT, nullptr);
-	ID3D12GraphicsCommandList*		m_commandList =			nullptr;
-	ID3D12Resource*					m_constantBuffer =		nullptr;
+	ComPtr<ID3D12RootSignature>				m_rootSignature =		nullptr;
+	ComPtr<ID3D12PipelineState>				m_pipelineState =		nullptr;
+	vector<ComPtr<ID3D12CommandAllocator>>	m_commandAllocators =	vector<ComPtr<ID3D12CommandAllocator>>(FRAME_BUFFER_COUNT, nullptr);
+	ComPtr<ID3D12GraphicsCommandList>		m_commandList =			nullptr;
+	ComPtr<ID3D12Resource>					m_constantBuffer =		nullptr;
 
 	SIZE_T	m_constantBufferWidth = 0;
 };

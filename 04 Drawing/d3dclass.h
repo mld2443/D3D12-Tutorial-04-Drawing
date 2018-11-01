@@ -43,16 +43,16 @@ private:
 	UINT	m_bufferIndex =		0;
 	UINT	m_videoCardMemory =	0;
 
-	IDXGISwapChain3*	m_swapChain =		nullptr;
-	ID3D12Device*		m_device =			nullptr;
-	ID3D12CommandQueue*	m_commandQueue =	nullptr;
+	ComPtr<IDXGISwapChain3>		m_swapChain =		nullptr;
+	ComPtr<ID3D12Device>		m_device =			nullptr;
+	ComPtr<ID3D12CommandQueue>	m_commandQueue =	nullptr;
 
-	ID3D12DescriptorHeap*	m_renderTargetViewHeap =	nullptr;
-	vector<ID3D12Resource*>	m_backBufferRenderTarget =	vector<ID3D12Resource*>(FRAME_BUFFER_COUNT, nullptr);
-	ID3D12DescriptorHeap*	m_depthStencilViewHeap =	nullptr;
-	ID3D12Resource*			m_depthStencil =			nullptr;
+	ComPtr<ID3D12DescriptorHeap>	m_renderTargetViewHeap =	nullptr;
+	vector<ComPtr<ID3D12Resource>>	m_backBufferRenderTarget =	vector<ComPtr<ID3D12Resource>>(FRAME_BUFFER_COUNT, nullptr);
+	ComPtr<ID3D12DescriptorHeap>	m_depthStencilViewHeap =	nullptr;
+	ComPtr<ID3D12Resource>			m_depthStencil =			nullptr;
 
-	vector<ID3D12Fence*>	m_fence =		vector<ID3D12Fence*>(FRAME_BUFFER_COUNT, nullptr);
-	vector<UINT64>			m_fenceValue =	vector<UINT64>(FRAME_BUFFER_COUNT, 0);
-	HANDLE					m_fenceEvent =	NULL;
+	vector<ComPtr<ID3D12Fence>>	m_fence =		vector<ComPtr<ID3D12Fence>>(FRAME_BUFFER_COUNT, nullptr);
+	vector<UINT64>				m_fenceValue =	vector<UINT64>(FRAME_BUFFER_COUNT, 0);
+	HANDLE						m_fenceEvent =	NULL;
 };

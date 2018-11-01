@@ -35,7 +35,7 @@ void ComputePipelineInterface::InitializeStateObject(ID3D12Device* device)
 
 	// Set up the Pipeline State for this compute pipeline.
 	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
-	pipelineStateDesc.pRootSignature =	m_rootSignature;
+	pipelineStateDesc.pRootSignature =	m_rootSignature.Get();
 	pipelineStateDesc.CS =				m_csBytecode;
 	pipelineStateDesc.NodeMask =		0;
 	pipelineStateDesc.Flags =			D3D12_PIPELINE_STATE_FLAG_NONE;
@@ -44,7 +44,7 @@ void ComputePipelineInterface::InitializeStateObject(ID3D12Device* device)
 	THROW_IF_FAILED(
 		device->CreateComputePipelineState(
 			&pipelineStateDesc,
-			IID_PPV_ARGS(&m_pipelineState)),
+			IID_PPV_ARGS(m_pipelineState.ReleaseAndGetAddressOf())),
 		L"The compute pipeline state object failed to initialize.",
 		L"Compute Pipeline Initializer Failure"
 	);
@@ -57,7 +57,7 @@ void ComputePipelineInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data,
 
 
 	// Declare the root signature.
-	m_commandList->SetComputeRootSignature(m_rootSignature);
+	m_commandList->SetComputeRootSignature(m_rootSignature.Get());
 
 	// Set the data and get the address of the constant buffer for this frame.
 	cbvAddress = SetConstantBuffer(frameIndex, data, dataSize);

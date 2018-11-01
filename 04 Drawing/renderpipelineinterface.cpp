@@ -57,7 +57,7 @@ void RenderPipelineInterface::InitializeStateObject(ID3D12Device* device)
 
 	// Set up the Pipeline State for this render pipeline.
 	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
-	pipelineStateDesc.pRootSignature =					m_rootSignature;
+	pipelineStateDesc.pRootSignature =					m_rootSignature.Get();
 	pipelineStateDesc.VS =								m_vsBytecode;
 	pipelineStateDesc.HS =								m_hsBytecode;
 	pipelineStateDesc.DS =								m_dsBytecode;
@@ -82,7 +82,7 @@ void RenderPipelineInterface::InitializeStateObject(ID3D12Device* device)
 	THROW_IF_FAILED(
 		device->CreateGraphicsPipelineState(
 			&pipelineStateDesc,
-			IID_PPV_ARGS(&m_pipelineState)),
+			IID_PPV_ARGS(m_pipelineState.ReleaseAndGetAddressOf())),
 		L"The pipeline state object failed to initialize.",
 		L"Pipeline Initializer Failure"
 	);
@@ -153,7 +153,7 @@ void RenderPipelineInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, 
 
 
 	// Declare the root signature.
-	m_commandList->SetGraphicsRootSignature(m_rootSignature);
+	m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	// Set the data and get the address of the constant buffer for this frame.
 	cbvAddress = SetConstantBuffer(frameIndex, data, dataSize);

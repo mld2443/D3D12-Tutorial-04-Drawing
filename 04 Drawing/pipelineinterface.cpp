@@ -13,7 +13,7 @@ PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TY
 		THROW_IF_FAILED(
 			device->CreateCommandAllocator(
 				type,
-				IID_PPV_ARGS(&m_commandAllocators[i])),
+				IID_PPV_ARGS(m_commandAllocators[i].ReleaseAndGetAddressOf())),
 			L"Unable to create the command allocator object.",
 			L"Graphics Pipeline Initialization Failure"
 		);
@@ -24,9 +24,9 @@ PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TY
 		device->CreateCommandList(
 			0,
 			type,
-			m_commandAllocators[0],
+			m_commandAllocators[0].Get(),
 			nullptr,
-			IID_PPV_ARGS(&m_commandList)),
+			IID_PPV_ARGS(m_commandList.ReleaseAndGetAddressOf())),
 		L"Unable to create the command list object.",
 		L"Graphics Pipeline Initialization Failure"
 	);
@@ -36,23 +36,9 @@ PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TY
 }
 
 
-PipelineInterface::~PipelineInterface()
-{
-	// Release reserved resources.
-	SAFE_RELEASE(m_constantBuffer);
-	SAFE_RELEASE(m_commandList);
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		SAFE_RELEASE(m_commandAllocators[i]);
-	}
-	SAFE_RELEASE(m_pipelineState);
-	SAFE_RELEASE(m_rootSignature);
-}
-
-
 ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
 {
-	return m_commandList;
+	return m_commandList.Get();
 }
 
 
@@ -67,7 +53,9 @@ void PipelineInterface::OpenPipeline(UINT frameIndex)
 
 	// Reset our command list to prepare it for new commands.
 	THROW_IF_FAILED(
-		m_commandList->Reset(m_commandAllocators[frameIndex], m_pipelineState),
+		m_commandList->Reset(
+			m_commandAllocators[frameIndex].Get(),
+			m_pipelineState.Get()),
 		L"Unable to reset command list.  It may not have been closed or submitted properly.",
 		L"Command List Reset Error"
 	);

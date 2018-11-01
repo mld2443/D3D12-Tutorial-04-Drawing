@@ -29,6 +29,8 @@ public:
 	ParticleComputeClass(ID3D12Device*);
 	~ParticleComputeClass() = default;
 
+	void SetPipelineParameters(UINT, float);
+
 protected:
 	void InitializeRootSignature(ID3D12Device*) override;
 

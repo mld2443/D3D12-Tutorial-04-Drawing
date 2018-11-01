@@ -56,10 +56,10 @@ void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatr
 
 void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 {
+	ComPtr<ID3D10Blob> signature;
 	D3D12_ROOT_PARAMETER matrixBufferDesc;
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags;
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-	ID3D10Blob *signature;
 
 
 	// Calculate the size of the matrices as they appear in memory.
@@ -95,7 +95,7 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 		D3D12SerializeRootSignature(
 			&rootSignatureDesc,
 			D3D_ROOT_SIGNATURE_VERSION_1,
-			&signature,
+			signature.ReleaseAndGetAddressOf(),
 			nullptr),
 		L"Unable to serialize the root signature for initialization on the graphics device.",
 		L"Root Signature Initialization Failure"
@@ -107,7 +107,7 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 			0,
 			signature->GetBufferPointer(),
 			signature->GetBufferSize(),
-			IID_PPV_ARGS(&m_rootSignature)),
+			IID_PPV_ARGS(m_rootSignature.ReleaseAndGetAddressOf())),
 		L"Unable to create the root signature for this graphics pipeline.",
 		L"Root Signature Initialization Failure"
 	);

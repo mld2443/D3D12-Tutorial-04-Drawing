@@ -52,17 +52,8 @@ void GraphicsPipelineInterface::InitializeViewport(UINT screenWidth, UINT screen
 
 void GraphicsPipelineInterface::InitializeStateObject(ID3D12Device* device)
 {
-	D3D12_PIPELINE_STATE_FLAGS stateFlags;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
-
-	// Set the default state flags.
-	stateFlags = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-#if defined(_DEBUG)
-	// If this is a debug build, enable debugging.
-	stateFlags = D3D12_PIPELINE_STATE_FLAG_TOOL_DEBUG;
-#endif // _DEBUG
 
 	// Set up the Pipeline State for this render pipeline.
 	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
@@ -85,7 +76,7 @@ void GraphicsPipelineInterface::InitializeStateObject(ID3D12Device* device)
 	pipelineStateDesc.SampleDesc.Count =				1;
 	pipelineStateDesc.SampleDesc.Quality =				0;
 	pipelineStateDesc.NodeMask =						0;
-	pipelineStateDesc.Flags =							stateFlags;
+	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	// Create the pipeline state.
 	THROW_IF_FAILED(

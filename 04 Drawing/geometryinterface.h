@@ -10,37 +10,33 @@
 class GeometryInterface
 {
 protected:
-	struct VertexType
+	struct BufferType
 	{
-		XMFLOAT3 position;
-		XMFLOAT4 color;
+		ID3D12Resource*	buffer =	nullptr;
+		SIZE_T			count =		0;
+		union
+		{
+			D3D12_VERTEX_BUFFER_VIEW	vertexView;
+			D3D12_INDEX_BUFFER_VIEW		indexView =	D3D12_INDEX_BUFFER_VIEW();
+		};
+
+		BufferType() = default;
+		BufferType(ID3D12Device*, BYTE*, SIZE_T, SIZE_T, wstring = L"GI vertex buffer");
+		BufferType(ID3D12Device*, BYTE*, SIZE_T, SIZE_T, DXGI_FORMAT, wstring = L"GI index buffer");
+
+	private:
+		BufferType(ID3D12Device*, BYTE*, SIZE_T, SIZE_T, D3D12_RESOURCE_STATES, wstring);
 	};
 
+public:
 	GeometryInterface(const GeometryInterface&) = delete;
 	GeometryInterface& operator=(const GeometryInterface&) = delete;
 
 	GeometryInterface() = default;
-	~GeometryInterface();
+	~GeometryInterface() = default;
 
-public:
-	UINT GetVertexCount();
-	UINT GetIndexCount();
-
-	void Render(ID3D12GraphicsCommandList*);
-
-protected:
-	void InitializeVertexBuffer(ID3D12Device*, const vector<VertexType>&);
-	void InitializeIndexBuffer(ID3D12Device*, const vector<UINT32>&);
+	virtual void Render(ID3D12GraphicsCommandList*) = 0;
 
 private:
-	template<typename BufferType>
-	static void InitializeBuffer(ID3D12Device*, ID3D12Resource**, const vector<BufferType>&, D3D12_RESOURCE_STATES, wstring = L"GI buffer");
-
-private:
-	ID3D12Resource*				m_vertexBuffer =		nullptr;
-	ID3D12Resource*				m_indexBuffer =			nullptr;
-	UINT						m_vertexCount =			0;
-	UINT						m_indexCount =			0;
-	D3D12_VERTEX_BUFFER_VIEW	m_vertexBufferView =	D3D12_VERTEX_BUFFER_VIEW();
-	D3D12_INDEX_BUFFER_VIEW		m_indexBufferView =		D3D12_INDEX_BUFFER_VIEW();
+	static void InitializeBuffer(ID3D12Device*, ID3D12Resource*&, BYTE*, SIZE_T, D3D12_RESOURCE_STATES, wstring);
 };

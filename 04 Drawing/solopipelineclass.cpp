@@ -62,9 +62,8 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 	ID3D10Blob *signature;
 
 
-	//TODO: Make this a macro function.
 	// Calculate the size of the matrices as they appear in memory.
-	m_constantBufferWidth = (sizeof(MatrixBufferType) + 255) & ~255;
+	m_constantBufferWidth = BYTE_ALIGNED_WIDTH(MatrixBufferType, 0xFFu);
 
 	// Create the constant buffer.
 	InitializeConstantBuffer(device);

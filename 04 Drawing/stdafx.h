@@ -94,3 +94,4 @@ struct MessageBoxType {
 #define THROW_IF_FAILED(hr, message, title) if (FAILED(hr)) { THROW_MESSAGE(message, title); }
 #define THROW_IF_TRUE(cond, message, title) if (cond) { THROW_MESSAGE(message, title); }
 #define THROW_IF_FALSE(cond, message, title) THROW_IF_TRUE(!cond, message, title)
+#define BYTE_ALIGNED_WIDTH(type, target) (sizeof(type) + target) & ~target

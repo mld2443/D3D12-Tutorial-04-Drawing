@@ -49,7 +49,7 @@
     <ClInclude Include="computepipelineinterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="particlepipelineclass.h">
+    <ClInclude Include="particlecomputeclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClCompile Include="computepipelineinterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="particlepipelineclass.cpp">
+    <ClCompile Include="particlecomputeclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

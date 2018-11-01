@@ -49,8 +49,8 @@ void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatr
 	UpdateConstantBuffer(frameIndex, reinterpret_cast<BYTE*>(&matrices), sizeof(matrices));
 
 	// Set the window viewport.
-	m_graphicsCommands->RSSetViewports(1, &m_viewport);
-	m_graphicsCommands->RSSetScissorRects(1, &m_scissorRect);
+	m_commandList->RSSetViewports(1, &m_viewport);
+	m_commandList->RSSetScissorRects(1, &m_scissorRect);
 }
 
 

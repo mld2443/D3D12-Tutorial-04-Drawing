@@ -6,58 +6,8 @@
 
 
 GraphicsPipelineInterface::GraphicsPipelineInterface(ID3D12Device* device):
-	PipelineInterface()
+	PipelineInterface(device)
 {
-	// Initialize the command list and allocators.
-	InitializeCommandList(device);
-
-	// Now that the command list is initialized, get a pointer to it as a graphics command list.
-	m_graphicsCommands = reinterpret_cast<ID3D12GraphicsCommandList*>(m_commandList);
-
-	// Initially we need to close the command list during initialization as it is created in a recording state.
-	ClosePipeline();
-}
-
-
-GraphicsPipelineInterface::~GraphicsPipelineInterface()
-{
-	// This is just a wrapper so we only need to set it to null.
-	m_graphicsCommands = nullptr;
-}
-
-
-void GraphicsPipelineInterface::OpenPipeline(UINT frameIndex)
-{
-	// Reset the memory that was holding the previously submitted command list.
-	THROW_IF_FAILED(
-		m_commandAllocators[frameIndex]->Reset(),
-		L"Unable to reset command allocator.  Its associated memory may still be in use.",
-		L"Pipeline Access Error"
-	);
-
-	// Reset our command list to prepare it for new commands.
-	THROW_IF_FAILED(
-		m_graphicsCommands->Reset(m_commandAllocators[frameIndex], m_pipelineState),
-		L"Unable to reset command list.  It may not have been closed or submitted properly.",
-		L"Command List Reset Error"
-	);
-}
-
-
-void GraphicsPipelineInterface::ClosePipeline()
-{
-	// Close the command list so it can be submitted to a command queue.
-	THROW_IF_FAILED(
-		m_graphicsCommands->Close(),
-		L"Unable to close command list.  It may not have been reset properly.",
-		L"Command List Close Error"
-	);
-}
-
-
-ID3D12GraphicsCommandList* GraphicsPipelineInterface::GetCommandList()
-{
-	return m_graphicsCommands;
 }
 
 
@@ -78,7 +28,7 @@ void GraphicsPipelineInterface::InitializePipeline(ID3D12Device* device)
 	SetInputLayoutDesc();
 
 	// Then we can initialize the pipeline state and parameters.
-	InitializePipelineStateObject(device);
+	InitializeStateObject(device);
 }
 
 
@@ -97,6 +47,45 @@ void GraphicsPipelineInterface::InitializeViewport(UINT screenWidth, UINT screen
 	m_scissorRect.top =		D3D12_DEFAULT_SCISSOR_STARTY;
 	m_scissorRect.right =	screenWidth;
 	m_scissorRect.bottom =	screenHeight;
+}
+
+
+void GraphicsPipelineInterface::InitializeStateObject(ID3D12Device* device)
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
+
+
+	// Set up the Pipeline State for this render pipeline.
+	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
+	pipelineStateDesc.pRootSignature = m_rootSignature;
+	pipelineStateDesc.VS = m_vsBytecode;
+	pipelineStateDesc.HS = m_hsBytecode;
+	pipelineStateDesc.DS = m_dsBytecode;
+	pipelineStateDesc.GS = m_gsBytecode;
+	pipelineStateDesc.PS = m_psBytecode;
+	pipelineStateDesc.BlendState = m_blendDesc;
+	pipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	pipelineStateDesc.RasterizerState = m_rasterDesc;
+	pipelineStateDesc.DepthStencilState = m_depthStencilDesc;
+	pipelineStateDesc.InputLayout.NumElements = static_cast<UINT>(m_inputLayoutDesc.size());
+	pipelineStateDesc.InputLayout.pInputElementDescs = m_inputLayoutDesc.data();
+	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateDesc.NumRenderTargets = 1;
+	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	pipelineStateDesc.SampleDesc.Count = 1;
+	pipelineStateDesc.SampleDesc.Quality = 0;
+	pipelineStateDesc.NodeMask = 0;
+	pipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	// Create the pipeline state.
+	THROW_IF_FAILED(
+		device->CreateGraphicsPipelineState(
+			&pipelineStateDesc,
+			IID_PPV_ARGS(&m_pipelineState)),
+		L"The pipeline state object failed to initialize.",
+		L"Pipeline Initializer Failure"
+	);
 }
 
 
@@ -158,56 +147,17 @@ void GraphicsPipelineInterface::SetDepthStencilDesc()
 }
 
 
-void GraphicsPipelineInterface::InitializePipelineStateObject(ID3D12Device* device)
-{
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
-
-
-	// Set up the Pipeline State for this render pipeline.
-	ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
-	pipelineStateDesc.pRootSignature =					m_rootSignature;
-	pipelineStateDesc.VS =								m_vsBytecode;
-	pipelineStateDesc.HS =								m_hsBytecode;
-	pipelineStateDesc.DS =								m_dsBytecode;
-	pipelineStateDesc.GS =								m_gsBytecode;
-	pipelineStateDesc.PS =								m_psBytecode;
-	pipelineStateDesc.BlendState =						m_blendDesc;
-	pipelineStateDesc.SampleMask =						D3D12_DEFAULT_SAMPLE_MASK;
-	pipelineStateDesc.RasterizerState =					m_rasterDesc;
-	pipelineStateDesc.DepthStencilState =				m_depthStencilDesc;
-	pipelineStateDesc.InputLayout.NumElements =			static_cast<UINT>(m_inputLayoutDesc.size());
-	pipelineStateDesc.InputLayout.pInputElementDescs =	m_inputLayoutDesc.data();
-	pipelineStateDesc.PrimitiveTopologyType =			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	pipelineStateDesc.NumRenderTargets =				1;
-	pipelineStateDesc.RTVFormats[0] =					DXGI_FORMAT_R8G8B8A8_UNORM;
-	pipelineStateDesc.DSVFormat =						DXGI_FORMAT_D32_FLOAT;
-	pipelineStateDesc.SampleDesc.Count =				1;
-	pipelineStateDesc.SampleDesc.Quality =				0;
-	pipelineStateDesc.NodeMask =						0;
-	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;
-
-	// Create the pipeline state.
-	THROW_IF_FAILED(
-		device->CreateGraphicsPipelineState(
-			&pipelineStateDesc,
-			IID_PPV_ARGS(&m_pipelineState)),
-		L"The pipeline state object failed to initialize.",
-		L"Pipeline Initializer Failure"
-	);
-}
-
-
 void GraphicsPipelineInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
 
 
 	// Declare the root signature.
-	m_graphicsCommands->SetGraphicsRootSignature(m_rootSignature);
+	m_commandList->SetGraphicsRootSignature(m_rootSignature);
 
 	// Set the data and get the address of the constant buffer for this frame.
 	cbvAddress = SetConstantBuffer(frameIndex, data, dataSize);
 
 	// Tell the root descriptor where the data for our matrix buffer is located.
-	m_graphicsCommands->SetGraphicsRootConstantBufferView(0, cbvAddress);
+	m_commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
 }

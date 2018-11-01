@@ -46,6 +46,9 @@
     <ClInclude Include="pipelineinterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="computepipelineinterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="systemclass.cpp">
@@ -80,12 +83,18 @@
     <ClCompile Include="pipelineinterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="computepipelineinterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\color.ps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="shaders\color.vs.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\particles.cs.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

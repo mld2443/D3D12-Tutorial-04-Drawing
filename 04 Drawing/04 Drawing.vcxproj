@@ -78,6 +78,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cameraclass.h" />
+    <ClInclude Include="computepipelineinterface.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="geometryinterface.h" />
     <ClInclude Include="graphicsclass.h" />
@@ -91,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cameraclass.cpp" />
+    <ClCompile Include="computepipelineinterface.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="geometryinterface.cpp" />
     <ClCompile Include="graphicsclass.cpp" />
@@ -123,6 +125,13 @@
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_colorvs</VariableName>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_colorvs</VariableName>
     </FxCompile>
+    <FxCompile Include="shaders\particles.cs.hlsl">
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_particlescs</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_particlescs</VariableName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

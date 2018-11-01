@@ -21,32 +21,25 @@ public:
 	GraphicsPipelineInterface& operator=(const GraphicsPipelineInterface&) = delete;
 
 	GraphicsPipelineInterface(ID3D12Device*);
-	~GraphicsPipelineInterface();
-
-	void OpenPipeline(UINT);
-	void ClosePipeline();
-
-	ID3D12GraphicsCommandList* GetCommandList() override;
+	~GraphicsPipelineInterface() = default;
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	void InitializePipeline(ID3D12Device*) override;
 	virtual void InitializeViewport(UINT, UINT);
+	virtual void InitializeStateObject(ID3D12Device*) override;
 
 	virtual void SetShaderBytecode() = 0;
 	virtual void SetBlendDesc();
 	virtual void SetRasterDesc();
 	virtual void SetDepthStencilDesc();
 	virtual void SetInputLayoutDesc() = 0;
-	virtual void InitializePipelineStateObject(ID3D12Device*);
 
 	void UpdateConstantBuffer(UINT, BYTE*, SIZE_T) override;
 
 	virtual void NameD3D12Resources() = 0;
 
 protected:
-	ID3D12GraphicsCommandList*	m_graphicsCommands;
-
 	D3D12_SHADER_BYTECODE				m_vsBytecode =			D3D12_SHADER_BYTECODE();
 	D3D12_SHADER_BYTECODE				m_hsBytecode =			D3D12_SHADER_BYTECODE();
 	D3D12_SHADER_BYTECODE				m_dsBytecode =			D3D12_SHADER_BYTECODE();

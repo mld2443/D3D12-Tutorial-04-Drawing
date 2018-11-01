@@ -5,6 +5,37 @@
 #include "pipelineinterface.h"
 
 
+PipelineInterface::PipelineInterface(ID3D12Device* device)
+{
+	// Create command allocators, one for each frame.
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		THROW_IF_FAILED(
+			device->CreateCommandAllocator(
+				D3D12_COMMAND_LIST_TYPE_DIRECT,
+				IID_PPV_ARGS(&m_commandAllocators[i])),
+			L"Unable to create the command allocator object.",
+			L"Graphics Pipeline Initialization Failure"
+		);
+	}
+
+	// Create a command list.  We use the first command allocator, since allocators get reset before use.
+	THROW_IF_FAILED(
+		device->CreateCommandList(
+			0,
+			D3D12_COMMAND_LIST_TYPE_DIRECT,
+			m_commandAllocators[0],
+			nullptr,
+			IID_PPV_ARGS(&m_commandList)),
+		L"Unable to create the command list object.",
+		L"Graphics Pipeline Initialization Failure"
+	);
+
+	// Initially we need to close the command list during initialization as it is created in a recording state.
+	ClosePipeline();
+}
+
+
 PipelineInterface::~PipelineInterface()
 {
 	// Release reserved resources.
@@ -19,9 +50,38 @@ PipelineInterface::~PipelineInterface()
 }
 
 
-ID3D12CommandList* PipelineInterface::GetCommandList()
+ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
 {
 	return m_commandList;
+}
+
+
+void PipelineInterface::OpenPipeline(UINT frameIndex)
+{
+	// Reset the memory that was holding the previously submitted command list.
+	THROW_IF_FAILED(
+		m_commandAllocators[frameIndex]->Reset(),
+		L"Unable to reset command allocator.  Its associated memory may still be in use.",
+		L"Pipeline Access Error"
+	);
+
+	// Reset our command list to prepare it for new commands.
+	THROW_IF_FAILED(
+		m_commandList->Reset(m_commandAllocators[frameIndex], m_pipelineState),
+		L"Unable to reset command list.  It may not have been closed or submitted properly.",
+		L"Command List Reset Error"
+	);
+}
+
+
+void PipelineInterface::ClosePipeline()
+{
+	// Close the command list so it can be submitted to a command queue.
+	THROW_IF_FAILED(
+		m_commandList->Close(),
+		L"Unable to close command list.  It may not have been reset properly.",
+		L"Command List Close Error"
+	);
 }
 
 
@@ -68,34 +128,6 @@ void PipelineInterface::InitializeConstantBuffer(ID3D12Device* device)
 			IID_PPV_ARGS(&m_constantBuffer)),
 		L"Unable to allocate space on the graphics device.",
 		L"Hardware Memory Allocation Failure"
-	);
-}
-
-
-void PipelineInterface::InitializeCommandList(ID3D12Device* device)
-{
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		// Create command allocators, one for each frame.
-		THROW_IF_FAILED(
-			device->CreateCommandAllocator(
-				D3D12_COMMAND_LIST_TYPE_DIRECT,
-				IID_PPV_ARGS(&m_commandAllocators[i])),
-			L"Unable to create the command allocator object.",
-			L"Graphics Pipeline Initialization Failure"
-		);
-	}
-
-	// Create a command list.  We use the first command allocator, since allocators get reset before use.
-	THROW_IF_FAILED(
-		device->CreateCommandList(
-			0,
-			D3D12_COMMAND_LIST_TYPE_DIRECT,
-			m_commandAllocators[0],
-			nullptr,
-			IID_PPV_ARGS(&m_commandList)),
-		L"Unable to create the command list object.",
-		L"Graphics Pipeline Initialization Failure"
 	);
 }
 

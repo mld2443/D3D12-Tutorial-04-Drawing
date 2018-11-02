@@ -34,8 +34,8 @@ private:
 private:
 	bool m_vsyncEnabled =	true;
 
-	D3DClass*			m_Direct3D =	nullptr;
-	CameraClass*		m_Camera =		nullptr;
-	TriangleClass*		m_Geometry =	nullptr;
-	SoloPipelineClass*	m_Pipeline =	nullptr;
+	unique_ptr<CameraClass>			m_Camera =		nullptr;
+	unique_ptr<D3DClass>			m_Direct3D =	nullptr;
+	unique_ptr<SoloPipelineClass>	m_Pipeline =	nullptr;
+	unique_ptr<TriangleClass>		m_Geometry =	nullptr;
 };

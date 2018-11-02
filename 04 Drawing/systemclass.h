@@ -40,6 +40,6 @@ private:
 	HINSTANCE	m_hinstance =		NULL;
 	HWND		m_hwnd =			NULL;
 
-	InputClass*		m_Input =		nullptr;
-	EngineClass*	m_Graphics =	nullptr;
+	unique_ptr<InputClass>	m_Input =	nullptr;
+	unique_ptr<EngineClass>	m_Engine =	nullptr;
 };

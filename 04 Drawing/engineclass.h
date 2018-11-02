@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: graphicsclass.h
+// Filename: engineclass.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -14,17 +14,17 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: GraphicsClass
+// Class name: EngineClass
 ////////////////////////////////////////////////////////////////////////////////
-class GraphicsClass
+class EngineClass
 {
 public:
-	GraphicsClass() = delete;
-	GraphicsClass(const GraphicsClass&) = delete;
-	GraphicsClass& operator=(const GraphicsClass&) = delete;
+	EngineClass() = delete;
+	EngineClass(const EngineClass&) = delete;
+	EngineClass& operator=(const EngineClass&) = delete;
 
-	GraphicsClass(HWND, UINT, UINT, bool);
-	~GraphicsClass();
+	EngineClass(HWND, UINT, UINT, bool);
+	~EngineClass();
 
 	void Frame();
 

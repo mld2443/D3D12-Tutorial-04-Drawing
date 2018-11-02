@@ -8,7 +8,7 @@
 // INCLUDES //
 //////////////
 #include "inputclass.h"
-#include "graphicsclass.h"
+#include "engineclass.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,5 +41,5 @@ private:
 	HWND		m_hwnd =			NULL;
 
 	InputClass*		m_Input =		nullptr;
-	GraphicsClass*	m_Graphics =	nullptr;
+	EngineClass*	m_Graphics =	nullptr;
 };

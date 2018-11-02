@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: graphicsclass.cpp
+// Filename: engineclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "graphicsclass.h"
+#include "engineclass.h"
 
 
-GraphicsClass::GraphicsClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen)
+EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen)
 {
 	// Create the camera object with a field of view of 45 degrees.
 	m_Camera = new CameraClass(xResolution, yResolution, 45.0f);
@@ -24,7 +24,7 @@ GraphicsClass::GraphicsClass(HWND hwnd, UINT xResolution, UINT yResolution, bool
 }
 
 
-GraphicsClass::~GraphicsClass()
+EngineClass::~EngineClass()
 {
 	// Wait for all frames to finish before releasing anything.
 	m_Direct3D->WaitForAllFrames();
@@ -37,14 +37,14 @@ GraphicsClass::~GraphicsClass()
 }
 
 
-void GraphicsClass::Frame()
+void EngineClass::Frame()
 {
 	// Render the graphics scene.
 	Render();
 }
 
 
-void GraphicsClass::Render()
+void EngineClass::Render()
 {
 	XMMATRIX view, projection;
 	std::vector<ID3D12CommandList*> lists;

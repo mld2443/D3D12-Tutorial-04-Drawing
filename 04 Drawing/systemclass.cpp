@@ -14,7 +14,7 @@ SystemClass::SystemClass()
 	m_Input = new InputClass();
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new GraphicsClass(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
+	m_Graphics = new EngineClass(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
 }
 
 

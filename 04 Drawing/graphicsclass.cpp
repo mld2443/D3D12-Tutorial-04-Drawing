@@ -17,7 +17,7 @@ GraphicsClass::GraphicsClass(HWND hwnd, UINT xResolution, UINT yResolution, bool
 	m_Direct3D = new D3DClass(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled);
 
 	// Create and initialize the pipeline object.
-	m_Pipeline = new SoloPipelineClass(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar());
+	m_Pipeline = new SoloPipelineClass(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar());
 
 	// Create and initialize the triangle object.
 	m_Geometry = new TriangleClass(m_Direct3D->GetDevice());

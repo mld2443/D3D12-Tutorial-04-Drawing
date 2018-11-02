@@ -7,7 +7,7 @@
 //////////////
 // INCLUDES //
 //////////////
-#include "pipelineinterface.h"
+#include "renderpipelineinterface.h"
 
 
 /////////////
@@ -20,7 +20,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: SoloPipelineClass
 ////////////////////////////////////////////////////////////////////////////////
-class SoloPipelineClass : public PipelineInterface
+class SoloPipelineClass : public RenderPipelineInterface
 {
 private:
 	struct MatrixBufferType
@@ -35,20 +35,22 @@ public:
 	SoloPipelineClass(const SoloPipelineClass&) = delete;
 	SoloPipelineClass& operator=(const SoloPipelineClass&) = delete;
 
-	SoloPipelineClass(ID3D12Device*, UINT, UINT, UINT, float, float);
-	~SoloPipelineClass();
+	SoloPipelineClass(ID3D12Device*, UINT, UINT, float, float);
+	~SoloPipelineClass() = default;
 
-	void SetPipelineParameters(UINT, XMMATRIX, XMMATRIX) override;
+	XMMATRIX GetWorldMatrix();
+	XMMATRIX GetOrthoMatrix();
+
+	void SetPipelineParameters(UINT, XMMATRIX, XMMATRIX);
 
 protected:
-	void InitializeRootSignature(ID3D12Device*);
+	void InitializeRootSignature(ID3D12Device*) override;
 	void SetShaderBytecode() override;
 	void SetInputLayoutDesc() override;
 
-private:
-	void NameResources();
+	void NameD3D12Resources() override;
 
 private:
-	ID3D12Resource*	m_matrixBuffer =		nullptr;
-	UINT			m_matrixBufferWidth =	0;
+	XMMATRIX	m_worldMatrix = XMMatrixIdentity();
+	XMMATRIX	m_orthoMatrix = XMMatrixIdentity();
 };

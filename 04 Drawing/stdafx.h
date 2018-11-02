@@ -26,6 +26,7 @@
 
 // Windows
 #include <windows.h>
+#include <wrl/client.h>
 
 // DirectX
 #include <d3d12.h>
@@ -54,6 +55,7 @@
 
 using namespace DirectX;
 using namespace std;
+using namespace Microsoft::WRL;
 
 
 /////////////////////////
@@ -89,8 +91,8 @@ struct MessageBoxType {
 /////////////////////
 
 #define SAFE_DELETE(ptr) if (ptr) { delete ptr; ptr = nullptr; }
-#define SAFE_RELEASE(ptr) if (ptr) { ptr->Release(); ptr = nullptr; }
 #define THROW_MESSAGE(message, title) throw MessageBoxType{ message, title, MB_OK | MB_ICONERROR }
 #define THROW_IF_FAILED(hr, message, title) if (FAILED(hr)) { THROW_MESSAGE(message, title); }
 #define THROW_IF_TRUE(cond, message, title) if (cond) { THROW_MESSAGE(message, title); }
 #define THROW_IF_FALSE(cond, message, title) THROW_IF_TRUE(!cond, message, title)
+#define BYTE_ALIGNED_WIDTH(type, target) (sizeof(type) + target) & ~target

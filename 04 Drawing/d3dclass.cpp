@@ -22,11 +22,14 @@ D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscre
 
 D3DClass::~D3DClass()
 {
-	// Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
+	// Before shutting down, set to windowed mode or when you release the swap chain it will throw an exception.
 	if (m_swapChain)
 	{
 		m_swapChain->SetFullscreenState(false, nullptr);
 	}
+
+	// Make sure there are no more commands in the command queue by checking all fences one last time.
+	ShutdownAllFrames();
 
 	// Close the object handle to the fence event.
 	CloseHandle(m_fenceEvent);
@@ -110,7 +113,7 @@ void D3DClass::SubmitToQueue(vector<ID3D12CommandList*> lists, bool vsync)
 	// Execute the list of commands.
 	m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
 
-	// Signal and increment the fence value.
+	// Put a command on the queue to signal this fence when it's done.
 	THROW_IF_FAILED(
 		m_commandQueue->Signal(
 			m_fence[m_bufferIndex].Get(),
@@ -135,14 +138,29 @@ void D3DClass::WaitForNextAvailableFrame()
 
 	// Wait for the last frame at this index to finish if it hasn't already.
 	WaitForFrameIndex(m_bufferIndex);
+
+	// Increment fenceValue for the next frame.
+	m_fenceValue[m_bufferIndex]++;
 }
 
 
-void D3DClass::WaitForAllFrames()
+void D3DClass::ShutdownAllFrames()
 {
 	// Finish all commands already submitted to the GPU.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
+		// Increment each fenceValue one final time.
+		m_fenceValue[i]++;
+
+		// Put a command on the queue to signal this fence when it's done.
+		THROW_IF_FAILED(
+			m_commandQueue->Signal(
+				m_fence[i].Get(),
+				m_fenceValue[i]),
+			L"Unable to signal fence object.",
+			L"Signal Failure"
+		);
+
 		WaitForFrameIndex(i);
 	}
 }
@@ -166,9 +184,6 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 		// Wait for the fence event to complete, with no timeout.
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
-
-	// Increment fenceValue for the next frame.
-	m_fenceValue[frameIndex]++;
 }
 
 

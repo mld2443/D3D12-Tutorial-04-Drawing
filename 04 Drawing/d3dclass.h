@@ -25,7 +25,7 @@ public:
 	void SubmitToQueue(vector<ID3D12CommandList*>, bool);
 
 	void WaitForNextAvailableFrame();
-	void WaitForAllFrames();
+	void ShutdownAllFrames();
 
 private:
 	void WaitForFrameIndex(UINT);

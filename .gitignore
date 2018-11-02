@@ -332,5 +332,9 @@ ASALocalRun/
 .localhistory/
 
 # Compiled shader header files
-*.ps.h
+*.cs.h
 *.vs.h
+*.ds.h
+*.hs.h
+*.gs.h
+*.ps.h

@@ -36,6 +36,6 @@ private:
 
 	D3DClass*			m_Direct3D =	nullptr;
 	CameraClass*		m_Camera =		nullptr;
-	GeometryInterface*	m_Geometry =	nullptr;
-	PipelineInterface*	m_Pipeline =	nullptr;
+	TriangleClass*		m_Geometry =	nullptr;
+	SoloPipelineClass*	m_Pipeline =	nullptr;
 };

@@ -82,6 +82,7 @@
     <ClInclude Include="geometryinterface.h" />
     <ClInclude Include="engineclass.h" />
     <ClInclude Include="inputclass.h" />
+    <ClInclude Include="instancepipelineclass.h" />
     <ClInclude Include="renderpipelineinterface.h" />
     <ClInclude Include="pipelineinterface.h" />
     <ClInclude Include="colorpipelineclass.h" />
@@ -95,6 +96,7 @@
     <ClCompile Include="geometryinterface.cpp" />
     <ClCompile Include="engineclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="instancepipelineclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="renderpipelineinterface.cpp" />
     <ClCompile Include="pipelineinterface.cpp" />

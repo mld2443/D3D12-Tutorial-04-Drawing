@@ -5,25 +5,19 @@
 #include "systemclass.h"
 
 
-SystemClass::SystemClass()
+SystemClass::SystemClass() :
+	m_Input(make_unique<InputClass>())
 {
 	// Initialize the windows API.
 	InitializeWindows();
 
-	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
-	m_Input = new InputClass();
-
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
-	m_Graphics = new GraphicsClass(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
+	m_Engine = make_unique<EngineClass>(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
 }
 
 
 SystemClass::~SystemClass()
 {
-	// Release the graphics and input objects.
-	SAFE_DELETE(m_Graphics);
-	SAFE_DELETE(m_Input);
-
 	// Shutdown the window.
 	ShutdownWindows();
 }
@@ -98,7 +92,7 @@ bool SystemClass::Frame()
 	}
 
 	// Do the frame processing for the graphics object.
-	m_Graphics->Frame();
+	m_Engine->Frame();
 
 	return true;
 }

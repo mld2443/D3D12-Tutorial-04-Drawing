@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: graphicsclass.h
+// Filename: engineclass.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -14,17 +14,17 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: GraphicsClass
+// Class name: EngineClass
 ////////////////////////////////////////////////////////////////////////////////
-class GraphicsClass
+class EngineClass
 {
 public:
-	GraphicsClass() = delete;
-	GraphicsClass(const GraphicsClass&) = delete;
-	GraphicsClass& operator=(const GraphicsClass&) = delete;
+	EngineClass() = delete;
+	EngineClass(const EngineClass&) = delete;
+	EngineClass& operator=(const EngineClass&) = delete;
 
-	GraphicsClass(HWND, UINT, UINT, bool);
-	~GraphicsClass();
+	EngineClass(HWND, UINT, UINT, bool);
+	~EngineClass();
 
 	void Frame();
 
@@ -34,8 +34,8 @@ private:
 private:
 	bool m_vsyncEnabled =	true;
 
-	D3DClass*			m_Direct3D =	nullptr;
-	CameraClass*		m_Camera =		nullptr;
-	TriangleClass*		m_Geometry =	nullptr;
-	SoloPipelineClass*	m_Pipeline =	nullptr;
+	unique_ptr<CameraClass>			m_Camera =		nullptr;
+	unique_ptr<D3DClass>			m_Direct3D =	nullptr;
+	unique_ptr<SoloPipelineClass>	m_Pipeline =	nullptr;
+	unique_ptr<TriangleClass>		m_Geometry =	nullptr;
 };

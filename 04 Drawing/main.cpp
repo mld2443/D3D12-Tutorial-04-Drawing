@@ -10,13 +10,13 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
 				   __in PSTR pScmdline,
 				   __in int iCmdshow)
 {
-	SystemClass* System;
+	unique_ptr<SystemClass> System;
 
 
 	try
 	{
 		// Create and initialize the system object.
-		System = new SystemClass();
+		System = make_unique<SystemClass>();
 
 		// Run the system
 		System->Run();
@@ -26,9 +26,6 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
 		MessageBox(NULL, exception.message, exception.title, exception.type);
 		return 1;
 	}
-
-	// Shutdown and release the system object.
-	SAFE_DELETE(System);
 
 	return 0;
 }

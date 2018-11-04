@@ -8,11 +8,13 @@
 EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen) :
 	m_Camera(make_unique<CameraClass>(xResolution, yResolution, 45.0f)),
 	m_Direct3D(make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled)),
-	m_Pipeline(make_unique<ColorPipelineClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
-	m_Geometry(make_unique<TriangleClass>(m_Direct3D->GetDevice()))
+	m_Pipeline(make_unique<InstancePipelineClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
+	m_Geometry(make_unique<QuadClass>(m_Direct3D->GetDevice()))
+	//m_Pipeline(make_unique<ColorPipelineClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
+	//m_Geometry(make_unique<TriangleClass>(m_Direct3D->GetDevice()))
 {
 	// Move the camera back so we can see our scene.
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 }
 
 

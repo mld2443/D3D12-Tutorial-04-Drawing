@@ -11,13 +11,11 @@ TriangleClass::TriangleClass(ID3D12Device* device): GeometryInterface()
 	vector<UINT32> indices;
 
 
-	// Create the new vertex array.
+	// Set the sizes of our vectors.
 	vertices.resize(3);
-
-	// Create the new index array.
 	indices.resize(3);
 
-	// Load the vertex array with data.
+	// Load the vertex vector with points of a triangle.
 	vertices[0].position =	XMFLOAT3(-1.0f, -1.0f, 0.0f);  // Bottom left.
 	vertices[0].color =		XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
@@ -27,7 +25,7 @@ TriangleClass::TriangleClass(ID3D12Device* device): GeometryInterface()
 	vertices[2].position =	XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
 	vertices[2].color =		XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-	// Load the index array with data.
+	// Load the index vector with data.
 	indices[0] = 0;  // Bottom left.
 	indices[1] = 1;  // Top middle.
 	indices[2] = 2;  // Bottom right.

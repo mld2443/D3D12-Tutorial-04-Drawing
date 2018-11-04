@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: solopipelineclass.cpp
+// Filename: colorpipelineclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "solopipelineclass.h"
+#include "colorpipelineclass.h"
 
 
-SoloPipelineClass::SoloPipelineClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
+ColorPipelineClass::ColorPipelineClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
 	RenderPipelineInterface(device),
 	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
 {
@@ -23,19 +23,19 @@ SoloPipelineClass::SoloPipelineClass(ID3D12Device* device, UINT screenWidth, UIN
 }
 
 
-XMMATRIX SoloPipelineClass::GetWorldMatrix()
+XMMATRIX ColorPipelineClass::GetWorldMatrix()
 {
 	return m_worldMatrix;
 }
 
 
-XMMATRIX SoloPipelineClass::GetOrthoMatrix()
+XMMATRIX ColorPipelineClass::GetOrthoMatrix()
 {
 	return m_orthoMatrix;
 }
 
 
-void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+void ColorPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	MatrixBufferType matrices;
 
@@ -54,7 +54,7 @@ void SoloPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatr
 }
 
 
-void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
+void ColorPipelineClass::InitializeRootSignature(ID3D12Device* device)
 {
 	ComPtr<ID3D10Blob> signature;
 	D3D12_ROOT_PARAMETER matrixBufferDesc;
@@ -114,7 +114,7 @@ void SoloPipelineClass::InitializeRootSignature(ID3D12Device* device)
 }
 
 
-void SoloPipelineClass::SetShaderBytecode()
+void ColorPipelineClass::SetShaderBytecode()
 {
 	// Create the descriptor for the vertex shader bytecode.
 	m_vsBytecode.pShaderBytecode =	g_colorvs;
@@ -126,7 +126,7 @@ void SoloPipelineClass::SetShaderBytecode()
 }
 
 
-void SoloPipelineClass::SetInputLayoutDesc()
+void ColorPipelineClass::SetInputLayoutDesc()
 {
 	// Set the size of the layout description.
 	m_inputLayoutDesc.resize(2);
@@ -151,19 +151,19 @@ void SoloPipelineClass::SetInputLayoutDesc()
 }
 
 
-void SoloPipelineClass::NameD3D12Resources()
+void ColorPipelineClass::NameD3D12Resources()
 {
 	std::wstring name;
 
 
 	// Name all DirectX objects.
-	m_rootSignature->SetName(L"SPC root signature");
-	m_pipelineState->SetName(L"SPC pipeline state");
+	m_rootSignature->SetName(L"CPC root signature");
+	m_pipelineState->SetName(L"CPC pipeline state");
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		name = std::wstring(L"SPC command allocator ") + std::to_wstring(i);
+		name = std::wstring(L"CPC command allocator ") + std::to_wstring(i);
 		m_commandAllocators[i]->SetName(name.c_str());
 	}
-	m_commandList->SetName(L"SPC graphics command list");
-	m_constantBuffer->SetName(L"SPC matrix buffer");
+	m_commandList->SetName(L"CPC graphics command list");
+	m_constantBuffer->SetName(L"CPC matrix buffer");
 }

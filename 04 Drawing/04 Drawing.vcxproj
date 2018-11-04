@@ -84,7 +84,7 @@
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="renderpipelineinterface.h" />
     <ClInclude Include="pipelineinterface.h" />
-    <ClInclude Include="solopipelineclass.h" />
+    <ClInclude Include="colorpipelineclass.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="triangleclass.h" />
@@ -98,7 +98,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="renderpipelineinterface.cpp" />
     <ClCompile Include="pipelineinterface.cpp" />
-    <ClCompile Include="solopipelineclass.cpp" />
+    <ClCompile Include="colorpipelineclass.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

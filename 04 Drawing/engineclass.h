@@ -10,7 +10,7 @@
 #include "cameraclass.h"
 #include "d3dclass.h"
 #include "triangleclass.h"
-#include "solopipelineclass.h"
+#include "colorpipelineclass.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,6 @@ private:
 
 	unique_ptr<CameraClass>			m_Camera =		nullptr;
 	unique_ptr<D3DClass>			m_Direct3D =	nullptr;
-	unique_ptr<SoloPipelineClass>	m_Pipeline =	nullptr;
+	unique_ptr<ColorPipelineClass>	m_Pipeline =	nullptr;
 	unique_ptr<TriangleClass>		m_Geometry =	nullptr;
 };

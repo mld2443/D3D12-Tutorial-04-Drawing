@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: solopipelineclass.h
+// Filename: colorpipelineclass.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -18,9 +18,9 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: SoloPipelineClass
+// Class name: ColorPipelineClass
 ////////////////////////////////////////////////////////////////////////////////
-class SoloPipelineClass : public RenderPipelineInterface
+class ColorPipelineClass : public RenderPipelineInterface
 {
 private:
 	struct MatrixBufferType
@@ -31,12 +31,12 @@ private:
 	};
 
 public:
-	SoloPipelineClass() = delete;
-	SoloPipelineClass(const SoloPipelineClass&) = delete;
-	SoloPipelineClass& operator=(const SoloPipelineClass&) = delete;
+	ColorPipelineClass() = delete;
+	ColorPipelineClass(const ColorPipelineClass&) = delete;
+	ColorPipelineClass& operator=(const ColorPipelineClass&) = delete;
 
-	SoloPipelineClass(ID3D12Device*, UINT, UINT, float, float);
-	~SoloPipelineClass() = default;
+	ColorPipelineClass(ID3D12Device*, UINT, UINT, float, float);
+	~ColorPipelineClass() = default;
 
 	XMMATRIX GetWorldMatrix();
 	XMMATRIX GetOrthoMatrix();

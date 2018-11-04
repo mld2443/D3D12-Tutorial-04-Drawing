@@ -27,9 +27,6 @@
     <ClInclude Include="cameraclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="solopipelineclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="geometryinterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -46,6 +43,9 @@
     <ClInclude Include="engineclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="colorpipelineclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="systemclass.cpp">
@@ -58,9 +58,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cameraclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="solopipelineclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="geometryinterface.cpp">
@@ -78,6 +75,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engineclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="colorpipelineclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

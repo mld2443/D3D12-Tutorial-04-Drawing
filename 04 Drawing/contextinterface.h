@@ -33,7 +33,7 @@ protected:
 	virtual void UpdateConstantBuffer(UINT, BYTE*, SIZE_T) = 0;
 	D3D12_GPU_VIRTUAL_ADDRESS SetConstantBuffer(UINT, BYTE*, SIZE_T);
 
-	virtual void NameD3D12Resources() = 0;
+	virtual void NameD3DResources() = 0;
 
 protected:
 	ComPtr<ID3D12RootSignature>				m_rootSignature =		nullptr;

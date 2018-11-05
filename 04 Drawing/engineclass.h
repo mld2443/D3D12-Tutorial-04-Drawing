@@ -9,9 +9,9 @@
 //////////////
 #include "cameraclass.h"
 #include "d3dclass.h"
-#include "triangleclass.h"
+//#include "triangleclass.h"
 #include "quadclass.h"
-#include "colorcontextclass.h"
+//#include "colorcontextclass.h"
 #include "instancecontextclass.h"
 
 

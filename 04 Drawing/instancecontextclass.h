@@ -48,7 +48,7 @@ protected:
 	void SetShaderBytecode() override;
 	void SetInputLayoutDesc() override;
 
-	void NameD3D12Resources() override;
+	void NameD3DResources() override;
 
 private:
 	XMMATRIX	m_worldMatrix = XMMatrixIdentity();

@@ -19,7 +19,7 @@ InstanceContextClass::InstanceContextClass(ID3D12Device* device, UINT screenWidt
 	InitializeViewport(screenWidth, screenHeight);
 
 	// After all the resources are initialized, we will name all of our objects for graphics debugging.
-	NameD3D12Resources();
+	NameD3DResources();
 }
 
 
@@ -167,7 +167,7 @@ void InstanceContextClass::SetInputLayoutDesc()
 }
 
 
-void InstanceContextClass::NameD3D12Resources()
+void InstanceContextClass::NameD3DResources()
 {
 	std::wstring name;
 

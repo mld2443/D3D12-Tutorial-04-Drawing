@@ -37,7 +37,7 @@ protected:
 
 	void UpdateConstantBuffer(UINT, BYTE*, SIZE_T) override;
 
-	virtual void NameD3D12Resources() = 0;
+	virtual void NameD3DResources() = 0;
 
 protected:
 	D3D12_SHADER_BYTECODE				m_vsBytecode =			D3D12_SHADER_BYTECODE();

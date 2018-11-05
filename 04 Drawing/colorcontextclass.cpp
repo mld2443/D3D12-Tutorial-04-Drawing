@@ -19,7 +19,7 @@ ColorContextClass::ColorContextClass(ID3D12Device* device, UINT screenWidth, UIN
 	InitializeViewport(screenWidth, screenHeight);
 
 	// After all the resources are initialized, we will name all of our objects for graphics debugging.
-	NameD3D12Resources();
+	NameD3DResources();
 }
 
 
@@ -151,7 +151,7 @@ void ColorContextClass::SetInputLayoutDesc()
 }
 
 
-void ColorContextClass::NameD3D12Resources()
+void ColorContextClass::NameD3DResources()
 {
 	std::wstring name;
 

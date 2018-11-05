@@ -53,32 +53,13 @@ QuadClass::QuadClass(ID3D12Device* device) : GeometryInterface()
 	instances[3].hsv =		XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	// Initialize the vertex buffer and its view.
-	m_vertexBuffer = BufferType(
-		device,
-		reinterpret_cast<BYTE*>(vertices.data()),
-		vertices.size(),
-		sizeof(VertexType),
-		L"QC vertex buffer"
-	);
+	m_vertexBuffer = BufferType(device, vertices, L"QC vertex buffer");
 
 	// Initialize the index buffer and its view.
-	m_indexBuffer = BufferType(
-		device,
-		reinterpret_cast<BYTE*>(indices.data()),
-		indices.size(),
-		sizeof(UINT32),
-		DXGI_FORMAT_R32_UINT,
-		L"QC index buffer"
-	);
+	m_indexBuffer = BufferType(device, indices, L"QC index buffer");
 
 	// Initialize the instance buffer and its view.
-	m_instanceBuffer = BufferType(
-		device,
-		reinterpret_cast<BYTE*>(instances.data()),
-		instances.size(),
-		sizeof(InstanceType),
-		L"QC instance buffer"
-	);
+	m_instanceBuffer = BufferType(device, instances, L"QC instance buffer");
 }
 
 

@@ -31,23 +31,10 @@ TriangleClass::TriangleClass(ID3D12Device* device): GeometryInterface()
 	indices[2] = 2;  // Bottom right.
 
 	// Initialize the vertex buffer.
-	m_vertexBuffer = BufferType(
-		device,
-		reinterpret_cast<BYTE*>(vertices.data()),
-		vertices.size(),
-		sizeof(VertexType),
-		L"TC vertex buffer"
-	);
+	m_vertexBuffer = BufferType(device, vertices, L"TC vertex buffer");
 
 	// Initialize the vertex and index buffers.
-	m_indexBuffer = BufferType(
-		device,
-		reinterpret_cast<BYTE*>(indices.data()),
-		indices.size(),
-		sizeof(UINT32),
-		DXGI_FORMAT_R32_UINT,
-		L"TC index buffer"
-	);
+	m_indexBuffer = BufferType(device, indices, L"TC index buffer");
 }
 
 

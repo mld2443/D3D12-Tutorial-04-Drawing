@@ -44,7 +44,7 @@
 ///////////////
 
 // Defines the number of back buffers and other variable length resources.
-#define FRAME_BUFFER_COUNT 2
+#define FRAME_BUFFER_COUNT 2u
 
 // The value of pi divided by 180.  Used to convert degrees to radians.
 #define PI_180 0.0174532925f

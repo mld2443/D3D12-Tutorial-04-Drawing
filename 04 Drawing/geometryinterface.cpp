@@ -5,51 +5,25 @@
 #include "geometryinterface.h"
 
 
-GeometryInterface::BufferType::BufferType(
-	ID3D12Device* device,
-	BYTE* data,
-	SIZE_T count,
-	SIZE_T valueSize,
-	wstring name) :
-	BufferType(device, data, count, valueSize, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, name)
-{
-	// Fill out the vertex buffer view for use while rendering.
-	vertexView.BufferLocation =	buffer->GetGPUVirtualAddress();
-	vertexView.StrideInBytes =	static_cast<UINT>(valueSize);
-	vertexView.SizeInBytes =	static_cast<UINT>(count * valueSize);
-}
-
-
-GeometryInterface::BufferType::BufferType(
-	ID3D12Device* device,
-	BYTE* data,
-	SIZE_T count,
-	SIZE_T valueSize,
-	DXGI_FORMAT format,
-	wstring name) :
-	BufferType(device, data, count, valueSize, D3D12_RESOURCE_STATE_INDEX_BUFFER, name)
-{
-	// Fill out the index buffer view for use while rendering.
-	indexView.BufferLocation =	buffer->GetGPUVirtualAddress();
-	indexView.Format =			format;
-	indexView.SizeInBytes =		static_cast<UINT>(count * valueSize);
-}
-
-
-GeometryInterface::BufferType::BufferType(
-	ID3D12Device* device,
-	BYTE* data,
-	SIZE_T count,
-	SIZE_T valueSize,
-	D3D12_RESOURCE_STATES finalState,
-	wstring name) :
-	buffer(InitializeBuffer(device, data, count * valueSize, finalState, name)),
-	count(count)
+GeometryInterface::BufferType::BufferType(ID3D12Device* device, vector<UINT> data, wstring name) :
+	count(data.size()),
+	buffer(InitializeBuffer(
+		device,
+		reinterpret_cast<BYTE*>(data.data()),
+		count * sizeof(UINT),
+		D3D12_RESOURCE_STATE_INDEX_BUFFER,
+		name
+	)),
+	indexView{
+		buffer->GetGPUVirtualAddress(),
+		static_cast<UINT>(count * sizeof(UINT)),
+		DXGI_FORMAT_R32_UINT 
+	}
 {
 }
 
 
-ComPtr<ID3D12Resource> GeometryInterface::InitializeBuffer(
+ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 	ID3D12Device* device,
 	BYTE* data,
 	SIZE_T dataSize,
@@ -84,7 +58,7 @@ ComPtr<ID3D12Resource> GeometryInterface::InitializeBuffer(
 	ZeroMemory(&resourceDesc, sizeof(resourceDesc));
 	resourceDesc.Dimension =			D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Alignment =			0;
-	resourceDesc.Width =				static_cast<UINT>(dataSize);
+	resourceDesc.Width =				dataSize;
 	resourceDesc.Height =				1;
 	resourceDesc.DepthOrArraySize =		1;
 	resourceDesc.MipLevels =			1;

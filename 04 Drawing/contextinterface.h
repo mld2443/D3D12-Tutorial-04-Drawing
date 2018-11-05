@@ -13,7 +13,8 @@ protected:
 	struct ConstantBufferType
 	{
 		ComPtr<ID3D12Resource>	buffer =	nullptr;
-		SIZE_T					stride =	0;
+		const SIZE_T			size =		0;
+		const SIZE_T			stride =	0;
 
 		ConstantBufferType() = default;
 		ConstantBufferType(ID3D12Device*, SIZE_T);

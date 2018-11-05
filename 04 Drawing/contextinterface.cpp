@@ -5,8 +5,9 @@
 #include "contextinterface.h"
 
 
-ContextInterface::ConstantBufferType::ConstantBufferType(ID3D12Device* device, SIZE_T stride) :
-	stride(BYTE_ALIGNED_WIDTH(stride, 0xFFu))
+ContextInterface::ConstantBufferType::ConstantBufferType(ID3D12Device* device, SIZE_T size) :
+	size(size),
+	stride(BYTE_ALIGNED_WIDTH(size, 0xFFull))
 {
 	UINT64 bufferSize;
 	D3D12_HEAP_PROPERTIES heapProps;
@@ -47,7 +48,7 @@ ContextInterface::ConstantBufferType::ConstantBufferType(ID3D12Device* device, S
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf())),
-		L"Unable to allocate space on the graphics device.",
+		L"Unable to allocate space for the constant buffer on the graphics device.",
 		L"Hardware Memory Allocation Failure"
 	);
 }
@@ -71,16 +72,16 @@ D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::ConstantBufferType::SetConstantBuffe
 	// Lock the constant buffer so it can be written to.
 	THROW_IF_FAILED(
 		buffer->Map(0, &range, reinterpret_cast<void**>(&mappedResource)),
-		L"Unable to access the memory of the graphics device.",
+		L"Unable to access the constant buffer on the graphics device.",
 		L"Graphics Device Communication Failure"
 	);
 
 	// Copy the data to the buffer.
-	memcpy(mappedResource + bufferOffset, data, stride);
+	memcpy(mappedResource + bufferOffset, data, size);
 
 	// Set the range of data that we wrote to.
 	range.Begin =	bufferOffset;
-	range.End =		bufferOffset + stride;
+	range.End =		bufferOffset + size;
 
 	// Unlock the constant buffer.
 	buffer->Unmap(0, &range);

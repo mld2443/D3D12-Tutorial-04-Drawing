@@ -1,19 +1,19 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: colorpipelineclass.cpp
+// Filename: instancecontextclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "colorpipelineclass.h"
+#include "instancecontextclass.h"
 
 
-ColorPipelineClass::ColorPipelineClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
-	RenderPipelineInterface(device),
+InstanceContextClass::InstanceContextClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar) :
+	RenderContextInterface(device),
 	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
 {
 	// We need to set up the root signature before creating the pipeline state object.
 	InitializeRootSignature(device);
 
 	// Then we can initialize the pipeline state and parameters.
-	InitializePipeline(device);
+	InitializeContext(device);
 
 	// Initialize the viewport and scissor rectangle.
 	InitializeViewport(screenWidth, screenHeight);
@@ -23,19 +23,19 @@ ColorPipelineClass::ColorPipelineClass(ID3D12Device* device, UINT screenWidth, U
 }
 
 
-XMMATRIX ColorPipelineClass::GetWorldMatrix()
+XMMATRIX InstanceContextClass::GetWorldMatrix()
 {
 	return m_worldMatrix;
 }
 
 
-XMMATRIX ColorPipelineClass::GetOrthoMatrix()
+XMMATRIX InstanceContextClass::GetOrthoMatrix()
 {
 	return m_orthoMatrix;
 }
 
 
-void ColorPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+void InstanceContextClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	MatrixBufferType matrices;
 
@@ -54,7 +54,7 @@ void ColorPipelineClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMat
 }
 
 
-void ColorPipelineClass::InitializeRootSignature(ID3D12Device* device)
+void InstanceContextClass::InitializeRootSignature(ID3D12Device* device)
 {
 	ComPtr<ID3D10Blob> signature;
 	D3D12_ROOT_PARAMETER matrixBufferDesc;
@@ -114,22 +114,22 @@ void ColorPipelineClass::InitializeRootSignature(ID3D12Device* device)
 }
 
 
-void ColorPipelineClass::SetShaderBytecode()
+void InstanceContextClass::SetShaderBytecode()
 {
 	// Create the descriptor for the vertex shader bytecode.
-	m_vsBytecode.pShaderBytecode =	g_colorvs;
-	m_vsBytecode.BytecodeLength =	sizeof(g_colorvs);
+	m_vsBytecode.pShaderBytecode =	g_instancevs;
+	m_vsBytecode.BytecodeLength =	sizeof(g_instancevs);
 
 	// Create the descriptor for the pixel shader bytecode.
-	m_psBytecode.pShaderBytecode =	g_colorps;
-	m_psBytecode.BytecodeLength =	sizeof(g_colorps);
+	m_psBytecode.pShaderBytecode =	g_instanceps;
+	m_psBytecode.BytecodeLength =	sizeof(g_instanceps);
 }
 
 
-void ColorPipelineClass::SetInputLayoutDesc()
+void InstanceContextClass::SetInputLayoutDesc()
 {
 	// Set the size of the layout description.
-	m_inputLayoutDesc.resize(2);
+	m_inputLayoutDesc.resize(4);
 
 	// Create the vertex input layout description. This needs to match the VertexType
 	// stucture in the geometry interface and the VertexInputType in the shader.
@@ -148,22 +148,38 @@ void ColorPipelineClass::SetInputLayoutDesc()
 	m_inputLayoutDesc[1].AlignedByteOffset =	D3D12_APPEND_ALIGNED_ELEMENT;
 	m_inputLayoutDesc[1].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 	m_inputLayoutDesc[1].InstanceDataStepRate =	0;
+
+	m_inputLayoutDesc[2].SemanticName =			"POSITION";
+	m_inputLayoutDesc[2].SemanticIndex =		1;
+	m_inputLayoutDesc[2].Format =				DXGI_FORMAT_R32G32B32_FLOAT;
+	m_inputLayoutDesc[2].InputSlot =			1;
+	m_inputLayoutDesc[2].AlignedByteOffset =	0;
+	m_inputLayoutDesc[2].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+	m_inputLayoutDesc[2].InstanceDataStepRate =	1;
+
+	m_inputLayoutDesc[3].SemanticName =			"COLOR";
+	m_inputLayoutDesc[3].SemanticIndex =		1;
+	m_inputLayoutDesc[3].Format =				DXGI_FORMAT_R32G32B32_FLOAT;
+	m_inputLayoutDesc[3].InputSlot =			1;
+	m_inputLayoutDesc[3].AlignedByteOffset =	D3D12_APPEND_ALIGNED_ELEMENT;
+	m_inputLayoutDesc[3].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+	m_inputLayoutDesc[3].InstanceDataStepRate =	1;
 }
 
 
-void ColorPipelineClass::NameD3D12Resources()
+void InstanceContextClass::NameD3D12Resources()
 {
 	std::wstring name;
 
 
 	// Name all DirectX objects.
-	m_rootSignature->SetName(L"CPC root signature");
-	m_pipelineState->SetName(L"CPC pipeline state");
+	m_rootSignature->SetName(L"IPC root signature");
+	m_pipelineState->SetName(L"IPC pipeline state");
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
 	{
-		name = std::wstring(L"CPC command allocator ") + std::to_wstring(i);
+		name = std::wstring(L"IPC command allocator ") + std::to_wstring(i);
 		m_commandAllocators[i]->SetName(name.c_str());
 	}
-	m_commandList->SetName(L"CPC graphics command list");
-	m_constantBuffer->SetName(L"CPC matrix buffer");
+	m_commandList->SetName(L"IPC graphics command list");
+	m_constantBuffer->SetName(L"IPC matrix buffer");
 }

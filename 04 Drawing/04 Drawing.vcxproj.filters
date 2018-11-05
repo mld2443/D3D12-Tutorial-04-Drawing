@@ -34,22 +34,22 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="pipelineinterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderpipelineinterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engineclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="instancepipelineclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="colorpipelineclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="quadclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="contextinterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendercontextinterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instancecontextclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="colorcontextclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,22 +74,22 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="pipelineinterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="renderpipelineinterface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engineclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="instancepipelineclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="colorpipelineclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="quadclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="contextinterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendercontextinterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instancecontextclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="colorcontextclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

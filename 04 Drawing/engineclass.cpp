@@ -8,9 +8,9 @@
 EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen) :
 	m_Camera(make_unique<CameraClass>(xResolution, yResolution, 45.0f)),
 	m_Direct3D(make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled)),
-	m_InstancePipeline(make_unique<InstancePipelineClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
+	m_InstanceContext(make_unique<InstanceContextClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
 	m_Quads(make_unique<QuadClass>(m_Direct3D->GetDevice()))
-	//m_ColorPipeline(make_unique<ColorPipelineClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
+	//m_ColorContext(make_unique<ColorContextClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
 	//m_Triangle(make_unique<TriangleClass>(m_Direct3D->GetDevice()))
 {
 	// Move the camera back so we can see our scene.
@@ -34,7 +34,7 @@ void EngineClass::Frame()
 	Render();
 
 	// Collect all one of our command lists to be drawn this frame.
-	lists.push_back(m_InstancePipeline->GetCommandList());
+	lists.push_back(m_InstanceContext->GetCommandList());
 
 	// Finish the scene and submit our lists for drawing.
 	m_Direct3D->SubmitToQueue(lists, m_vsyncEnabled);
@@ -50,20 +50,20 @@ void EngineClass::Render()
 	m_Direct3D->WaitForNextAvailableFrame();
 
 	// Start our pipeline, set a transition barrier, then clear the RTV and DSV.
-	m_InstancePipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
-	m_Direct3D->BeginScene(m_InstancePipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
+	m_InstanceContext->OpenPipeline(m_Direct3D->GetBufferIndex());
+	m_Direct3D->BeginScene(m_InstanceContext->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
 
 	// Communicate the world, view, and projection matrices to the vertex shader.
-	m_InstancePipeline->SetPipelineParameters(
+	m_InstanceContext->SetPipelineParameters(
 		m_Direct3D->GetBufferIndex(),
 		m_Camera->GetViewMatrix(),
 		m_Camera->GetProjectionMatrix()
 	);
 
 	// Submit the geometry buffers to the render pipeline.
-	m_Quads->Render(m_InstancePipeline->GetCommandList());
+	m_Quads->Render(m_InstanceContext->GetCommandList());
 
 	// Add a final transition barrier and close the pipeline.
-	m_Direct3D->EndScene(m_InstancePipeline->GetCommandList());
-	m_InstancePipeline->ClosePipeline();
+	m_Direct3D->EndScene(m_InstanceContext->GetCommandList());
+	m_InstanceContext->ClosePipeline();
 }

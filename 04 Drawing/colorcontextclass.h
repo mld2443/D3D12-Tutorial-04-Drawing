@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: instancepipelineclass.h
+// Filename: colorcontextclass.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -7,20 +7,20 @@
 //////////////
 // INCLUDES //
 //////////////
-#include "renderpipelineinterface.h"
+#include "rendercontextinterface.h"
 
 
 /////////////
 // SHADERS //
 /////////////
-#include "instance.vs.h"
-#include "instance.ps.h"
+#include "color.vs.h"
+#include "color.ps.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: InstancePipelineClass
+// Class name: ColorContextClass
 ////////////////////////////////////////////////////////////////////////////////
-class InstancePipelineClass : public RenderPipelineInterface
+class ColorContextClass : public RenderContextInterface
 {
 private:
 	struct MatrixBufferType
@@ -31,12 +31,12 @@ private:
 	};
 
 public:
-	InstancePipelineClass() = delete;
-	InstancePipelineClass(const InstancePipelineClass&) = delete;
-	InstancePipelineClass& operator=(const InstancePipelineClass&) = delete;
+	ColorContextClass() = delete;
+	ColorContextClass(const ColorContextClass&) = delete;
+	ColorContextClass& operator=(const ColorContextClass&) = delete;
 
-	InstancePipelineClass(ID3D12Device*, UINT, UINT, float, float);
-	~InstancePipelineClass() = default;
+	ColorContextClass(ID3D12Device*, UINT, UINT, float, float);
+	~ColorContextClass() = default;
 
 	XMMATRIX GetWorldMatrix();
 	XMMATRIX GetOrthoMatrix();

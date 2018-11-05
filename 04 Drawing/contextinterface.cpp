@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: pipelineinterface.cpp
+// Filename: contextinterface.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "pipelineinterface.h"
+#include "contextinterface.h"
 
 
-PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
+ContextInterface::ContextInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 {
 	// Create command allocators, one for each frame.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
@@ -36,13 +36,13 @@ PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TY
 }
 
 
-ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
+ID3D12GraphicsCommandList* ContextInterface::GetCommandList()
 {
 	return m_commandList.Get();
 }
 
 
-void PipelineInterface::OpenPipeline(UINT frameIndex)
+void ContextInterface::OpenPipeline(UINT frameIndex)
 {
 	// Reset the memory that was holding the previously submitted command list.
 	THROW_IF_FAILED(
@@ -62,7 +62,7 @@ void PipelineInterface::OpenPipeline(UINT frameIndex)
 }
 
 
-void PipelineInterface::ClosePipeline()
+void ContextInterface::ClosePipeline()
 {
 	// Close the command list so it can be submitted to a command queue.
 	THROW_IF_FAILED(
@@ -73,7 +73,7 @@ void PipelineInterface::ClosePipeline()
 }
 
 
-void PipelineInterface::InitializeConstantBuffer(ID3D12Device* device)
+void ContextInterface::InitializeConstantBuffer(ID3D12Device* device)
 {
 	UINT64 bufferSize;
 	D3D12_HEAP_PROPERTIES heapProps;
@@ -120,7 +120,7 @@ void PipelineInterface::InitializeConstantBuffer(ID3D12Device* device)
 }
 
 
-D3D12_GPU_VIRTUAL_ADDRESS PipelineInterface::SetConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
+D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::SetConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
 {
 	SIZE_T bufferOffset;
 	D3D12_RANGE range;

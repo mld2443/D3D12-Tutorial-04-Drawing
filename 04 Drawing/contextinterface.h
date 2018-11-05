@@ -1,21 +1,21 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: pipelineinterface.h
+// Filename: contextinterface.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Interface name: PipelineInterface
+// Interface name: ContextInterface
 ////////////////////////////////////////////////////////////////////////////////
-class PipelineInterface
+class ContextInterface
 {
 public:
-	PipelineInterface() = delete;
-	PipelineInterface(const PipelineInterface&) = delete;
-	PipelineInterface& operator=(const PipelineInterface&) = delete;
+	ContextInterface() = delete;
+	ContextInterface(const ContextInterface&) = delete;
+	ContextInterface& operator=(const ContextInterface&) = delete;
 
-	PipelineInterface(ID3D12Device*, D3D12_COMMAND_LIST_TYPE);
-	~PipelineInterface() = default;
+	ContextInterface(ID3D12Device*, D3D12_COMMAND_LIST_TYPE);
+	~ContextInterface() = default;
 
 	ID3D12GraphicsCommandList* GetCommandList();
 
@@ -25,7 +25,7 @@ public:
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	virtual void InitializeConstantBuffer(ID3D12Device*);
-	virtual void InitializePipeline(ID3D12Device*) = 0;
+	virtual void InitializeContext(ID3D12Device*) = 0;
 	virtual void InitializeStateObject(ID3D12Device*) = 0;
 
 	virtual void SetShaderBytecode() = 0;

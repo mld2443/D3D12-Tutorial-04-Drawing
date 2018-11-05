@@ -82,11 +82,11 @@
     <ClInclude Include="geometryinterface.h" />
     <ClInclude Include="engineclass.h" />
     <ClInclude Include="inputclass.h" />
-    <ClInclude Include="instancepipelineclass.h" />
+    <ClInclude Include="instancecontextclass.h" />
     <ClInclude Include="quadclass.h" />
-    <ClInclude Include="renderpipelineinterface.h" />
-    <ClInclude Include="pipelineinterface.h" />
-    <ClInclude Include="colorpipelineclass.h" />
+    <ClInclude Include="rendercontextinterface.h" />
+    <ClInclude Include="contextinterface.h" />
+    <ClInclude Include="colorcontextclass.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="triangleclass.h" />
@@ -97,12 +97,12 @@
     <ClCompile Include="geometryinterface.cpp" />
     <ClCompile Include="engineclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
-    <ClCompile Include="instancepipelineclass.cpp" />
+    <ClCompile Include="instancecontextclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="quadclass.cpp" />
-    <ClCompile Include="renderpipelineinterface.cpp" />
-    <ClCompile Include="pipelineinterface.cpp" />
-    <ClCompile Include="colorpipelineclass.cpp" />
+    <ClCompile Include="rendercontextinterface.cpp" />
+    <ClCompile Include="contextinterface.cpp" />
+    <ClCompile Include="colorcontextclass.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

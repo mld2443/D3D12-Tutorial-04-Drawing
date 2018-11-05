@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: renderpipelineinterface.h
+// Filename: rendercontextinterface.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -7,25 +7,25 @@
 //////////////
 // INCLUDES //
 //////////////
-#include "pipelineinterface.h"
+#include "contextinterface.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Interface name: RenderPipelineInterface
+// Interface name: RenderContextInterface
 ////////////////////////////////////////////////////////////////////////////////
-class RenderPipelineInterface : public PipelineInterface
+class RenderContextInterface : public ContextInterface
 {
 public:
-	RenderPipelineInterface() = delete;
-	RenderPipelineInterface(const RenderPipelineInterface&) = delete;
-	RenderPipelineInterface& operator=(const RenderPipelineInterface&) = delete;
+	RenderContextInterface() = delete;
+	RenderContextInterface(const RenderContextInterface&) = delete;
+	RenderContextInterface& operator=(const RenderContextInterface&) = delete;
 
-	RenderPipelineInterface(ID3D12Device*);
-	~RenderPipelineInterface() = default;
+	RenderContextInterface(ID3D12Device*);
+	~RenderContextInterface() = default;
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
-	void InitializePipeline(ID3D12Device*) override;
+	void InitializeContext(ID3D12Device*) override;
 	virtual void InitializeViewport(UINT, UINT);
 	virtual void InitializeStateObject(ID3D12Device*) override;
 

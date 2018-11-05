@@ -1,23 +1,23 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: renderpipelineinterface.cpp
+// Filename: rendercontextinterface.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "renderpipelineinterface.h"
+#include "rendercontextinterface.h"
 
 
-RenderPipelineInterface::RenderPipelineInterface(ID3D12Device* device):
-	PipelineInterface(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
+RenderContextInterface::RenderContextInterface(ID3D12Device* device):
+	ContextInterface(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
 {
 }
 
 
-void RenderPipelineInterface::InitializePipeline(ID3D12Device* device)
+void RenderContextInterface::InitializeContext(ID3D12Device* device)
 {
 	// Check that the root signature is properly set up before using.
 	THROW_IF_FALSE(
 		m_rootSignature,
-		L"Pipeline failed to initialize root signature correctly.",
-		L"Graphics Pipeline Initialization Failure"
+		L"Interface failed to initialize root signature correctly.",
+		L"Graphics Context Initialization Failure"
 	);
 
 	// First we need to set all the descriptions for the pipeline.
@@ -32,7 +32,7 @@ void RenderPipelineInterface::InitializePipeline(ID3D12Device* device)
 }
 
 
-void RenderPipelineInterface::InitializeViewport(UINT screenWidth, UINT screenHeight)
+void RenderContextInterface::InitializeViewport(UINT screenWidth, UINT screenHeight)
 {
 	// Set up the viewport for rendering.
 	m_viewport.Width =		(float)screenWidth;
@@ -50,7 +50,7 @@ void RenderPipelineInterface::InitializeViewport(UINT screenWidth, UINT screenHe
 }
 
 
-void RenderPipelineInterface::InitializeStateObject(ID3D12Device* device)
+void RenderContextInterface::InitializeStateObject(ID3D12Device* device)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
@@ -89,7 +89,7 @@ void RenderPipelineInterface::InitializeStateObject(ID3D12Device* device)
 }
 
 
-void RenderPipelineInterface::SetBlendDesc()
+void RenderContextInterface::SetBlendDesc()
 {
 	// Create an alpha enabled blend state description.
 	m_blendDesc.AlphaToCoverageEnable =					FALSE;
@@ -106,7 +106,7 @@ void RenderPipelineInterface::SetBlendDesc()
 }
 
 
-void RenderPipelineInterface::SetRasterDesc()
+void RenderContextInterface::SetRasterDesc()
 {
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	m_rasterDesc.FillMode =					D3D12_FILL_MODE_SOLID;
@@ -123,7 +123,7 @@ void RenderPipelineInterface::SetRasterDesc()
 }
 
 
-void RenderPipelineInterface::SetDepthStencilDesc()
+void RenderContextInterface::SetDepthStencilDesc()
 {
 	// Set up the description of the stencil state.
 	m_depthStencilDesc.DepthEnable =		true;
@@ -147,7 +147,7 @@ void RenderPipelineInterface::SetDepthStencilDesc()
 }
 
 
-void RenderPipelineInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
+void RenderContextInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
 

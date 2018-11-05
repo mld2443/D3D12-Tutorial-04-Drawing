@@ -51,6 +51,8 @@ protected:
 	void NameD3DResources() override;
 
 private:
-	XMMATRIX	m_worldMatrix = XMMatrixIdentity();
-	XMMATRIX	m_orthoMatrix = XMMatrixIdentity();
+	ConstantBufferType	m_matrixBuffer =	ConstantBufferType();
+
+	XMMATRIX	m_worldMatrix =	XMMatrixIdentity();
+	XMMATRIX	m_orthoMatrix =	XMMatrixIdentity();
 };

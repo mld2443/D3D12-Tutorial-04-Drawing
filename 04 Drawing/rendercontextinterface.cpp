@@ -145,19 +145,3 @@ void RenderContextInterface::SetDepthStencilDesc()
 	m_depthStencilDesc.BackFace.StencilPassOp =			D3D12_STENCIL_OP_KEEP;
 	m_depthStencilDesc.BackFace.StencilFunc =			D3D12_COMPARISON_FUNC_ALWAYS;
 }
-
-
-void RenderContextInterface::UpdateConstantBuffer(UINT frameIndex, BYTE* data, SIZE_T dataSize)
-{
-	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
-
-
-	// Declare the root signature.
-	m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-
-	// Set the data and get the address of the constant buffer for this frame.
-	cbvAddress = SetConstantBuffer(frameIndex, data, dataSize);
-
-	// Tell the root descriptor where the data for our matrix buffer is located.
-	m_commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
-}

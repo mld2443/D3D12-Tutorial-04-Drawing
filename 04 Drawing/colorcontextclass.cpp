@@ -7,6 +7,7 @@
 
 ColorContextClass::ColorContextClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar):
 	RenderContextInterface(device),
+	m_matrixBuffer(device, sizeof(MatrixBufferType)),
 	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
 {
 	// We need to set up the root signature before creating the pipeline state object.
@@ -38,19 +39,26 @@ XMMATRIX ColorContextClass::GetOrthoMatrix()
 void ColorContextClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	MatrixBufferType matrices;
+	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
 
+
+	// Set the window viewport.
+	m_commandList->RSSetViewports(1, &m_viewport);
+	m_commandList->RSSetScissorRects(1, &m_scissorRect);
+
+	// Declare the root signature.
+	m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	// Transpose and copy the matrices into the constant buffer.
 	matrices.world = XMMatrixTranspose(m_worldMatrix);
 	matrices.view = XMMatrixTranspose(viewMatrix);
 	matrices.projection = XMMatrixTranspose(projectionMatrix);
 
-	// Set the root signature and the data on the constant buffer.
-	UpdateConstantBuffer(frameIndex, reinterpret_cast<BYTE*>(&matrices), sizeof(matrices));
+	// Set the data and get the address of the constant buffer for this frame.
+	cbvAddress = m_matrixBuffer.SetConstantBuffer(frameIndex, reinterpret_cast<BYTE*>(&matrices));
 
-	// Set the window viewport.
-	m_commandList->RSSetViewports(1, &m_viewport);
-	m_commandList->RSSetScissorRects(1, &m_scissorRect);
+	// Tell the root descriptor where the data for our matrix buffer is located.
+	m_commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
 }
 
 
@@ -61,12 +69,6 @@ void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags;
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
 
-
-	// Calculate the size of the matrices as they appear in memory.
-	m_constantBufferWidth = BYTE_ALIGNED_WIDTH(MatrixBufferType, 0xFFu);
-
-	// Create the constant buffer.
-	InitializeConstantBuffer(device);
 
 	// Create a descriptor for the matrix buffer.
 	ZeroMemory(&matrixBufferDesc, sizeof(matrixBufferDesc));
@@ -165,5 +167,5 @@ void ColorContextClass::NameD3DResources()
 		m_commandAllocators[i]->SetName(name.c_str());
 	}
 	m_commandList->SetName(L"CPC graphics command list");
-	m_constantBuffer->SetName(L"CPC matrix buffer");
+	m_matrixBuffer.buffer->SetName(L"CPC matrix buffer");
 }

@@ -35,8 +35,6 @@ protected:
 	virtual void SetDepthStencilDesc();
 	virtual void SetInputLayoutDesc() = 0;
 
-	void UpdateConstantBuffer(UINT, BYTE*, SIZE_T) override;
-
 	virtual void NameD3DResources() = 0;
 
 protected:

@@ -91,7 +91,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::ConstantBufferType::SetConstantBuffe
 }
 
 
-ID3D12PipelineState* ContextInterface::GetPSO()
+ID3D12PipelineState* ContextInterface::GetState()
 {
-	return m_pipelineState.Get();
+	return m_state.Get();
 }

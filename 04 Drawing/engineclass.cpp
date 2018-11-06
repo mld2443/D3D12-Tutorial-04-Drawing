@@ -51,7 +51,7 @@ void EngineClass::Render()
 	// Start our pipeline, set a transition barrier, then clear the RTV and DSV.
 	m_Pipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
 
-	*m_Pipeline << m_Context->GetPSO();
+	*m_Pipeline << m_Context->GetState();
 
 	m_Direct3D->BeginScene(m_Pipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
 

@@ -26,7 +26,7 @@ protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	void InitializeContext(ID3D12Device*) override;
 	virtual void InitializeViewport(UINT, UINT);
-	virtual void InitializeStateObject(ID3D12Device*) override;
+	virtual void InitializeState(ID3D12Device*) override;
 
 	virtual void SetShaderBytecode() = 0;
 	virtual void SetBlendDesc();

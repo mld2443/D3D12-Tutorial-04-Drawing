@@ -21,7 +21,7 @@ void RenderContextInterface::InitializeContext(ID3D12Device* device)
 	SetInputLayoutDesc();
 
 	// Then we can initialize the pipeline state and parameters.
-	InitializeStateObject(device);
+	InitializeState(device);
 }
 
 
@@ -43,7 +43,7 @@ void RenderContextInterface::InitializeViewport(UINT screenWidth, UINT screenHei
 }
 
 
-void RenderContextInterface::InitializeStateObject(ID3D12Device* device)
+void RenderContextInterface::InitializeState(ID3D12Device* device)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 
@@ -75,7 +75,7 @@ void RenderContextInterface::InitializeStateObject(ID3D12Device* device)
 	THROW_IF_FAILED(
 		device->CreateGraphicsPipelineState(
 			&pipelineStateDesc,
-			IID_PPV_ARGS(m_pipelineState.ReleaseAndGetAddressOf())),
+			IID_PPV_ARGS(m_state.ReleaseAndGetAddressOf())),
 		"The pipeline state object failed to initialize."
 	);
 }

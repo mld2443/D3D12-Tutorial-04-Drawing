@@ -174,6 +174,6 @@ void InstanceContextClass::NameD3DResources()
 
 	// Name all DirectX objects.
 	m_rootSignature->SetName(L"IPC root signature");
-	m_pipelineState->SetName(L"IPC pipeline state");
+	m_state->SetName(L"IPC pipeline state");
 	m_matrixBuffer.buffer->SetName(L"IPC matrix buffer");
 }

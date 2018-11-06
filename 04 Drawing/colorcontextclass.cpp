@@ -155,6 +155,6 @@ void ColorContextClass::NameD3DResources()
 {
 	// Name all DirectX objects.
 	m_rootSignature->SetName(L"CPC root signature");
-	m_pipelineState->SetName(L"CPC pipeline state");
+	m_state->SetName(L"CPC pipeline state");
 	m_matrixBuffer.buffer->SetName(L"CPC matrix buffer");
 }

@@ -29,12 +29,12 @@ public:
 	ContextInterface() = default;
 	~ContextInterface() = default;
 
-	ID3D12PipelineState* GetPSO();
+	ID3D12PipelineState* GetState();
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
 	virtual void InitializeContext(ID3D12Device*) = 0;
-	virtual void InitializeStateObject(ID3D12Device*) = 0;
+	virtual void InitializeState(ID3D12Device*) = 0;
 
 	virtual void SetShaderBytecode() = 0;
 
@@ -42,5 +42,5 @@ protected:
 
 protected:
 	ComPtr<ID3D12RootSignature>	m_rootSignature =	nullptr;
-	ComPtr<ID3D12PipelineState>	m_pipelineState =	nullptr;
+	ComPtr<ID3D12PipelineState>	m_state =	nullptr;
 };

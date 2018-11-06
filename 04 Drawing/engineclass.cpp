@@ -49,7 +49,7 @@ void EngineClass::Render()
 	m_Direct3D->WaitForNextAvailableFrame();
 
 	// Start our pipeline, set a transition barrier, then clear the RTV and DSV.
-	m_Pipeline->OpenPipeline(m_Direct3D->GetBufferIndex());
+	m_Pipeline->Open(m_Direct3D->GetBufferIndex());
 
 	*m_Pipeline << m_Context->GetState();
 
@@ -68,5 +68,5 @@ void EngineClass::Render()
 
 	// Add a final transition barrier and close the pipeline.
 	m_Direct3D->EndScene(m_Pipeline->GetCommandList());
-	m_Pipeline->ClosePipeline();
+	*m_Pipeline << PipelineClass::end;
 }

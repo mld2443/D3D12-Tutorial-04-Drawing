@@ -10,6 +10,12 @@
 class PipelineClass
 {
 public:
+	enum CommandType
+	{
+		open,
+		end
+	};
+
 	PipelineClass() = delete;
 	PipelineClass(const PipelineClass&) = delete;
 	PipelineClass& operator=(const PipelineClass&) = delete;
@@ -19,11 +25,14 @@ public:
 
 	ID3D12GraphicsCommandList* GetCommandList();
 
-	void OpenPipeline(UINT, ID3D12PipelineState* = nullptr);
-	void ClosePipeline();
+	void Open(UINT);
 
+	friend PipelineClass& operator<<(PipelineClass&, PipelineClass::CommandType);
 	friend PipelineClass& operator<<(PipelineClass&, ID3D12PipelineState*);
 	friend PipelineClass& operator<<(PipelineClass&, D3D12_RESOURCE_BARRIER&);
+
+private:
+	void Close();
 
 private:
 	vector<ComPtr<ID3D12CommandAllocator>>	m_commandAllocators = vector<ComPtr<ID3D12CommandAllocator>>(FRAME_BUFFER_COUNT, nullptr);

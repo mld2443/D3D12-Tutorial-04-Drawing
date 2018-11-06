@@ -30,7 +30,7 @@ PipelineClass::PipelineClass(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 	);
 
 	// Initially we need to close the command list during initialization as it is created in a recording state.
-	ClosePipeline();
+	Close();
 }
 
 
@@ -40,7 +40,7 @@ ID3D12GraphicsCommandList* PipelineClass::GetCommandList()
 }
 
 
-void PipelineClass::OpenPipeline(UINT frameIndex, ID3D12PipelineState* state)
+void PipelineClass::Open(UINT frameIndex)
 {
 	// Reset the memory that was holding the previously submitted command list.
 	THROW_IF_FAILED(
@@ -50,19 +50,36 @@ void PipelineClass::OpenPipeline(UINT frameIndex, ID3D12PipelineState* state)
 
 	// Reset our command list to prepare it for new commands.
 	THROW_IF_FAILED(
-		m_commandList->Reset(m_commandAllocators[frameIndex].Get(), state),
+		m_commandList->Reset(m_commandAllocators[frameIndex].Get(), nullptr),
 		"Unable to reset command list.  It may not have been closed or submitted properly."
 	);
 }
 
 
-void PipelineClass::ClosePipeline()
+void PipelineClass::Close()
 {
 	// Close the command list so it can be submitted to a command queue.
 	THROW_IF_FAILED(
 		m_commandList->Close(),
 		"Unable to close command list.  It may not have been reset properly."
 	);
+}
+
+
+PipelineClass& operator<<(PipelineClass& pipeline, PipelineClass::CommandType command)
+{
+	//
+	switch (command)
+	{
+	case PipelineClass::open:
+		break;
+	case PipelineClass::end:
+		// Close the command list so it can be submitted to a command queue.
+		pipeline.Close();
+		break;
+	}
+
+	return pipeline;
 }
 
 

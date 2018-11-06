@@ -1,29 +1,29 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: pipelineinterface.h
+// Filename: pipelineclass.h
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: PipelineInterface
+// Class name: PipelineClass
 ////////////////////////////////////////////////////////////////////////////////
-class PipelineInterface
+class PipelineClass
 {
 public:
-	PipelineInterface() = delete;
-	PipelineInterface(const PipelineInterface&) = delete;
-	PipelineInterface& operator=(const PipelineInterface&) = delete;
+	PipelineClass() = delete;
+	PipelineClass(const PipelineClass&) = delete;
+	PipelineClass& operator=(const PipelineClass&) = delete;
 
-	PipelineInterface(ID3D12Device*, D3D12_COMMAND_LIST_TYPE = D3D12_COMMAND_LIST_TYPE_DIRECT);
-	~PipelineInterface() = default;
+	PipelineClass(ID3D12Device*, D3D12_COMMAND_LIST_TYPE = D3D12_COMMAND_LIST_TYPE_DIRECT);
+	~PipelineClass() = default;
 
 	ID3D12GraphicsCommandList* GetCommandList();
 
 	void OpenPipeline(UINT, ID3D12PipelineState* = nullptr);
 	void ClosePipeline();
 
-	friend PipelineInterface& operator<<(PipelineInterface&, ID3D12PipelineState*);
-	friend PipelineInterface& operator<<(PipelineInterface&, D3D12_RESOURCE_BARRIER&);
+	friend PipelineClass& operator<<(PipelineClass&, ID3D12PipelineState*);
+	friend PipelineClass& operator<<(PipelineClass&, D3D12_RESOURCE_BARRIER&);
 
 private:
 	vector<ComPtr<ID3D12CommandAllocator>>	m_commandAllocators = vector<ComPtr<ID3D12CommandAllocator>>(FRAME_BUFFER_COUNT, nullptr);

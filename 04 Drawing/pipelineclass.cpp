@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: pipelineinterface.h
+// Filename: pipelineclass.h
 ////////////////////////////////////////////////////////////////////////////////
 #include "pch.h"
-#include "pipelineinterface.h"
+#include "pipelineclass.h"
 
 
-PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
+PipelineClass::PipelineClass(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
 {
 	// Create command allocators, one for each frame.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
@@ -34,13 +34,13 @@ PipelineInterface::PipelineInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TY
 }
 
 
-ID3D12GraphicsCommandList* PipelineInterface::GetCommandList()
+ID3D12GraphicsCommandList* PipelineClass::GetCommandList()
 {
 	return m_commandList.Get();
 }
 
 
-void PipelineInterface::OpenPipeline(UINT frameIndex, ID3D12PipelineState* state)
+void PipelineClass::OpenPipeline(UINT frameIndex, ID3D12PipelineState* state)
 {
 	// Reset the memory that was holding the previously submitted command list.
 	THROW_IF_FAILED(
@@ -56,7 +56,7 @@ void PipelineInterface::OpenPipeline(UINT frameIndex, ID3D12PipelineState* state
 }
 
 
-void PipelineInterface::ClosePipeline()
+void PipelineClass::ClosePipeline()
 {
 	// Close the command list so it can be submitted to a command queue.
 	THROW_IF_FAILED(
@@ -66,7 +66,7 @@ void PipelineInterface::ClosePipeline()
 }
 
 
-PipelineInterface& operator<<(PipelineInterface& pipeline, ID3D12PipelineState* state)
+PipelineClass& operator<<(PipelineClass& pipeline, ID3D12PipelineState* state)
 {
 	// Set the pipeline state using the incoming PSO.
 	pipeline.GetCommandList()->SetPipelineState(state);
@@ -75,7 +75,7 @@ PipelineInterface& operator<<(PipelineInterface& pipeline, ID3D12PipelineState* 
 }
 
 
-PipelineInterface& operator<<(PipelineInterface& pipeline, D3D12_RESOURCE_BARRIER& barrier)
+PipelineClass& operator<<(PipelineClass& pipeline, D3D12_RESOURCE_BARRIER& barrier)
 {
 	// Put the barrier in the commandList.
 	pipeline.GetCommandList()->ResourceBarrier(1, &barrier);

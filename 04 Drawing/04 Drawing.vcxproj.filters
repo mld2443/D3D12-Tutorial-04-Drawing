@@ -10,21 +10,21 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{a188c207-e689-44d7-af13-c4ed93d8ec88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Contexts">
-      <UniqueIdentifier>{366d2ad3-ce6f-4858-9257-91dd30096f9d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Engine\Contexts\Interfaces">
-      <UniqueIdentifier>{c6995d72-cceb-45e6-ac57-aa6cc9d2594b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Geometry\Interfaces">
       <UniqueIdentifier>{9ac4d7ff-eb0d-4893-b0c0-0dfccada0ec0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Pipelines">
-      <UniqueIdentifier>{2eead03b-dd94-4948-b67f-e55956a601c5}</UniqueIdentifier>
+    <Filter Include="Engine\Direct3D">
+      <UniqueIdentifier>{b60d447e-5c1c-462c-8853-820f499480cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Direct3D\Contexts">
+      <UniqueIdentifier>{366d2ad3-ce6f-4858-9257-91dd30096f9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Direct3D\Contexts\Interfaces">
+      <UniqueIdentifier>{c6995d72-cceb-45e6-ac57-aa6cc9d2594b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,27 +46,27 @@
     <ClInclude Include="cameraclass.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="d3dclass.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="instancecontextclass.h">
-      <Filter>Engine\Contexts</Filter>
+      <Filter>Engine\Direct3D\Contexts</Filter>
     </ClInclude>
     <ClInclude Include="colorcontextclass.h">
-      <Filter>Engine\Contexts</Filter>
+      <Filter>Engine\Direct3D\Contexts</Filter>
     </ClInclude>
     <ClInclude Include="contextinterface.h">
-      <Filter>Engine\Contexts\Interfaces</Filter>
+      <Filter>Engine\Direct3D\Contexts\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="rendercontextinterface.h">
-      <Filter>Engine\Contexts\Interfaces</Filter>
+      <Filter>Engine\Direct3D\Contexts\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="geometryinterface.h">
       <Filter>Geometry\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="pipelineinterface.h">
-      <Filter>Engine\Pipelines</Filter>
+    <ClInclude Include="d3dclass.h">
+      <Filter>Engine\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="pipelineclass.h">
+      <Filter>Engine\Direct3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,27 +89,27 @@
     <ClCompile Include="cameraclass.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="d3dclass.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="colorcontextclass.cpp">
-      <Filter>Engine\Contexts</Filter>
+      <Filter>Engine\Direct3D\Contexts</Filter>
     </ClCompile>
     <ClCompile Include="instancecontextclass.cpp">
-      <Filter>Engine\Contexts</Filter>
+      <Filter>Engine\Direct3D\Contexts</Filter>
     </ClCompile>
     <ClCompile Include="contextinterface.cpp">
-      <Filter>Engine\Contexts\Interfaces</Filter>
+      <Filter>Engine\Direct3D\Contexts\Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="rendercontextinterface.cpp">
-      <Filter>Engine\Contexts\Interfaces</Filter>
+      <Filter>Engine\Direct3D\Contexts\Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="geometryinterface.cpp">
       <Filter>Geometry\Interfaces</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="pipelineinterface.cpp">
-      <Filter>Engine\Pipelines</Filter>
+    <ClCompile Include="d3dclass.cpp">
+      <Filter>Engine\Direct3D</Filter>
+    </ClCompile>
+    <ClCompile Include="pipelineclass.cpp">
+      <Filter>Engine\Direct3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

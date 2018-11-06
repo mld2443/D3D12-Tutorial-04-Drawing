@@ -8,7 +8,7 @@
 EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen) :
 	m_Camera(make_unique<CameraClass>(xResolution, yResolution, 45.0f)),
 	m_Direct3D(make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled)),
-	m_Pipeline(make_unique<PipelineInterface>(m_Direct3D->GetDevice())),
+	m_Pipeline(make_unique<PipelineClass>(m_Direct3D->GetDevice())),
 	m_Context(make_unique<InstanceContextClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
 	m_Geometry(make_unique<QuadClass>(m_Direct3D->GetDevice()))
 {

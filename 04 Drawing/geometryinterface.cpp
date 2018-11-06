@@ -77,8 +77,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
 			IID_PPV_ARGS(defaultBuffer.ReleaseAndGetAddressOf())),
-		L"Unable to allocate room on the device for the buffer heap.",
-		L"Heap Allocation Failure"
+		"Unable to allocate room on the device for the buffer heap."
 	);
 
 	// Set the name of the default heap for use in debugging.
@@ -96,8 +95,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(uploadBuffer.ReleaseAndGetAddressOf())),
-		L"Unable to allocate room on the device for the buffer upload heap.",
-		L"Heap Allocation Failure"
+		"Unable to allocate room on the device for the buffer upload heap."
 	);
 
 	// Set the name of the upload heap for use in debugging.
@@ -109,8 +107,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 		device->CreateCommandAllocator(
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
 			IID_PPV_ARGS(commandAllocator.ReleaseAndGetAddressOf())),
-		L"Unable to create Command Allocator on the device.",
-		L"Command Allocator Creation Failure"
+		"Unable to create Command Allocator on the device."
 	);
 
 	// Create a command list using our new command allocator.
@@ -121,8 +118,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 			commandAllocator.Get(),
 			nullptr,
 			IID_PPV_ARGS(commandList.ReleaseAndGetAddressOf())),
-		L"Unable to create a command list on the device.",
-		L"Command List Creation Failure"
+		"Unable to create a command list on the device."
 	);
 
 	// Fill out a description for a command queue.
@@ -137,15 +133,13 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 		device->CreateCommandQueue(
 			&queueDesc,
 			IID_PPV_ARGS(commandQueue.ReleaseAndGetAddressOf())),
-		L"Unable to create a command queue on the device.",
-		L"Command Queue Creation Failure"
+		"Unable to create a command queue on the device."
 	);
 
 	// Lock the upload buffer.
 	THROW_IF_FAILED(
 		uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&rawData)),
-		L"Unable to communicate with device buffer.",
-		L"Memory Access Failure"
+		"Unable to communicate with device buffer."
 	);
 
 	// Upload the data to our upload buffer.
@@ -184,38 +178,33 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 			0,
 			D3D12_FENCE_FLAG_NONE,
 			IID_PPV_ARGS(fence.ReleaseAndGetAddressOf())),
-		L"Unable to create fence to time the buffer upload.",
-		L"Fence Creation Failure"
+		"Unable to create fence to time the buffer upload."
 	);
 
 	// Create an event that will block until our task is done.
 	fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	THROW_IF_TRUE(
 		fenceEvent == NULL,
-		L"Unable to create system event for synchronization.",
-		L"System Event Error"
+		"Unable to create system event for synchronization."
 	);
 
 	// Tell the command queue what fence to use and the value we're waiting for.
 	THROW_IF_FAILED(
 		commandQueue->Signal(fence.Get(), 1),
-		L"Unable to signal to the fence when to stop execution.",
-		L"Fence Communication Failure"
+		"Unable to signal to the fence when to stop execution."
 	);
 
 	// Give our fence the event to use and the value to wait for.
 	THROW_IF_FAILED(
 		fence->SetEventOnCompletion(1, fenceEvent),
-		L"Unable to set a fence event for synchronization.",
-		L"Fence Communication failure"
+		"Unable to set a fence event for synchronization."
 	);
 
 	// Wait up to 10 seconds for our task to complete or give up. This function is blocking.
 	waitValue = WaitForSingleObject(fenceEvent, 10000);
 	THROW_IF_FALSE(
 		waitValue == WAIT_OBJECT_0,
-		L"The Buffer took longer than 10 seconds to upload to the graphics device.",
-		L"Buffer Upload Timed Out"
+		"The Buffer took longer than 10 seconds to upload to the graphics device."
 	);
 
 	return defaultBuffer;

@@ -41,7 +41,7 @@ public:
 	XMMATRIX GetWorldMatrix();
 	XMMATRIX GetOrthoMatrix();
 
-	void SetPipelineParameters(UINT, XMMATRIX, XMMATRIX);
+	void SetShaderParameters(ID3D12GraphicsCommandList*, UINT, XMMATRIX, XMMATRIX);
 
 protected:
 	void InitializeRootSignature(ID3D12Device*) override;

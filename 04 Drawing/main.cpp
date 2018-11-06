@@ -13,18 +13,26 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
 	unique_ptr<SystemClass> System;
 
 
+	// Create and initialize the system object.
 	try
 	{
-		// Create and initialize the system object.
 		System = make_unique<SystemClass>();
+	}
+	catch (exception e)
+	{
+		MessageBoxA(NULL, e.what(), "Initialization Error", MB_OK | MB_ICONERROR);
+		return 1;
+	}
 
-		// Run the system
+	// Run the system
+	try
+	{
 		System->Run();
 	}
-	catch (MessageBoxType exception)
+	catch (exception e)
 	{
-		MessageBox(NULL, exception.message, exception.title, exception.type);
-		return 1;
+		MessageBoxA(NULL, e.what(), "Runtime Error", MB_OK | MB_ICONERROR);
+		return 2;
 	}
 
 	return 0;

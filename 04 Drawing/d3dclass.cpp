@@ -118,15 +118,13 @@ void D3DClass::SubmitToQueue(vector<ID3D12CommandList*> lists, bool vsync)
 		m_commandQueue->Signal(
 			m_fence[m_bufferIndex].Get(),
 			m_fenceValue[m_bufferIndex]),
-		L"Unable to signal fence object.",
-		L"Signal Failure"
+		"Unable to signal fence object."
 	);
 
 	// Finally present the back buffer to the screen since rendering is complete.
 	THROW_IF_FAILED(
 		m_swapChain->Present(vsync, 0),
-		L"Unable to present frame to the display.",
-		L"Display Error"
+		"Unable to present frame to the display."
 	);
 }
 
@@ -157,8 +155,7 @@ void D3DClass::ShutdownAllFrames()
 			m_commandQueue->Signal(
 				m_fence[i].Get(),
 				m_fenceValue[i]),
-			L"Unable to signal fence object.",
-			L"Signal Failure"
+			"Unable to signal fence object."
 		);
 
 		WaitForFrameIndex(i);
@@ -177,8 +174,7 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 			m_fence[frameIndex]->SetEventOnCompletion(
 				m_fenceValue[frameIndex],
 				m_fenceEvent),
-			L"Unable to set the fence event.",
-			L"Fence Event Error."
+			"Unable to set the fence event."
 		);
 
 		// Wait for the fence event to complete, with no timeout.
@@ -200,8 +196,7 @@ void D3DClass::InitializeDevice()
 	// Create the Direct3D 12 debug controller.
 	THROW_IF_FAILED(
 		D3D12GetDebugInterface(IID_PPV_ARGS(debugController.ReleaseAndGetAddressOf())),
-		L"Unable to create the Direct3D 12 debug layer.",
-		L"Device Debug Error"
+		"Unable to create the Direct3D 12 debug layer."
 	);
 
 	// Enable the debug layer.
@@ -214,8 +209,7 @@ void D3DClass::InitializeDevice()
 			nullptr,
 			featureLevel,
 			IID_PPV_ARGS(m_device.ReleaseAndGetAddressOf())),
-		L"Unable to create a DirectX 12.1 device.  The default video card does not support DirectX 12.1.",
-		L"DirectX Device Failure"
+		"Unable to create a DirectX 12.1 device.  The default video card does not support DirectX 12.1."
 	);
 }
 
@@ -237,8 +231,7 @@ void D3DClass::InitializeCommandQueue()
 		m_device->CreateCommandQueue(
 			&commandQueueDesc,
 			IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf())),
-		L"Unable to create a command queue on the graphics device.",
-		L"Command Queue Error"
+		"Unable to create a command queue on the graphics device."
 	);
 }
 
@@ -269,22 +262,19 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 		CreateDXGIFactory2(
 			dxgiFlags,
 			IID_PPV_ARGS(factory.ReleaseAndGetAddressOf())),
-		L"Unable to create a device factory.",
-		L"DirectX Failure"
+		"Unable to create a device factory."
 	);
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
 	THROW_IF_FAILED(
 		factory->EnumAdapters(0, adapter.ReleaseAndGetAddressOf()),
-		L"Unable to enumerate adapters.",
-		L"Factory Failure"
+		"Unable to enumerate adapters."
 	);
 
 	// Enumerate the primary adapter output (monitor).
 	THROW_IF_FAILED(
 		adapter->EnumOutputs(0, adapterOutput.ReleaseAndGetAddressOf()),
-		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure"
+		"Unable to communicate with graphics adapter."
 	);
 
 	// Initialize numModes to zero.
@@ -297,8 +287,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 			DXGI_ENUM_MODES_INTERLACED,
 			&numModes,
 			nullptr),
-		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure"
+		"Unable to communicate with graphics adapter."
 	);
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
@@ -311,8 +300,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 			DXGI_ENUM_MODES_INTERLACED,
 			&numModes,
 			displayModeList),
-		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure"
+		"Unable to communicate with graphics adapter."
 	);
 
 	// Initialize numerator and denominator to 0.
@@ -332,8 +320,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 	// Get the adapter (video card) description.
 	THROW_IF_FAILED(
 		adapter->GetDesc(&adapterDesc),
-		L"Unable to communicate with graphics adapter.",
-		L"Adapter Failure"
+		"Unable to communicate with graphics adapter."
 	);
 
 	// Store the dedicated video card memory in megabytes.
@@ -375,16 +362,14 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 			m_commandQueue.Get(),
 			&swapChainDesc,
 			swapChain.ReleaseAndGetAddressOf()),
-		L"Unable to create the swap chain on the graphics device.",
-		L"Swap Chain Failure"
+		"Unable to create the swap chain on the graphics device."
 	);
 
 	// Finally, upgrade the swap chain to a IDXGISwapChain3 interface and store it in the private member variable m_swapChain.
 	// This will allow us to use the function GetCurrentBackBufferIndex().
 	THROW_IF_FAILED(
 		swapChain.As(&m_swapChain),
-		L"This graphics device does not support the 'IDXGISwapChain3' Interface.",
-		L"Swap Chain Unsupported"
+		"This graphics device does not support the 'IDXGISwapChain3' Interface."
 	);
 }
 
@@ -408,8 +393,7 @@ void D3DClass::InitializeRenderTargets()
 		m_device->CreateDescriptorHeap(
 			&renderTargetViewHeapDesc,
 			IID_PPV_ARGS(m_renderTargetViewHeap.ReleaseAndGetAddressOf())),
-		L"Unable to create the render target heap on the graphics device.",
-		L"Heap Allocation Error"
+		"Unable to create the render target heap on the graphics device."
 	);
 
 	// Get a handle to the starting memory location in the render target view heap to identify where the render target views will be located for the two back buffers.
@@ -425,8 +409,7 @@ void D3DClass::InitializeRenderTargets()
 			m_swapChain->GetBuffer(
 				i,
 				IID_PPV_ARGS(m_backBufferRenderTarget[i].ReleaseAndGetAddressOf())),
-			L"Unable to communicate with the swap chain.",
-			L"Swap Chain Error"
+			"Unable to communicate with the swap chain."
 		);
 
 		// Create a render target view for this back buffer.
@@ -461,8 +444,7 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 		m_device->CreateDescriptorHeap(
 			&heapDesc,
 			IID_PPV_ARGS(&m_depthStencilViewHeap)),
-		L"Unable to create the render target heap on the graphics device.",
-		L"Heap Allocation Error"
+		"Unable to create the render target heap on the graphics device."
 	);
 
 	// Set the heap properties for the heap where we keep the DSV.  This heap
@@ -505,8 +487,7 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&depthOptimizedClearValue,
 			IID_PPV_ARGS(&m_depthStencil)),
-		L"Unable to allocate the depth buffer on the graphics device.",
-		L"Resource Allocation Error"
+		"Unable to allocate the depth buffer on the graphics device."
 	);
 
 	// Define the attributes of our depth stencil.  These need to match what we
@@ -535,8 +516,7 @@ void D3DClass::InitializeFences()
 				0,
 				D3D12_FENCE_FLAG_NONE,
 				IID_PPV_ARGS(m_fence[i].ReleaseAndGetAddressOf())),
-			L"Unable to create synchronization fences on the graphics device.",
-			L"Fence Error"
+			"Unable to create synchronization fences on the graphics device."
 		);
 
 		// Initialize the starting fence values.
@@ -547,8 +527,7 @@ void D3DClass::InitializeFences()
 	m_fenceEvent = CreateEventEx(NULL, FALSE, FALSE, EVENT_ALL_ACCESS);
 	THROW_IF_TRUE(
 		m_fenceEvent == NULL,
-		L"Unable to create a windows system event for hardware synchronization.",
-		L"Windows Event Failure"
+		"Unable to create a windows system event for hardware synchronization."
 	);
 }
 

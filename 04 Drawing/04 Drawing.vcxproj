@@ -86,6 +86,7 @@
     <ClInclude Include="inputclass.h" />
     <ClInclude Include="instancecontextclass.h" />
     <ClInclude Include="quadclass.h" />
+    <ClInclude Include="pipelineinterface.h" />
     <ClInclude Include="rendercontextinterface.h" />
     <ClInclude Include="contextinterface.h" />
     <ClInclude Include="colorcontextclass.h" />
@@ -102,6 +103,7 @@
     <ClCompile Include="instancecontextclass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="quadclass.cpp" />
+    <ClCompile Include="pipelineinterface.cpp" />
     <ClCompile Include="rendercontextinterface.cpp" />
     <ClCompile Include="contextinterface.cpp" />
     <ClCompile Include="colorcontextclass.cpp" />

@@ -6,7 +6,7 @@
 
 
 InstanceContextClass::InstanceContextClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar) :
-	RenderContextInterface(device),
+	RenderContextInterface(),
 	m_matrixBuffer(device, sizeof(MatrixBufferType)),
 	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
 {
@@ -36,18 +36,18 @@ XMMATRIX InstanceContextClass::GetOrthoMatrix()
 }
 
 
-void InstanceContextClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+void InstanceContextClass::SetShaderParameters(ID3D12GraphicsCommandList* commandList, UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
 {
 	MatrixBufferType matrices;
 	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
 
 	
 	// Set the window viewport.
-	m_commandList->RSSetViewports(1, &m_viewport);
-	m_commandList->RSSetScissorRects(1, &m_scissorRect);
+	commandList->RSSetViewports(1, &m_viewport);
+	commandList->RSSetScissorRects(1, &m_scissorRect);
 
 	// Declare the root signature.
-	m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	// Transpose and copy the matrices into the constant buffer.
 	matrices.world = XMMatrixTranspose(m_worldMatrix);
@@ -58,7 +58,7 @@ void InstanceContextClass::SetPipelineParameters(UINT frameIndex, XMMATRIX viewM
 	cbvAddress = m_matrixBuffer.SetConstantBuffer(frameIndex, reinterpret_cast<BYTE*>(&matrices));
 
 	// Tell the root descriptor where the data for our matrix buffer is located.
-	m_commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
+	commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
 }
 
 
@@ -99,8 +99,7 @@ void InstanceContextClass::InitializeRootSignature(ID3D12Device* device)
 			D3D_ROOT_SIGNATURE_VERSION_1,
 			signature.ReleaseAndGetAddressOf(),
 			nullptr),
-		L"Unable to serialize the root signature for initialization on the graphics device.",
-		L"Root Signature Initialization Failure"
+		"Unable to serialize the root signature for initialization on the graphics device."
 	);
 
 	// Create the root signature on our device.
@@ -110,8 +109,7 @@ void InstanceContextClass::InitializeRootSignature(ID3D12Device* device)
 			signature->GetBufferPointer(),
 			signature->GetBufferSize(),
 			IID_PPV_ARGS(m_rootSignature.ReleaseAndGetAddressOf())),
-		L"Unable to create the root signature for this graphics pipeline.",
-		L"Root Signature Initialization Failure"
+		"Unable to create the root signature for this graphics pipeline."
 	);
 }
 
@@ -177,11 +175,5 @@ void InstanceContextClass::NameD3DResources()
 	// Name all DirectX objects.
 	m_rootSignature->SetName(L"IPC root signature");
 	m_pipelineState->SetName(L"IPC pipeline state");
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		name = std::wstring(L"IPC command allocator ") + std::to_wstring(i);
-		m_commandAllocators[i]->SetName(name.c_str());
-	}
-	m_commandList->SetName(L"IPC graphics command list");
 	m_matrixBuffer.buffer->SetName(L"IPC matrix buffer");
 }

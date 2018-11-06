@@ -8,6 +8,7 @@
 // INCLUDES //
 //////////////
 #include "geometryinterface.h"
+#include "pipelineinterface.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,8 @@ public:
 	~QuadClass() = default;
 
 	void Render(ID3D12GraphicsCommandList*) override;
+
+	friend PipelineInterface& operator<<(PipelineInterface&, QuadClass&);
 
 private:
 	BufferType	m_vertexBuffer =	BufferType();

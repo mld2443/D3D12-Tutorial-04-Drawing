@@ -129,8 +129,7 @@ void SystemClass::InitializeWindows()
 	// Register the window class.
 	THROW_IF_FALSE(
 		RegisterClassEx(&wc),
-		L"Unable to register the window class.",
-		L"Window Initialization Failure"
+		"Unable to register the window class."
 	);
 
 	// Determine the resolution of the clients desktop screen.
@@ -171,8 +170,7 @@ void SystemClass::InitializeWindows()
 							posX, posY, m_xResolution, m_yResolution, NULL, NULL, m_hinstance, NULL);
 	THROW_IF_FALSE(
 		m_hwnd,
-		L"Unable to create the window.",
-		L"Window Creation Failure"
+		"Unable to create the window."
 	);
 
 	// Bring the window up on the screen and set it as main focus.

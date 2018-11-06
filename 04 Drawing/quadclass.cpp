@@ -88,3 +88,18 @@ void QuadClass::Render(ID3D12GraphicsCommandList* commandList)
 		0
 	);
 }
+
+
+PipelineInterface& operator<<(PipelineInterface& pipeline, QuadClass& quads)
+{
+	ID3D12GraphicsCommandList* commandList;
+
+
+	// Get the pointer to the command list.
+	commandList = pipeline.GetCommandList();
+
+	// Put the render calls on the pipeline.
+	quads.Render(commandList);
+
+	return pipeline;
+}

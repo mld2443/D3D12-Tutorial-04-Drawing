@@ -48,8 +48,7 @@ ContextInterface::ConstantBufferType::ConstantBufferType(ID3D12Device* device, S
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(buffer.ReleaseAndGetAddressOf())),
-		L"Unable to allocate space for the constant buffer on the graphics device.",
-		L"Hardware Memory Allocation Failure"
+		"Unable to allocate space for the constant buffer on the graphics device."
 	);
 }
 
@@ -72,8 +71,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::ConstantBufferType::SetConstantBuffe
 	// Lock the constant buffer so it can be written to.
 	THROW_IF_FAILED(
 		buffer->Map(0, &range, reinterpret_cast<void**>(&mappedResource)),
-		L"Unable to access the constant buffer on the graphics device.",
-		L"Graphics Device Communication Failure"
+		"Unable to access the constant buffer on the graphics device."
 	);
 
 	// Copy the data to the buffer.
@@ -93,69 +91,7 @@ D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::ConstantBufferType::SetConstantBuffe
 }
 
 
-ContextInterface::ContextInterface(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
+ID3D12PipelineState* ContextInterface::GetPSO()
 {
-	// Create command allocators, one for each frame.
-	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
-	{
-		THROW_IF_FAILED(
-			device->CreateCommandAllocator(
-				type,
-				IID_PPV_ARGS(m_commandAllocators[i].ReleaseAndGetAddressOf())),
-			L"Unable to create the command allocator object.",
-			L"Graphics Pipeline Initialization Failure"
-		);
-	}
-
-	// Create a command list.  We use the first command allocator, since allocators get reset before use.
-	THROW_IF_FAILED(
-		device->CreateCommandList(
-			0,
-			type,
-			m_commandAllocators[0].Get(),
-			nullptr,
-			IID_PPV_ARGS(m_commandList.ReleaseAndGetAddressOf())),
-		L"Unable to create the command list object.",
-		L"Graphics Pipeline Initialization Failure"
-	);
-
-	// Initially we need to close the command list during initialization as it is created in a recording state.
-	ClosePipeline();
-}
-
-
-ID3D12GraphicsCommandList* ContextInterface::GetCommandList()
-{
-	return m_commandList.Get();
-}
-
-
-void ContextInterface::OpenPipeline(UINT frameIndex)
-{
-	// Reset the memory that was holding the previously submitted command list.
-	THROW_IF_FAILED(
-		m_commandAllocators[frameIndex]->Reset(),
-		L"Unable to reset command allocator.  Its associated memory may still be in use.",
-		L"Pipeline Access Error"
-	);
-
-	// Reset our command list to prepare it for new commands.
-	THROW_IF_FAILED(
-		m_commandList->Reset(
-			m_commandAllocators[frameIndex].Get(),
-			m_pipelineState.Get()),
-		L"Unable to reset command list.  It may not have been closed or submitted properly.",
-		L"Command List Reset Error"
-	);
-}
-
-
-void ContextInterface::ClosePipeline()
-{
-	// Close the command list so it can be submitted to a command queue.
-	THROW_IF_FAILED(
-		m_commandList->Close(),
-		L"Unable to close command list.  It may not have been reset properly.",
-		L"Command List Close Error"
-	);
+	return m_pipelineState.Get();
 }

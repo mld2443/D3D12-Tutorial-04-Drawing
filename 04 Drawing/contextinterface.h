@@ -23,17 +23,13 @@ protected:
 	};
 
 public:
-	ContextInterface() = delete;
 	ContextInterface(const ContextInterface&) = delete;
 	ContextInterface& operator=(const ContextInterface&) = delete;
 
-	ContextInterface(ID3D12Device*, D3D12_COMMAND_LIST_TYPE);
+	ContextInterface() = default;
 	~ContextInterface() = default;
 
-	ID3D12GraphicsCommandList* GetCommandList();
-
-	void OpenPipeline(UINT);
-	void ClosePipeline();
+	ID3D12PipelineState* GetPSO();
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;
@@ -45,8 +41,6 @@ protected:
 	virtual void NameD3DResources() = 0;
 
 protected:
-	ComPtr<ID3D12RootSignature>				m_rootSignature =		nullptr;
-	ComPtr<ID3D12PipelineState>				m_pipelineState =		nullptr;
-	vector<ComPtr<ID3D12CommandAllocator>>	m_commandAllocators =	vector<ComPtr<ID3D12CommandAllocator>>(FRAME_BUFFER_COUNT, nullptr);
-	ComPtr<ID3D12GraphicsCommandList>		m_commandList =			nullptr;
+	ComPtr<ID3D12RootSignature>	m_rootSignature =	nullptr;
+	ComPtr<ID3D12PipelineState>	m_pipelineState =	nullptr;
 };

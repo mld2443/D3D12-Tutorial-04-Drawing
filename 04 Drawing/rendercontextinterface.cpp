@@ -1,14 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: rendercontextinterface.cpp
 ////////////////////////////////////////////////////////////////////////////////
-#include "stdafx.h"
+#include "pch.h"
 #include "rendercontextinterface.h"
-
-
-RenderContextInterface::RenderContextInterface(ID3D12Device* device):
-	ContextInterface(device, D3D12_COMMAND_LIST_TYPE_DIRECT)
-{
-}
 
 
 void RenderContextInterface::InitializeContext(ID3D12Device* device)
@@ -16,8 +10,7 @@ void RenderContextInterface::InitializeContext(ID3D12Device* device)
 	// Check that the root signature is properly set up before using.
 	THROW_IF_FALSE(
 		m_rootSignature,
-		L"Interface failed to initialize root signature correctly.",
-		L"Graphics Context Initialization Failure"
+		"Interface failed to initialize root signature correctly."
 	);
 
 	// First we need to set all the descriptions for the pipeline.
@@ -78,13 +71,12 @@ void RenderContextInterface::InitializeStateObject(ID3D12Device* device)
 	pipelineStateDesc.NodeMask =						0;
 	pipelineStateDesc.Flags =							D3D12_PIPELINE_STATE_FLAG_NONE;
 
-	// Create the pipeline state.
+	// Create the pipeline state object.
 	THROW_IF_FAILED(
 		device->CreateGraphicsPipelineState(
 			&pipelineStateDesc,
 			IID_PPV_ARGS(m_pipelineState.ReleaseAndGetAddressOf())),
-		L"The pipeline state object failed to initialize.",
-		L"Pipeline Initializer Failure"
+		"The pipeline state object failed to initialize."
 	);
 }
 

@@ -34,8 +34,9 @@
 #include <directxmath.h>
 
 // C++ Standard Library
-#include <string>
 #include <memory>
+#include <string>
+#include <stdexcept>
 #include <vector>
 
 
@@ -75,24 +76,11 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static void* g_ApplicationHandle = nullptr;
 
 
-////////////////////
-// ERROR HANDLING //
-////////////////////
-
-// Struct representing the arguments to a MessageBox call.
-struct MessageBoxType {
-	LPCWSTR message;
-	LPCWSTR title;
-	UINT type;
-};
-
-
 /////////////////////
 // MACRO FUNCTIONS //
 /////////////////////
 
-#define THROW_MESSAGE(message, title) throw MessageBoxType{ message, title, MB_OK | MB_ICONERROR }
-#define THROW_IF_FAILED(hr, message, title) if (FAILED(hr)) { THROW_MESSAGE(message, title); }
-#define THROW_IF_TRUE(cond, message, title) if (cond) { THROW_MESSAGE(message, title); }
-#define THROW_IF_FALSE(cond, message, title) THROW_IF_TRUE(!cond, message, title)
+#define THROW_IF_FAILED(hr, message) if (FAILED(hr)) { throw runtime_error(message); }
+#define THROW_IF_TRUE(cond, message) if (cond) { throw runtime_error(message); }
+#define THROW_IF_FALSE(cond, message) if (!cond) { throw runtime_error(message); }
 #define BYTE_ALIGNED_WIDTH(type, target) (sizeof(type) + target) & ~target

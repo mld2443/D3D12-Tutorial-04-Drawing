@@ -91,22 +91,12 @@ D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::ConstantBufferType::SetConstantBuffe
 }
 
 
-ContextInterface::ContextInterface(UINT& frameIndex) :
-	r_frameIndex(frameIndex)
+ContextInterface::ContextInterface(pipeline_func setParameters, UINT& frameIndex) :
+	r_frameIndex(frameIndex),
+	SetShaderParameters(setParameters),
+SetState([=](ID3D12GraphicsCommandList* commandList)
 {
-}
-
-
-ID3D12PipelineState* ContextInterface::GetState()
+	commandList->SetPipelineState(m_state.Get());
+})
 {
-	return m_state.Get();
-}
-
-
-PipelineClass& operator<<(PipelineClass& pipeline, ContextInterface& context)
-{
-	// Set the shader parameters.
-	context.SetShaderParameters(pipeline.GetCommandList());
-
-	return pipeline;
 }

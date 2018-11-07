@@ -49,7 +49,6 @@ void EngineClass::Frame()
 
 	// Finish the scene and submit our lists for drawing.
 	m_Direct3D->SubmitToQueue(lists, m_vsyncEnabled);
-
 }
 
 
@@ -58,13 +57,12 @@ void EngineClass::Render()
 	// Advance the buffer index and wait for the corresponding buffer to be available.
 	m_Direct3D->WaitForNextAvailableFrame();
 
-	// Start our pipeline, set a transition barrier, then clear the RTV and DSV.
-	*m_Pipeline << PipelineClass::open << m_Context->GetState() << m_Direct3D->BeginScene();
-	m_Direct3D->ClearTargets(m_Pipeline->GetCommandList());
+	// Open our pipeline, set a transition barrier, then clear the RTV and DSV.
+	*m_Pipeline << PipelineClass::open << m_Context->SetState << m_Direct3D->BeginScene << m_Direct3D->ClearScene;
 
 	// Communicate the matrices to the vertex shader and submit the geometry to the pipeline.
-	*m_Pipeline << *m_Context << *m_Geometry;
+	*m_Pipeline << m_Context->SetShaderParameters << m_Geometry->Render;
 
 	// Add a final transition barrier and close the pipeline.
-	*m_Pipeline << m_Direct3D->EndScene() << PipelineClass::close;
+	*m_Pipeline << m_Direct3D->EndScene << PipelineClass::close;
 }

@@ -30,8 +30,6 @@ public:
 	TriangleClass(ID3D12Device*);
 	~TriangleClass() = default;
 
-	void Render(ID3D12GraphicsCommandList*) override;
-
 private:
 	BufferType	m_vertexBuffer =	BufferType();
 	BufferType	m_indexBuffer =		BufferType();

@@ -12,27 +12,8 @@ ColorContextClass::ColorContextClass(
 	XMMATRIX& projectionMatrix,
 	UINT screenWidth,
 	UINT screenHeight) :
-	RenderContextInterface(frameIndex),
-		r_viewMatrix(viewMatrix),
-		r_projectionMatrix(projectionMatrix),
-		m_matrixBuffer(device, sizeof(MatrixBufferType))
-{
-	// We need to set up the root signature before creating the pipeline state object.
-	InitializeRootSignature(device);
-
-	// Then we can initialize the pipeline state and parameters.
-	InitializeContext(device);
-
-	// Initialize the viewport and scissor rectangle.
-	InitializeViewport(screenWidth, screenHeight);
-
-	// After all the resources are initialized, we will name all of our objects for graphics debugging.
-	NameD3DResources();
-}
-
-
-void ColorContextClass::SetShaderParameters(ID3D12GraphicsCommandList* commandList)
-{
+	RenderContextInterface(
+[=](ID3D12GraphicsCommandList* commandList) {
 	MatrixBufferType matrices;
 	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
 
@@ -54,6 +35,22 @@ void ColorContextClass::SetShaderParameters(ID3D12GraphicsCommandList* commandLi
 
 	// Tell the root descriptor where the data for our matrix buffer is located.
 	commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
+}, frameIndex),
+		r_viewMatrix(viewMatrix),
+		r_projectionMatrix(projectionMatrix),
+		m_matrixBuffer(device, sizeof(MatrixBufferType))
+{
+	// We need to set up the root signature before creating the pipeline state object.
+	InitializeRootSignature(device);
+
+	// Then we can initialize the pipeline state and parameters.
+	InitializeContext(device);
+
+	// Initialize the viewport and scissor rectangle.
+	InitializeViewport(screenWidth, screenHeight);
+
+	// After all the resources are initialized, we will name all of our objects for graphics debugging.
+	NameD3DResources();
 }
 
 

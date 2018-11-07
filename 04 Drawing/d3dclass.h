@@ -22,10 +22,6 @@ public:
 
 	void SetClearColor(float, float, float, float);
 
-	D3D12_RESOURCE_BARRIER BeginScene();
-	D3D12_RESOURCE_BARRIER EndScene();
-	void ClearTargets(ID3D12GraphicsCommandList*);
-
 	void SubmitToQueue(vector<ID3D12CommandList*>, bool);
 
 	void WaitForNextAvailableFrame();
@@ -42,6 +38,11 @@ private:
 	void InitializeFences();
 
 	void NameResources();
+
+public:
+	const pipeline_func ClearScene;
+	const pipeline_func BeginScene;
+	const pipeline_func EndScene;
 
 private:
 	UINT	m_bufferIndex =		0;

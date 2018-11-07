@@ -38,8 +38,6 @@ public:
 	ColorContextClass(ID3D12Device*, UINT&, XMMATRIX&, XMMATRIX&, UINT, UINT);
 	~ColorContextClass() = default;
 
-	void SetShaderParameters(ID3D12GraphicsCommandList*) override;
-
 protected:
 	void InitializeRootSignature(ID3D12Device*) override;
 	void SetShaderBytecode() override;

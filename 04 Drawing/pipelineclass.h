@@ -25,10 +25,8 @@ public:
 
 	ID3D12GraphicsCommandList* GetCommandList();
 
-
 	friend PipelineClass& operator<<(PipelineClass&, PipelineClass::CommandType);
-	friend PipelineClass& operator<<(PipelineClass&, ID3D12PipelineState*);
-	friend PipelineClass& operator<<(PipelineClass&, D3D12_RESOURCE_BARRIER&);
+	friend PipelineClass& operator<<(PipelineClass&, const pipeline_func&);
 
 private:
 	void Open();

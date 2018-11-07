@@ -60,6 +60,9 @@ using namespace DirectX;
 using namespace std;
 using namespace Microsoft::WRL;
 
+// Type definition for pipeline functions.
+using pipeline_func = typename function<void(ID3D12GraphicsCommandList*)>;
+
 
 /////////////////////////
 // FUNCTION PROTOTYPES //

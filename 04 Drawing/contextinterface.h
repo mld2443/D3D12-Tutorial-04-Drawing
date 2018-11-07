@@ -33,12 +33,10 @@ public:
 	ContextInterface(const ContextInterface&) = delete;
 	ContextInterface& operator=(const ContextInterface&) = delete;
 
-	ContextInterface(UINT&);
+	ContextInterface(pipeline_func, UINT&);
 	~ContextInterface() = default;
 
-	ID3D12PipelineState* GetState();
-
-	virtual void SetShaderParameters(ID3D12GraphicsCommandList*) = 0;
+	//virtual void SetShaderParameters(ID3D12GraphicsCommandList*) = 0;
 
 	friend PipelineClass& operator<<(PipelineClass&, ContextInterface&);
 
@@ -50,6 +48,10 @@ protected:
 	virtual void SetShaderBytecode() = 0;
 
 	virtual void NameD3DResources() = 0;
+
+public:
+	const pipeline_func SetState;
+	const pipeline_func SetShaderParameters;
 
 protected:
 	UINT&	r_frameIndex;

@@ -4,12 +4,6 @@
 #pragma once
 
 
-//////////////
-// INCLUDES //
-//////////////
-#include "pipelineclass.h"
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Interface name: GeometryInterface
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,15 +30,15 @@ protected:
 	};
 
 public:
+	GeometryInterface() = delete;
 	GeometryInterface(const GeometryInterface&) = delete;
 	GeometryInterface& operator=(const GeometryInterface&) = delete;
 
-	GeometryInterface() = default;
+	GeometryInterface(pipeline_func);
 	~GeometryInterface() = default;
 
-	virtual void Render(ID3D12GraphicsCommandList*) = 0;
-
-	friend PipelineClass& operator<<(PipelineClass&, GeometryInterface&);
+public:
+	const pipeline_func Render;
 };
 
 

@@ -5,7 +5,27 @@
 #include "quadclass.h"
 
 
-QuadClass::QuadClass(ID3D12Device* device) : GeometryInterface()
+QuadClass::QuadClass(ID3D12Device* device) :
+	GeometryInterface(
+[=](ID3D12GraphicsCommandList* commandList)
+{
+	D3D12_VERTEX_BUFFER_VIEW pViews[2];
+
+
+	// Set the views associated with this geometry vertex buffers.
+	pViews[0] = m_vertexBuffer.vertexView;
+	pViews[1] = m_instanceBuffer.vertexView;
+
+	// Set the vertex and index buffers as active in the input assembler so they will be used for rendering.
+	commandList->IASetVertexBuffers(0, 2, pViews);
+	commandList->IASetIndexBuffer(&m_indexBuffer.indexView);
+
+	// Set the type of primitive that the input assembler will try to assemble next.
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Issue the draw call for this geometry.
+	commandList->DrawIndexedInstanced(static_cast<UINT>(m_indexBuffer.count), static_cast<UINT>(m_instanceBuffer.count), 0, 0, 0);
+})
 {
 	vector<VertexType> vertices;
 	vector<UINT32> indices;
@@ -60,31 +80,4 @@ QuadClass::QuadClass(ID3D12Device* device) : GeometryInterface()
 
 	// Initialize the instance buffer and its view.
 	m_instanceBuffer = BufferType(device, instances, L"QC instance buffer");
-}
-
-
-void QuadClass::Render(ID3D12GraphicsCommandList* commandList)
-{
-	D3D12_VERTEX_BUFFER_VIEW pViews[2];
-
-
-	// Set the views associated with this geometry vertex buffers.
-	pViews[0] = m_vertexBuffer.vertexView;
-	pViews[1] = m_instanceBuffer.vertexView;
-
-	// Set the vertex and index buffers as active in the input assembler so they will be used for rendering.
-	commandList->IASetVertexBuffers(0, 2, pViews);
-	commandList->IASetIndexBuffer(&m_indexBuffer.indexView);
-
-	// Set the type of primitive that the input assembler will try to assemble next.
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	// Issue the draw call for this geometry.
-	commandList->DrawIndexedInstanced(
-		static_cast<UINT>(m_indexBuffer.count),
-		static_cast<UINT>(m_instanceBuffer.count),
-		0,
-		0,
-		0
-	);
 }

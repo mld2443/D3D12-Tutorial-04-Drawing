@@ -5,8 +5,8 @@
 #include "rendercontextinterface.h"
 
 
-RenderContextInterface::RenderContextInterface(UINT& frameIndex) :
-	ContextInterface(frameIndex)
+RenderContextInterface::RenderContextInterface(pipeline_func setParameters, UINT& frameIndex) :
+	ContextInterface(setParameters, frameIndex)
 {
 }
 

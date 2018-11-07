@@ -86,19 +86,10 @@ PipelineClass& operator<<(PipelineClass& pipeline, PipelineClass::CommandType co
 }
 
 
-PipelineClass& operator<<(PipelineClass& pipeline, ID3D12PipelineState* state)
+PipelineClass& operator<<(PipelineClass& pipeline, const pipeline_func& func)
 {
-	// Set the pipeline state using the incoming PSO.
-	pipeline.GetCommandList()->SetPipelineState(state);
-
-	return pipeline;
-}
-
-
-PipelineClass& operator<<(PipelineClass& pipeline, D3D12_RESOURCE_BARRIER& barrier)
-{
-	// Put the barrier in the commandList.
-	pipeline.GetCommandList()->ResourceBarrier(1, &barrier);
+	// Run the function on the pipeline.
+	func(pipeline.GetCommandList());
 
 	return pipeline;
 }

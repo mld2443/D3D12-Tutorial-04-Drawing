@@ -5,7 +5,60 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
+D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync) :
+ClearScene([=](ID3D12GraphicsCommandList* commandList)
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle, depthStencilViewHandle;
+	UINT renderTargetViewDescriptorSize;
+
+
+	// Get the render target view handle for the current back buffer.
+	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
+	renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * static_cast<SIZE_T>(m_bufferIndex);
+
+	// Get the depth stencil view handle.
+	depthStencilViewHandle = m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
+
+	// Set the back buffer as the render target.
+	commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, &depthStencilViewHandle);
+
+	// Then clear the window to the clear color.
+	commandList->ClearRenderTargetView(renderTargetViewHandle, m_clearColor, 0, nullptr);
+
+	// Finally, clear the depth stencil.
+	commandList->ClearDepthStencilView(depthStencilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+}),
+BeginScene([=](ID3D12GraphicsCommandList* commandList)
+{
+	D3D12_RESOURCE_BARRIER barrier;
+
+
+	// Indicate that the back buffer is ready to be drawn to.
+	ZeroMemory(&barrier, sizeof(barrier));
+	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
+	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	commandList->ResourceBarrier(1, &barrier);
+}),
+EndScene([=](ID3D12GraphicsCommandList* commandList)
+{
+	D3D12_RESOURCE_BARRIER barrier;
+
+
+	// Indicate that the back buffer is ready to be drawn to.
+	ZeroMemory(&barrier, sizeof(barrier));
+	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
+	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	commandList->ResourceBarrier(1, &barrier);
+})
 {
 	// Initialize the device and all the resources we will need while rendering.
 	InitializeDevice();
@@ -14,6 +67,7 @@ D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscre
 	InitializeRenderTargets();
 	InitializeDepthStencil(screenWidth, screenHeight);
 	InitializeFences();
+
 
 	// Finally, name our resources.
 	NameResources();
@@ -55,67 +109,6 @@ void D3DClass::SetClearColor(float red, float green, float blue, float alpha)
 	m_clearColor[1] = green;
 	m_clearColor[2] = blue;
 	m_clearColor[3] = alpha;
-}
-
-
-void D3DClass::ClearTargets(ID3D12GraphicsCommandList* commandList)
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle, depthStencilViewHandle;
-	UINT renderTargetViewDescriptorSize;
-
-
-	// Get the render target view handle for the current back buffer.
-	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
-	renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * static_cast<SIZE_T>(m_bufferIndex);
-
-	// Get the depth stencil view handle.
-	depthStencilViewHandle = m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
-
-	// Set the back buffer as the render target.
-	commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, &depthStencilViewHandle);
-
-	// Then clear the window to the clear color.
-	commandList->ClearRenderTargetView(renderTargetViewHandle, m_clearColor, 0, nullptr);
-
-	// Finally, clear the depth stencil.
-	commandList->ClearDepthStencilView(depthStencilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-}
-
-
-D3D12_RESOURCE_BARRIER D3DClass::BeginScene()
-{
-	D3D12_RESOURCE_BARRIER barrier;
-
-
-	// Indicate that the back buffer is ready to be drawn to.
-	ZeroMemory(&barrier, sizeof(barrier));
-	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
-	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	
-	return barrier;
-}
-
-
-D3D12_RESOURCE_BARRIER D3DClass::EndScene()
-{
-	D3D12_RESOURCE_BARRIER barrier;
-
-
-	// Indicate that the back buffer will now be used to present.
-	ZeroMemory(&barrier, sizeof(barrier));
-	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
-	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	
-	return barrier;
 }
 
 

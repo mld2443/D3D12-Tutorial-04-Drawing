@@ -20,7 +20,7 @@ public:
 	RenderContextInterface(const RenderContextInterface&) = delete;
 	RenderContextInterface& operator=(const RenderContextInterface&) = delete;
 
-	RenderContextInterface(UINT&);
+	RenderContextInterface(pipeline_func, UINT&);
 	~RenderContextInterface() = default;
 
 protected:

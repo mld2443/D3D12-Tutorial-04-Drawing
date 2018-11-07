@@ -44,7 +44,7 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList*) = 0;
 
-	friend PipelineClass& operator<<(PipelineClass&, GeometryInterface*);
+	friend PipelineClass& operator<<(PipelineClass&, GeometryInterface&);
 };
 
 

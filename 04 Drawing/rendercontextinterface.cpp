@@ -5,6 +5,12 @@
 #include "rendercontextinterface.h"
 
 
+RenderContextInterface::RenderContextInterface(UINT& frameIndex) :
+	ContextInterface(frameIndex)
+{
+}
+
+
 void RenderContextInterface::InitializeContext(ID3D12Device* device)
 {
 	// Check that the root signature is properly set up before using.

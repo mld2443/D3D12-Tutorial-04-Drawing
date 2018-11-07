@@ -5,7 +5,8 @@
 #include "pipelineclass.h"
 
 
-PipelineClass::PipelineClass(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type)
+PipelineClass::PipelineClass(ID3D12Device* device, UINT& frameIndex, D3D12_COMMAND_LIST_TYPE type) :
+	r_frameIndex(frameIndex)
 {
 	// Create command allocators, one for each frame.
 	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
@@ -40,17 +41,17 @@ ID3D12GraphicsCommandList* PipelineClass::GetCommandList()
 }
 
 
-void PipelineClass::Open(UINT frameIndex)
+void PipelineClass::Open()
 {
 	// Reset the memory that was holding the previously submitted command list.
 	THROW_IF_FAILED(
-		m_commandAllocators[frameIndex]->Reset(),
+		m_commandAllocators[r_frameIndex]->Reset(),
 		"Unable to reset command allocator.  Its associated memory may still be in use."
 	);
 
 	// Reset our command list to prepare it for new commands.
 	THROW_IF_FAILED(
-		m_commandList->Reset(m_commandAllocators[frameIndex].Get(), nullptr),
+		m_commandList->Reset(m_commandAllocators[r_frameIndex].Get(), nullptr),
 		"Unable to reset command list.  It may not have been closed or submitted properly."
 	);
 }
@@ -68,12 +69,14 @@ void PipelineClass::Close()
 
 PipelineClass& operator<<(PipelineClass& pipeline, PipelineClass::CommandType command)
 {
-	//
 	switch (command)
 	{
 	case PipelineClass::open:
+		// Open the command list so it can receive commands.
+		pipeline.Open();
 		break;
-	case PipelineClass::end:
+
+	case PipelineClass::close:
 		// Close the command list so it can be submitted to a command queue.
 		pipeline.Close();
 		break;

@@ -41,13 +41,13 @@ float CameraClass::GetScreenFar()
 }
 
 
-XMMATRIX CameraClass::GetViewMatrix()
+XMMATRIX& CameraClass::GetViewMatrix()
 {
 	return m_viewMatrix;
 }
 
 
-XMMATRIX CameraClass::GetProjectionMatrix()
+XMMATRIX& CameraClass::GetProjectionMatrix()
 {
 	return m_projectionMatrix;
 }

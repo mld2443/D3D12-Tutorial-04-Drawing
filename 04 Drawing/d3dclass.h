@@ -18,7 +18,7 @@ public:
 	~D3DClass();
 
 	ID3D12Device* GetDevice();
-	UINT GetBufferIndex();
+	UINT& GetBufferIndex();
 
 	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
 	void EndScene(ID3D12GraphicsCommandList*);

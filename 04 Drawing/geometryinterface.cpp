@@ -211,10 +211,10 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 }
 
 
-PipelineClass& operator<<(PipelineClass& pipeline, GeometryInterface* geometry)
+PipelineClass& operator<<(PipelineClass& pipeline, GeometryInterface& geometry)
 {
 	// Call the renderer for this type of geometry.
-	geometry->Render(pipeline.GetCommandList());
+	geometry.Render(pipeline.GetCommandList());
 
 	return pipeline;
 }

@@ -42,7 +42,7 @@ ID3D12Device* D3DClass::GetDevice()
 }
 
 
-unsigned int D3DClass::GetBufferIndex()
+UINT& D3DClass::GetBufferIndex()
 {
 	return m_bufferIndex;
 }

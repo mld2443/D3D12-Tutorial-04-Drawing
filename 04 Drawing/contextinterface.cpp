@@ -91,6 +91,12 @@ D3D12_GPU_VIRTUAL_ADDRESS ContextInterface::ConstantBufferType::SetConstantBuffe
 }
 
 
+ContextInterface::ContextInterface(UINT& frameIndex) :
+	r_frameIndex(frameIndex)
+{
+}
+
+
 ID3D12PipelineState* ContextInterface::GetState()
 {
 	return m_state.Get();

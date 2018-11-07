@@ -35,13 +35,10 @@ public:
 	ColorContextClass(const ColorContextClass&) = delete;
 	ColorContextClass& operator=(const ColorContextClass&) = delete;
 
-	ColorContextClass(ID3D12Device*, UINT, UINT, float, float);
+	ColorContextClass(ID3D12Device*, UINT&, XMMATRIX&, XMMATRIX&, UINT, UINT);
 	~ColorContextClass() = default;
 
-	XMMATRIX GetWorldMatrix();
-	XMMATRIX GetOrthoMatrix();
-
-	void SetShaderParameters(ID3D12GraphicsCommandList*, UINT, XMMATRIX, XMMATRIX);
+	void SetShaderParameters(ID3D12GraphicsCommandList*) override;
 
 protected:
 	void InitializeRootSignature(ID3D12Device*) override;
@@ -51,8 +48,10 @@ protected:
 	void NameD3DResources() override;
 
 private:
+	XMMATRIX&	r_viewMatrix;
+	XMMATRIX&	r_projectionMatrix;
+
 	ConstantBufferType	m_matrixBuffer =	ConstantBufferType();
 
 	XMMATRIX	m_worldMatrix = XMMatrixIdentity();
-	XMMATRIX	m_orthoMatrix = XMMatrixIdentity();
 };

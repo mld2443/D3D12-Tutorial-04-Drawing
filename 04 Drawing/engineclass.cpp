@@ -9,7 +9,13 @@ EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool ful
 	m_Camera(make_unique<CameraClass>(xResolution, yResolution, 45.0f)),
 	m_Direct3D(make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled)),
 	m_Pipeline(make_unique<PipelineClass>(m_Direct3D->GetDevice())),
-	m_Context(make_unique<InstanceContextClass>(m_Direct3D->GetDevice(), xResolution, yResolution, m_Camera->GetScreenNear(), m_Camera->GetScreenFar())),
+	m_Context(make_unique<InstanceContextClass>(
+		m_Direct3D->GetDevice(),
+		m_Direct3D->GetBufferIndex(),
+		m_Camera->GetViewMatrix(),
+		m_Camera->GetProjectionMatrix(),
+		xResolution,
+		yResolution)),
 	m_Geometry(make_unique<QuadClass>(m_Direct3D->GetDevice()))
 {
 	// Move the camera back so we can see our scene.
@@ -29,6 +35,9 @@ void EngineClass::Frame()
 	std::vector<ID3D12CommandList*> lists;
 
 
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Render();
+
 	// Render the graphics scene.
 	Render();
 
@@ -42,9 +51,6 @@ void EngineClass::Frame()
 
 void EngineClass::Render()
 {
-	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
-
 	// Advance the buffer index and wait for the corresponding buffer to be available.
 	m_Direct3D->WaitForNextAvailableFrame();
 

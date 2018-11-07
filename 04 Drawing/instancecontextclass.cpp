@@ -5,10 +5,17 @@
 #include "instancecontextclass.h"
 
 
-InstanceContextClass::InstanceContextClass(ID3D12Device* device, UINT screenWidth, UINT screenHeight, float screenNear, float screenFar) :
-	RenderContextInterface(),
-	m_matrixBuffer(device, sizeof(MatrixBufferType)),
-	m_orthoMatrix(XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, screenNear, screenFar))
+InstanceContextClass::InstanceContextClass(
+	ID3D12Device* device,
+	UINT& frameIndex,
+	XMMATRIX& viewMatrix,
+	XMMATRIX& projectionMatrix,
+	UINT screenWidth,
+	UINT screenHeight) :
+	RenderContextInterface(frameIndex),
+		r_viewMatrix(viewMatrix),
+		r_projectionMatrix(projectionMatrix),
+		m_matrixBuffer(device, sizeof(MatrixBufferType))
 {
 	// We need to set up the root signature before creating the pipeline state object.
 	InitializeRootSignature(device);
@@ -24,19 +31,7 @@ InstanceContextClass::InstanceContextClass(ID3D12Device* device, UINT screenWidt
 }
 
 
-XMMATRIX InstanceContextClass::GetWorldMatrix()
-{
-	return m_worldMatrix;
-}
-
-
-XMMATRIX InstanceContextClass::GetOrthoMatrix()
-{
-	return m_orthoMatrix;
-}
-
-
-void InstanceContextClass::SetShaderParameters(ID3D12GraphicsCommandList* commandList, UINT frameIndex, XMMATRIX viewMatrix, XMMATRIX projectionMatrix)
+void InstanceContextClass::SetShaderParameters(ID3D12GraphicsCommandList* commandList)
 {
 	MatrixBufferType matrices;
 	D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
@@ -51,11 +46,11 @@ void InstanceContextClass::SetShaderParameters(ID3D12GraphicsCommandList* comman
 
 	// Transpose and copy the matrices into the constant buffer.
 	matrices.world = XMMatrixTranspose(m_worldMatrix);
-	matrices.view = XMMatrixTranspose(viewMatrix);
-	matrices.projection = XMMatrixTranspose(projectionMatrix);
+	matrices.view = XMMatrixTranspose(r_viewMatrix);
+	matrices.projection = XMMatrixTranspose(r_projectionMatrix);
 
 	// Set the data and get the address of the constant buffer for this frame.
-	cbvAddress = m_matrixBuffer.SetConstantBuffer(frameIndex, reinterpret_cast<BYTE*>(&matrices));
+	cbvAddress = m_matrixBuffer.SetConstantBuffer(r_frameIndex, reinterpret_cast<BYTE*>(&matrices));
 
 	// Tell the root descriptor where the data for our matrix buffer is located.
 	commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
@@ -169,9 +164,6 @@ void InstanceContextClass::SetInputLayoutDesc()
 
 void InstanceContextClass::NameD3DResources()
 {
-	std::wstring name;
-
-
 	// Name all DirectX objects.
 	m_rootSignature->SetName(L"IPC root signature");
 	m_state->SetName(L"IPC pipeline state");

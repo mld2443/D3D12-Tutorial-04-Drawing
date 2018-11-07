@@ -23,10 +23,11 @@ protected:
 	};
 
 public:
+	ContextInterface() = delete;
 	ContextInterface(const ContextInterface&) = delete;
 	ContextInterface& operator=(const ContextInterface&) = delete;
 
-	ContextInterface() = default;
+	ContextInterface(UINT&);
 	~ContextInterface() = default;
 
 	ID3D12PipelineState* GetState();
@@ -41,6 +42,8 @@ protected:
 	virtual void NameD3DResources() = 0;
 
 protected:
+	UINT&	r_frameIndex;
+
 	ComPtr<ID3D12RootSignature>	m_rootSignature =	nullptr;
 	ComPtr<ID3D12PipelineState>	m_state =	nullptr;
 };

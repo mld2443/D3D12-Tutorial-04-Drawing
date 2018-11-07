@@ -16,10 +16,11 @@
 class RenderContextInterface : public ContextInterface
 {
 public:
+	RenderContextInterface() = delete;
 	RenderContextInterface(const RenderContextInterface&) = delete;
 	RenderContextInterface& operator=(const RenderContextInterface&) = delete;
 
-	RenderContextInterface() = default;
+	RenderContextInterface(UINT&);
 	~RenderContextInterface() = default;
 
 protected:

@@ -34,6 +34,7 @@
 #include <directxmath.h>
 
 // C++ Standard Library
+#include <functional>
 #include <memory>
 #include <string>
 #include <stdexcept>

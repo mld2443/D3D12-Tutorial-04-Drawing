@@ -4,6 +4,12 @@
 #pragma once
 
 
+//////////////
+// INCLUDES //
+//////////////
+#include "pipelineclass.h"
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Interface name: ContextInterface
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,6 +37,10 @@ public:
 	~ContextInterface() = default;
 
 	ID3D12PipelineState* GetState();
+
+	virtual void SetShaderParameters(ID3D12GraphicsCommandList*) = 0;
+
+	friend PipelineClass& operator<<(PipelineClass&, ContextInterface&);
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;

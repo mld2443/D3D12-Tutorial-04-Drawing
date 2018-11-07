@@ -48,25 +48,21 @@ UINT& D3DClass::GetBufferIndex()
 }
 
 
-void D3DClass::BeginScene(
-	ID3D12GraphicsCommandList* commandList,
-	float red, float green, float blue, float alpha)
+void D3DClass::SetClearColor(float red, float green, float blue, float alpha)
 {
-	D3D12_RESOURCE_BARRIER barrier;
+	// Update the clear color values.
+	m_clearColor[0] = red;
+	m_clearColor[1] = green;
+	m_clearColor[2] = blue;
+	m_clearColor[3] = alpha;
+}
+
+
+void D3DClass::ClearTargets(ID3D12GraphicsCommandList* commandList)
+{
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle, depthStencilViewHandle;
-	unsigned int renderTargetViewDescriptorSize;
-	float color[4];
+	UINT renderTargetViewDescriptorSize;
 
-
-	// Start by setting the resource barrier.
-	ZeroMemory(&barrier, sizeof(barrier));
-	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
-	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	commandList->ResourceBarrier(1, &barrier);
 
 	// Get the render target view handle for the current back buffer.
 	renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
@@ -79,19 +75,33 @@ void D3DClass::BeginScene(
 	// Set the back buffer as the render target.
 	commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, &depthStencilViewHandle);
 
-	// Then set the color to clear the window to.
-	color[0] = red;
-	color[1] = green;
-	color[2] = blue;
-	color[3] = alpha;
-	commandList->ClearRenderTargetView(renderTargetViewHandle, color, 0, nullptr);
+	// Then clear the window to the clear color.
+	commandList->ClearRenderTargetView(renderTargetViewHandle, m_clearColor, 0, nullptr);
 
 	// Finally, clear the depth stencil.
 	commandList->ClearDepthStencilView(depthStencilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
 
-void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
+D3D12_RESOURCE_BARRIER D3DClass::BeginScene()
+{
+	D3D12_RESOURCE_BARRIER barrier;
+
+
+	// Indicate that the back buffer is ready to be drawn to.
+	ZeroMemory(&barrier, sizeof(barrier));
+	barrier.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier.Transition.pResource =		m_backBufferRenderTarget[m_bufferIndex].Get();
+	barrier.Transition.StateBefore =	D3D12_RESOURCE_STATE_PRESENT;
+	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	
+	return barrier;
+}
+
+
+D3D12_RESOURCE_BARRIER D3DClass::EndScene()
 {
 	D3D12_RESOURCE_BARRIER barrier;
 
@@ -104,7 +114,8 @@ void D3DClass::EndScene(ID3D12GraphicsCommandList* commandList)
 	barrier.Transition.StateAfter =		D3D12_RESOURCE_STATE_PRESENT;
 	barrier.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	commandList->ResourceBarrier(1, &barrier);
+	
+	return barrier;
 }
 
 

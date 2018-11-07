@@ -8,7 +8,7 @@
 EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen) :
 	m_Camera(make_unique<CameraClass>(xResolution, yResolution, 45.0f)),
 	m_Direct3D(make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled)),
-	m_Pipeline(make_unique<PipelineClass>(m_Direct3D->GetDevice())),
+	m_Pipeline(make_unique<PipelineClass>(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex())),
 	m_Context(make_unique<InstanceContextClass>(
 		m_Direct3D->GetDevice(),
 		m_Direct3D->GetBufferIndex(),
@@ -20,6 +20,9 @@ EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool ful
 {
 	// Move the camera back so we can see our scene.
 	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+
+	// TODO: comment
+	m_Direct3D->SetClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
 
@@ -46,6 +49,7 @@ void EngineClass::Frame()
 
 	// Finish the scene and submit our lists for drawing.
 	m_Direct3D->SubmitToQueue(lists, m_vsyncEnabled);
+
 }
 
 
@@ -55,24 +59,12 @@ void EngineClass::Render()
 	m_Direct3D->WaitForNextAvailableFrame();
 
 	// Start our pipeline, set a transition barrier, then clear the RTV and DSV.
-	m_Pipeline->Open(m_Direct3D->GetBufferIndex());
+	*m_Pipeline << PipelineClass::open << m_Context->GetState() << m_Direct3D->BeginScene();
+	m_Direct3D->ClearTargets(m_Pipeline->GetCommandList());
 
-	*m_Pipeline << m_Context->GetState();
-
-	m_Direct3D->BeginScene(m_Pipeline->GetCommandList(), 0.2f, 0.2f, 0.2f, 1.0f);
-
-	// Communicate the world, view, and projection matrices to the vertex shader.
-	m_Context->SetShaderParameters(
-		m_Pipeline->GetCommandList(),
-		m_Direct3D->GetBufferIndex(),
-		m_Camera->GetViewMatrix(),
-		m_Camera->GetProjectionMatrix()
-	);
-
-	// Submit the geometry buffers to the render pipeline.
-	m_Geometry->Render(m_Pipeline->GetCommandList());
+	// Communicate the matrices to the vertex shader and submit the geometry to the pipeline.
+	*m_Pipeline << *m_Context << *m_Geometry;
 
 	// Add a final transition barrier and close the pipeline.
-	m_Direct3D->EndScene(m_Pipeline->GetCommandList());
-	*m_Pipeline << PipelineClass::end;
+	*m_Pipeline << m_Direct3D->EndScene() << PipelineClass::close;
 }

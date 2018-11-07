@@ -20,8 +20,12 @@ public:
 	ID3D12Device* GetDevice();
 	UINT& GetBufferIndex();
 
-	void BeginScene(ID3D12GraphicsCommandList*, float, float, float, float);
-	void EndScene(ID3D12GraphicsCommandList*);
+	void SetClearColor(float, float, float, float);
+
+	D3D12_RESOURCE_BARRIER BeginScene();
+	D3D12_RESOURCE_BARRIER EndScene();
+	void ClearTargets(ID3D12GraphicsCommandList*);
+
 	void SubmitToQueue(vector<ID3D12CommandList*>, bool);
 
 	void WaitForNextAvailableFrame();
@@ -42,6 +46,7 @@ private:
 private:
 	UINT	m_bufferIndex =		0;
 	UINT	m_videoCardMemory =	0;
+	float	m_clearColor[4]	=	{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 	ComPtr<IDXGISwapChain3>		m_swapChain =		nullptr;
 	ComPtr<ID3D12Device>		m_device =			nullptr;

@@ -101,3 +101,12 @@ ID3D12PipelineState* ContextInterface::GetState()
 {
 	return m_state.Get();
 }
+
+
+PipelineClass& operator<<(PipelineClass& pipeline, ContextInterface& context)
+{
+	// Set the shader parameters.
+	context.SetShaderParameters(pipeline.GetCommandList());
+
+	return pipeline;
+}

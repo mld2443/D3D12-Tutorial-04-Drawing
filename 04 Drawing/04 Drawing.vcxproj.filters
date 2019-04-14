@@ -9,7 +9,10 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Shader Files">
+    <Filter Include="Assets">
+      <UniqueIdentifier>{86198cfe-88d2-48b2-a106-c1d1a209a800}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shader Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
@@ -95,16 +98,16 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\color.ps.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\color.vs.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Assets\Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="shaders\instance.vs.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Assets\Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="shaders\instance.ps.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Assets\Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\color.vs.hlsl">
+      <Filter>Assets\Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

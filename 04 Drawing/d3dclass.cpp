@@ -22,6 +22,9 @@ D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscre
 
 D3DClass::~D3DClass()
 {
+	ComPtr<ID3D12DebugDevice> debugDevice;
+
+
 	// Before shutting down, set to windowed mode or when you release the swap chain it will throw an exception.
 	if (m_swapChain)
 	{
@@ -33,6 +36,11 @@ D3DClass::~D3DClass()
 
 	// Close the object handle to the fence event.
 	CloseHandle(m_fenceEvent);
+
+#ifdef _DEBUG
+	if (SUCCEEDED(m_device->QueryInterface(debugDevice.ReleaseAndGetAddressOf())))
+		debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+#endif // _DEBUG
 }
 
 

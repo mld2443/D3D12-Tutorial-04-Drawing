@@ -35,7 +35,7 @@ public:
 	GeometryInterface& operator=(const GeometryInterface&) = delete;
 
 	GeometryInterface(pipeline_func);
-	~GeometryInterface() = default;
+	virtual ~GeometryInterface() = default;
 
 public:
 	const pipeline_func Render;

@@ -34,11 +34,9 @@ public:
 	ContextInterface& operator=(const ContextInterface&) = delete;
 
 	ContextInterface(pipeline_func, UINT&);
-	~ContextInterface() = default;
+	virtual ~ContextInterface() = default;
 
 	//virtual void SetShaderParameters(ID3D12GraphicsCommandList*) = 0;
-
-	friend PipelineClass& operator<<(PipelineClass&, ContextInterface&);
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;

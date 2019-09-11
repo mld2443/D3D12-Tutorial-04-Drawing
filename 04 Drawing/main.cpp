@@ -18,7 +18,7 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
 	{
 		System = make_unique<SystemClass>();
 	}
-	catch (exception e)
+	catch (exception& e)
 	{
 		MessageBoxA(NULL, e.what(), "Initialization Error", MB_OK | MB_ICONERROR);
 		return 1;
@@ -29,7 +29,7 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
 	{
 		System->Run();
 	}
-	catch (exception e)
+	catch (exception& e)
 	{
 		MessageBoxA(NULL, e.what(), "Runtime Error", MB_OK | MB_ICONERROR);
 		return 2;

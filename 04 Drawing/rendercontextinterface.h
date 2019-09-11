@@ -21,7 +21,7 @@ public:
 	RenderContextInterface& operator=(const RenderContextInterface&) = delete;
 
 	RenderContextInterface(pipeline_func, UINT&);
-	~RenderContextInterface() = default;
+	virtual ~RenderContextInterface() = default;
 
 protected:
 	virtual void InitializeRootSignature(ID3D12Device*) = 0;

@@ -26,9 +26,9 @@ ColorContextClass::ColorContextClass(
 	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	// Transpose and copy the matrices into the constant buffer.
-	matrices.world = XMMatrixTranspose(m_worldMatrix);
-	matrices.view = XMMatrixTranspose(r_viewMatrix);
-	matrices.projection = XMMatrixTranspose(r_projectionMatrix);
+	matrices.world		= XMMatrixTranspose(m_worldMatrix);
+	matrices.view		= XMMatrixTranspose(r_viewMatrix);
+	matrices.projection	= XMMatrixTranspose(r_projectionMatrix);
 
 	// Set the data and get the address of the constant buffer for this frame.
 	cbvAddress = m_matrixBuffer.SetConstantBuffer(r_frameIndex, reinterpret_cast<BYTE*>(&matrices));
@@ -64,10 +64,10 @@ void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
 
 	// Create a descriptor for the matrix buffer.
 	ZeroMemory(&matrixBufferDesc, sizeof(matrixBufferDesc));
-	matrixBufferDesc.ParameterType =				D3D12_ROOT_PARAMETER_TYPE_CBV;
-	matrixBufferDesc.Descriptor.ShaderRegister =	0;
-	matrixBufferDesc.Descriptor.RegisterSpace =		0;
-	matrixBufferDesc.ShaderVisibility =				D3D12_SHADER_VISIBILITY_VERTEX;
+	matrixBufferDesc.ParameterType				= D3D12_ROOT_PARAMETER_TYPE_CBV;
+	matrixBufferDesc.Descriptor.ShaderRegister	= 0;
+	matrixBufferDesc.Descriptor.RegisterSpace	= 0;
+	matrixBufferDesc.ShaderVisibility			= D3D12_SHADER_VISIBILITY_VERTEX;
 
 	// Specify which shaders need access to what resources.
 	rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
@@ -78,11 +78,11 @@ void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
 
 	// Fill out the root signature layout description.
 	ZeroMemory(&rootSignatureDesc, sizeof(rootSignatureDesc));
-	rootSignatureDesc.NumParameters =		1;
-	rootSignatureDesc.pParameters =			&matrixBufferDesc;
-	rootSignatureDesc.NumStaticSamplers =	0;
-	rootSignatureDesc.pStaticSamplers =		nullptr;
-	rootSignatureDesc.Flags =				rootSignatureFlags;
+	rootSignatureDesc.NumParameters		= 1;
+	rootSignatureDesc.pParameters		= &matrixBufferDesc;
+	rootSignatureDesc.NumStaticSamplers	= 0;
+	rootSignatureDesc.pStaticSamplers	= nullptr;
+	rootSignatureDesc.Flags				= rootSignatureFlags;
 
 	// Serialize the signature, preparing it for creation on the device.
 	THROW_IF_FAILED(
@@ -109,12 +109,12 @@ void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
 void ColorContextClass::SetShaderBytecode()
 {
 	// Create the descriptor for the vertex shader bytecode.
-	m_vsBytecode.pShaderBytecode =	g_colorvs;
-	m_vsBytecode.BytecodeLength =	sizeof(g_colorvs);
+	m_vsBytecode.pShaderBytecode	= g_colorvs;
+	m_vsBytecode.BytecodeLength		= sizeof(g_colorvs);
 
 	// Create the descriptor for the pixel shader bytecode.
-	m_psBytecode.pShaderBytecode =	g_colorps;
-	m_psBytecode.BytecodeLength =	sizeof(g_colorps);
+	m_psBytecode.pShaderBytecode	= g_colorps;
+	m_psBytecode.BytecodeLength		= sizeof(g_colorps);
 }
 
 
@@ -125,28 +125,28 @@ void ColorContextClass::SetInputLayoutDesc()
 
 	// Create the vertex input layout description. This needs to match the VertexType
 	// stucture in the geometry interface and the VertexInputType in the shader.
-	m_inputLayoutDesc[0].SemanticName =			"POSITION";
-	m_inputLayoutDesc[0].SemanticIndex =		0;
-	m_inputLayoutDesc[0].Format =				DXGI_FORMAT_R32G32B32_FLOAT;
-	m_inputLayoutDesc[0].InputSlot =			0;
-	m_inputLayoutDesc[0].AlignedByteOffset =	0;
-	m_inputLayoutDesc[0].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	m_inputLayoutDesc[0].InstanceDataStepRate =	0;
+	m_inputLayoutDesc[0].SemanticName			= "POSITION";
+	m_inputLayoutDesc[0].SemanticIndex			= 0;
+	m_inputLayoutDesc[0].Format					= DXGI_FORMAT_R32G32B32_FLOAT;
+	m_inputLayoutDesc[0].InputSlot				= 0;
+	m_inputLayoutDesc[0].AlignedByteOffset		= 0;
+	m_inputLayoutDesc[0].InputSlotClass			= D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	m_inputLayoutDesc[0].InstanceDataStepRate	= 0;
 
-	m_inputLayoutDesc[1].SemanticName =			"COLOR";
-	m_inputLayoutDesc[1].SemanticIndex =		0;
-	m_inputLayoutDesc[1].Format =				DXGI_FORMAT_R32G32B32A32_FLOAT;
-	m_inputLayoutDesc[1].InputSlot =			0;
-	m_inputLayoutDesc[1].AlignedByteOffset =	D3D12_APPEND_ALIGNED_ELEMENT;
-	m_inputLayoutDesc[1].InputSlotClass =		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	m_inputLayoutDesc[1].InstanceDataStepRate =	0;
+	m_inputLayoutDesc[1].SemanticName			= "COLOR";
+	m_inputLayoutDesc[1].SemanticIndex			= 0;
+	m_inputLayoutDesc[1].Format					= DXGI_FORMAT_R32G32B32A32_FLOAT;
+	m_inputLayoutDesc[1].InputSlot				= 0;
+	m_inputLayoutDesc[1].AlignedByteOffset		= D3D12_APPEND_ALIGNED_ELEMENT;
+	m_inputLayoutDesc[1].InputSlotClass			= D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	m_inputLayoutDesc[1].InstanceDataStepRate	= 0;
 }
 
 
 void ColorContextClass::NameD3DResources()
 {
 	// Name all DirectX objects.
-	m_rootSignature->SetName(L"CPC root signature");
-	m_state->SetName(L"CPC pipeline state");
-	m_matrixBuffer.buffer->SetName(L"CPC matrix buffer");
+	m_rootSignature->SetName(L"CCC root signature");
+	m_state->SetName(L"CCC pipeline state");
+	m_matrixBuffer.buffer->SetName(L"CCC matrix buffer");
 }

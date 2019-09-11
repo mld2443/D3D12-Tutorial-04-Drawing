@@ -26,9 +26,9 @@ InstanceContextClass::InstanceContextClass(
 	commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
 	// Transpose and copy the matrices into the constant buffer.
-	matrices.world = XMMatrixTranspose(m_worldMatrix);
-	matrices.view = XMMatrixTranspose(r_viewMatrix);
-	matrices.projection = XMMatrixTranspose(r_projectionMatrix);
+	matrices.world		= XMMatrixTranspose(m_worldMatrix);
+	matrices.view		= XMMatrixTranspose(r_viewMatrix);
+	matrices.projection	= XMMatrixTranspose(r_projectionMatrix);
 
 	// Set the data and get the address of the constant buffer for this frame.
 	cbvAddress = m_matrixBuffer.SetConstantBuffer(r_frameIndex, reinterpret_cast<BYTE*>(&matrices));
@@ -162,7 +162,7 @@ void InstanceContextClass::SetInputLayoutDesc()
 void InstanceContextClass::NameD3DResources()
 {
 	// Name all DirectX objects.
-	m_rootSignature->SetName(L"IPC root signature");
-	m_state->SetName(L"IPC pipeline state");
-	m_matrixBuffer.buffer->SetName(L"IPC matrix buffer");
+	m_rootSignature->SetName(L"ICC root signature");
+	m_state->SetName(L"ICC pipeline state");
+	m_matrixBuffer.buffer->SetName(L"ICC matrix buffer");
 }

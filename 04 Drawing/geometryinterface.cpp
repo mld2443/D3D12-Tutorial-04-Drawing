@@ -48,25 +48,25 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 
 	// Fill out a description for the default heap; the CPU cannot write to this heap.
 	ZeroMemory(&heapProps, sizeof(heapProps));
-	heapProps.Type =					D3D12_HEAP_TYPE_DEFAULT;
-	heapProps.CPUPageProperty =			D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProps.MemoryPoolPreference =	D3D12_MEMORY_POOL_UNKNOWN;
-	heapProps.CreationNodeMask =		1;
-	heapProps.VisibleNodeMask =			1;
+	heapProps.Type					= D3D12_HEAP_TYPE_DEFAULT;
+	heapProps.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProps.MemoryPoolPreference	= D3D12_MEMORY_POOL_UNKNOWN;
+	heapProps.CreationNodeMask		= 1;
+	heapProps.VisibleNodeMask		= 1;
 
 	// Fill out a resource description for both heaps.
 	ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-	resourceDesc.Dimension =			D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Alignment =			0;
-	resourceDesc.Width =				dataSize;
-	resourceDesc.Height =				1;
-	resourceDesc.DepthOrArraySize =		1;
-	resourceDesc.MipLevels =			1;
-	resourceDesc.Format =				DXGI_FORMAT_UNKNOWN;
-	resourceDesc.SampleDesc.Count =		1;
-	resourceDesc.SampleDesc.Quality =	0;
-	resourceDesc.Layout =				D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_NONE;
+	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Alignment			= 0;
+	resourceDesc.Width				= dataSize;
+	resourceDesc.Height				= 1;
+	resourceDesc.DepthOrArraySize	= 1;
+	resourceDesc.MipLevels			= 1;
+	resourceDesc.Format				= DXGI_FORMAT_UNKNOWN;
+	resourceDesc.SampleDesc.Count	= 1;
+	resourceDesc.SampleDesc.Quality	= 0;
+	resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;
 
 	// Allocate space on the GPU for the defualt heap.
 	THROW_IF_FAILED(
@@ -123,10 +123,10 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 
 	// Fill out a description for a command queue.
 	ZeroMemory(&queueDesc, sizeof(queueDesc));
-	queueDesc.Type =		D3D12_COMMAND_LIST_TYPE_DIRECT;
-	queueDesc.Priority =	D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-	queueDesc.Flags =		D3D12_COMMAND_QUEUE_FLAG_NONE;
-	queueDesc.NodeMask =	0;
+	queueDesc.Type		= D3D12_COMMAND_LIST_TYPE_DIRECT;
+	queueDesc.Priority	= D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+	queueDesc.Flags		= D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.NodeMask	= 0;
 
 	// Create a single-use command queue.
 	THROW_IF_FAILED(
@@ -153,12 +153,12 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
 
 	// Fill out the description for our resource barrier.
 	ZeroMemory(&barrierDesc, sizeof(barrierDesc));
-	barrierDesc.Type =						D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrierDesc.Flags =						D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrierDesc.Transition.pResource =		defaultBuffer.Get();
-	barrierDesc.Transition.StateBefore =	D3D12_RESOURCE_STATE_COPY_DEST;
-	barrierDesc.Transition.StateAfter =		finalState;
-	barrierDesc.Transition.Subresource =	D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	barrierDesc.Type					= D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrierDesc.Flags					= D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrierDesc.Transition.pResource	= defaultBuffer.Get();
+	barrierDesc.Transition.StateBefore	= D3D12_RESOURCE_STATE_COPY_DEST;
+	barrierDesc.Transition.StateAfter	= finalState;
+	barrierDesc.Transition.Subresource	= D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
 	// Add the barrier to the command list.
 	commandList->ResourceBarrier(1, &barrierDesc);

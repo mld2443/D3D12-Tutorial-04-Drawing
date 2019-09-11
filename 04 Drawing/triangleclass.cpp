@@ -29,23 +29,21 @@ TriangleClass::TriangleClass(ID3D12Device* device) :
 	indices.resize(3);
 
 	// Load the vertex vector with points of a triangle.
-	vertices[0].position =	XMFLOAT3(-1.0f, -1.0f, 0.0f);  // Bottom left.
-	vertices[0].color =		XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	vertices[0].position	= XMFLOAT3(-1.0f, -1.0f, 0.0f);	// Bottom left.
+	vertices[0].color		= XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-	vertices[1].position =	XMFLOAT3(0.0f, 1.0f, 0.0f);  // Top middle.
-	vertices[1].color =		XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	vertices[1].position	= XMFLOAT3(0.0f, 1.0f, 0.0f);	// Top middle.
+	vertices[1].color		= XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
-	vertices[2].position =	XMFLOAT3(1.0f, -1.0f, 0.0f);  // Bottom right.
-	vertices[2].color =		XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	vertices[2].position	= XMFLOAT3(1.0f, -1.0f, 0.0f);	// Bottom right.
+	vertices[2].color		= XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 
 	// Load the index vector with data.
 	indices[0] = 0;  // Bottom left.
 	indices[1] = 1;  // Top middle.
 	indices[2] = 2;  // Bottom right.
 
-	// Initialize the vertex buffer.
-	m_vertexBuffer = BufferType(device, vertices, L"TC vertex buffer");
-
 	// Initialize the vertex and index buffers.
-	m_indexBuffer = BufferType(device, indices, L"TC index buffer");
+	m_vertexBuffer	= BufferType(device, vertices, L"TC vertex buffer");
+	m_indexBuffer	= BufferType(device, indices, L"TC index buffer");
 }

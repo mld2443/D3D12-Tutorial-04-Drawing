@@ -55,8 +55,6 @@ void SystemClass::Run()
 		}
 
 	}
-
-	return;
 }
 
 
@@ -64,7 +62,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 {
 	switch (umsg)
 	{
-		// Check if a key has been pressed on the keyboard.
+	// Check if a key has been pressed on the keyboard.
 	case WM_KEYDOWN:
 		// If a key is pressed send it to the input object so it can record that state.
 		m_Input->KeyDown(static_cast<UINT>(wparam));
@@ -113,18 +111,18 @@ void SystemClass::InitializeWindows()
 	m_hinstance = GetModuleHandle(NULL);
 
 	// Setup the windows class with default settings.
-	wc.style =			CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc =	WndProc;
-	wc.cbClsExtra =		0;
-	wc.cbWndExtra =		0;
-	wc.hInstance =		m_hinstance;
-	wc.hIcon =			LoadIcon(NULL, IDI_WINLOGO);
-	wc.hIconSm =		wc.hIcon;
-	wc.hCursor =		LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground =	static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
-	wc.lpszMenuName =	NULL;
-	wc.lpszClassName =	m_applicationName;
-	wc.cbSize =			sizeof(WNDCLASSEX);
+	wc.style			= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wc.lpfnWndProc		= WndProc;
+	wc.cbClsExtra		= 0;
+	wc.cbWndExtra		= 0;
+	wc.hInstance		= m_hinstance;
+	wc.hIcon			= LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIconSm			= wc.hIcon;
+	wc.hCursor			= LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground	= static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
+	wc.lpszMenuName		= NULL;
+	wc.lpszClassName	= m_applicationName;
+	wc.cbSize			= sizeof(WNDCLASSEX);
 
 	// Register the window class.
 	THROW_IF_FALSE(
@@ -133,8 +131,8 @@ void SystemClass::InitializeWindows()
 	);
 
 	// Determine the resolution of the clients desktop screen.
-	screenWidth = GetSystemMetrics(SM_CXSCREEN);
-	screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	screenWidth		= GetSystemMetrics(SM_CXSCREEN);
+	screenHeight	= GetSystemMetrics(SM_CYSCREEN);
 
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
 	if (m_fullscreen)
@@ -145,11 +143,11 @@ void SystemClass::InitializeWindows()
 
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
 		ZeroMemory(&dmScreenSettings, sizeof(dmScreenSettings));
-		dmScreenSettings.dmSize =		sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth =	m_xResolution;
-		dmScreenSettings.dmPelsHeight =	m_yResolution;
-		dmScreenSettings.dmBitsPerPel =	32;
-		dmScreenSettings.dmFields =		DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+		dmScreenSettings.dmSize			= sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsWidth	= m_xResolution;
+		dmScreenSettings.dmPelsHeight	= m_yResolution;
+		dmScreenSettings.dmBitsPerPel	= 32;
+		dmScreenSettings.dmFields		= DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		// Change the display settings to full screen.
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);

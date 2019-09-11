@@ -20,10 +20,6 @@
 class EngineClass
 {
 public:
-	EngineClass() = delete;
-	EngineClass(const EngineClass&) = delete;
-	EngineClass& operator=(const EngineClass&) = delete;
-
 	EngineClass(HWND, UINT, UINT, bool);
 	~EngineClass();
 
@@ -33,11 +29,11 @@ private:
 	void Render();
 
 private:
-	bool m_vsyncEnabled =	true;
+	bool m_vsyncEnabled	= true;
 
-	unique_ptr<CameraClass>				m_Camera =		nullptr;
-	unique_ptr<D3DClass>				m_Direct3D =	nullptr;
-	unique_ptr<PipelineClass>			m_Pipeline =	nullptr;
-	unique_ptr<InstanceContextClass>	m_Context =		nullptr;
-	unique_ptr<GeometryInterface>		m_Geometry =	nullptr;
+	unique_ptr<CameraClass>				m_Camera	= nullptr;
+	unique_ptr<D3DClass>				m_Direct3D	= nullptr;
+	unique_ptr<PipelineClass>			m_Pipeline	= nullptr;
+	unique_ptr<InstanceContextClass>	m_Context	= nullptr;
+	unique_ptr<GeometryInterface>		m_Geometry	= nullptr;
 };

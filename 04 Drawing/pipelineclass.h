@@ -16,10 +16,6 @@ public:
 		close
 	};
 
-	PipelineClass() = delete;
-	PipelineClass(const PipelineClass&) = delete;
-	PipelineClass& operator=(const PipelineClass&) = delete;
-
 	PipelineClass(ID3D12Device*, UINT&, D3D12_COMMAND_LIST_TYPE = D3D12_COMMAND_LIST_TYPE_DIRECT);
 	~PipelineClass() = default;
 
@@ -31,6 +27,8 @@ public:
 private:
 	void Open();
 	void Close();
+
+	void NameD3DResources();
 
 private:
 	UINT&	r_frameIndex;

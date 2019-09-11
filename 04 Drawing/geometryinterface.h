@@ -12,12 +12,12 @@ class GeometryInterface
 protected:
 	struct BufferType
 	{
-		SIZE_T					count =		0;
-		ComPtr<ID3D12Resource>	buffer =	nullptr;
+		SIZE_T					count	= 0;
+		ComPtr<ID3D12Resource>	buffer	= nullptr;
 		union
 		{
 			D3D12_VERTEX_BUFFER_VIEW	vertexView;
-			D3D12_INDEX_BUFFER_VIEW		indexView =	D3D12_INDEX_BUFFER_VIEW();
+			D3D12_INDEX_BUFFER_VIEW		indexView	= D3D12_INDEX_BUFFER_VIEW();
 		};
 
 		BufferType() = default;
@@ -30,10 +30,6 @@ protected:
 	};
 
 public:
-	GeometryInterface() = delete;
-	GeometryInterface(const GeometryInterface&) = delete;
-	GeometryInterface& operator=(const GeometryInterface&) = delete;
-
 	GeometryInterface(pipeline_func);
 	virtual ~GeometryInterface() = default;
 
@@ -46,7 +42,7 @@ public:
 // INLINE TEMPLATE FUNCTIONS //
 ///////////////////////////////
 template<typename Type>
-inline GeometryInterface::BufferType::BufferType(ID3D12Device* device, vector<Type> data, wstring name) :
+GeometryInterface::BufferType::BufferType(ID3D12Device* device, vector<Type> data, wstring name) :
 	count(data.size()),
 	buffer(InitializeBuffer(
 		device,

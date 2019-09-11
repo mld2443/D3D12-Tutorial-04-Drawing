@@ -10,9 +10,6 @@
 class InputClass
 {
 public:
-	InputClass(const InputClass&) = delete;
-	InputClass& operator=(const InputClass&) = delete;
-
 	InputClass() = default;
 	~InputClass() = default;
 
@@ -22,5 +19,5 @@ public:
 	bool IsKeyDown(UINT);
 
 private:
-	vector<bool>	m_keys =	vector<bool>(256, false);
+	vector<bool>	m_keys	= vector<bool>(256, false);
 };

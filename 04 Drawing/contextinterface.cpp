@@ -19,25 +19,25 @@ ContextInterface::ConstantBufferType::ConstantBufferType(ID3D12Device* device, S
 
 	// Create description for our constant buffer heap type.
 	ZeroMemory(&heapProps, sizeof(heapProps));
-	heapProps.Type =					D3D12_HEAP_TYPE_UPLOAD;
-	heapProps.CPUPageProperty =			D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProps.MemoryPoolPreference =	D3D12_MEMORY_POOL_UNKNOWN;
-	heapProps.CreationNodeMask =		1;
-	heapProps.VisibleNodeMask =			1;
+	heapProps.Type					= D3D12_HEAP_TYPE_UPLOAD;
+	heapProps.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProps.MemoryPoolPreference	= D3D12_MEMORY_POOL_UNKNOWN;
+	heapProps.CreationNodeMask		= 1;
+	heapProps.VisibleNodeMask		= 1;
 
 	// Create a description for the memory resource itself.
 	ZeroMemory(&resourceDesc, sizeof(resourceDesc));
-	resourceDesc.Dimension =			D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Alignment =			D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-	resourceDesc.Width =				bufferSize;
-	resourceDesc.Height =				1;
-	resourceDesc.DepthOrArraySize =		1;
-	resourceDesc.MipLevels =			1;
-	resourceDesc.Format =				DXGI_FORMAT_UNKNOWN;
-	resourceDesc.SampleDesc.Count =		1;
-	resourceDesc.SampleDesc.Quality =	0;
-	resourceDesc.Layout =				D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Flags =				D3D12_RESOURCE_FLAG_NONE;
+	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Alignment			= D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+	resourceDesc.Width				= bufferSize;
+	resourceDesc.Height				= 1;
+	resourceDesc.DepthOrArraySize	= 1;
+	resourceDesc.MipLevels			= 1;
+	resourceDesc.Format				= DXGI_FORMAT_UNKNOWN;
+	resourceDesc.SampleDesc.Count	= 1;
+	resourceDesc.SampleDesc.Quality	= 0;
+	resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;
 
 	// Allocate the memory on the GPU.
 	THROW_IF_FAILED(

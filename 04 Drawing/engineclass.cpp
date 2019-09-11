@@ -29,7 +29,7 @@ EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool ful
 EngineClass::~EngineClass()
 {
 	// Wait for all frames to finish before the unique_ptrs can release.
-	m_Direct3D->ShutdownAllFrames();
+	m_Direct3D->WaitForAllFrames();
 }
 
 
@@ -57,12 +57,12 @@ void EngineClass::Render()
 	// Advance the buffer index and wait for the corresponding buffer to be available.
 	m_Direct3D->WaitForNextAvailableFrame();
 
-	// Open our pipeline, set a transition barrier, then clear the RTV and DSV.
-	*m_Pipeline << PipelineClass::open << m_Context->SetState << m_Direct3D->BeginScene << m_Direct3D->ClearScene;
+	// Open our pipeline, set a transition barrier, then reset the RTV and DSV.
+	*m_Pipeline << PipelineClass::open << m_Context->SetState << m_Direct3D->StartBarrier << m_Direct3D->ResetViews;
 
 	// Communicate the matrices to the vertex shader and submit the geometry to the pipeline.
 	*m_Pipeline << m_Context->SetShaderParameters << m_Geometry->Render;
 
 	// Add a final transition barrier and close the pipeline.
-	*m_Pipeline << m_Direct3D->EndScene << PipelineClass::close;
+	*m_Pipeline << m_Direct3D->FinishBarrier << PipelineClass::close;
 }

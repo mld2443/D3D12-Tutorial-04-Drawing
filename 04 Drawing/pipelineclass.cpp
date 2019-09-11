@@ -32,6 +32,8 @@ PipelineClass::PipelineClass(ID3D12Device* device, UINT& frameIndex, D3D12_COMMA
 
 	// Initially we need to close the command list during initialization as it is created in a recording state.
 	Close();
+
+	NameD3DResources();
 }
 
 
@@ -64,6 +66,21 @@ void PipelineClass::Close()
 		m_commandList->Close(),
 		"Unable to close command list.  It may not have been reset properly."
 	);
+}
+
+
+void PipelineClass::NameD3DResources()
+{
+	wstring name;
+
+
+	// Name all DirectX objects.
+	m_commandList->SetName(L"PC command list");
+	for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+	{
+		name = L"PC command list " + to_wstring(i);
+		m_commandAllocators[i]->SetName(name.c_str());
+	}
 }
 
 

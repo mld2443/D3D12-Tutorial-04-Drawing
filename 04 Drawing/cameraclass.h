@@ -10,10 +10,6 @@
 class CameraClass
 {
 public:
-	CameraClass() = delete;
-	CameraClass(const CameraClass&) = delete;
-	CameraClass& operator=(const CameraClass&) = delete;
-
 	CameraClass(UINT, UINT, float, float = 0.1f, float = 1'000.0f);
 	~CameraClass() = default;
 

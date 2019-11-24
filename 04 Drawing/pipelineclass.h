@@ -21,13 +21,13 @@ public:
 
 	ID3D12GraphicsCommandList* GetCommandList();
 
-	friend PipelineClass& operator<<(PipelineClass&, PipelineClass::CommandType);
-	friend PipelineClass& operator<<(PipelineClass&, const pipeline_func&);
-
-private:
 	void Open();
 	void Close();
 
+	friend std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>&, PipelineClass::CommandType);
+	friend std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>&, const pipeline_func&);
+
+private:
 	void NameD3DResources();
 
 private:

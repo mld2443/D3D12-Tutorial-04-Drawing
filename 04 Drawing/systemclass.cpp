@@ -11,7 +11,7 @@ SystemClass::SystemClass() :
 	// Initialize the windows API.
 	InitializeWindows();
 
-	// Create the graphics object.  This object will handle rendering all the graphics for this application.
+	// Create the engine object.  This object will handle rendering all the graphics for this application.
 	m_Engine = make_unique<EngineClass>(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
 }
 

@@ -44,7 +44,7 @@ void EngineClass::Frame()
 	// Render the graphics scene.
 	Render();
 
-	// Collect all one of our command lists to be drawn this frame.
+	// Collect all one of our command lists to be drawn this frame, (only one for now).
 	lists.push_back(m_Pipeline->GetCommandList());
 
 	// Finish the scene and submit our lists for drawing.
@@ -58,11 +58,11 @@ void EngineClass::Render()
 	m_Direct3D->WaitForNextAvailableFrame();
 
 	// Open our pipeline, set a transition barrier, then reset the RTV and DSV.
-	*m_Pipeline << PipelineClass::open << m_Context->SetState << m_Direct3D->StartBarrier << m_Direct3D->ResetViews;
+	m_Pipeline << PipelineClass::open << m_Context->SetState << m_Direct3D->StartBarrier << m_Direct3D->ResetViews;
 
 	// Communicate the matrices to the vertex shader and submit the geometry to the pipeline.
-	*m_Pipeline << m_Context->SetShaderParameters << m_Geometry->Render;
+	m_Pipeline << m_Context->SetShaderParameters << m_Geometry->Render;
 
 	// Add a final transition barrier and close the pipeline.
-	*m_Pipeline << m_Direct3D->FinishBarrier << PipelineClass::close;
+	m_Pipeline << m_Direct3D->FinishBarrier << PipelineClass::close;
 }

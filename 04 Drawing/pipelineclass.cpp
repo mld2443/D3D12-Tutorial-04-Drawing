@@ -84,18 +84,18 @@ void PipelineClass::NameD3DResources()
 }
 
 
-PipelineClass& operator<<(PipelineClass& pipeline, PipelineClass::CommandType command)
+std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>& pipeline, PipelineClass::CommandType command)
 {
 	switch (command)
 	{
 	case PipelineClass::open:
 		// Open the command list so it can receive commands.
-		pipeline.Open();
+		pipeline->Open();
 		break;
 
 	case PipelineClass::close:
 		// Close the command list so it can be submitted to a command queue.
-		pipeline.Close();
+		pipeline->Close();
 		break;
 	}
 
@@ -103,10 +103,10 @@ PipelineClass& operator<<(PipelineClass& pipeline, PipelineClass::CommandType co
 }
 
 
-PipelineClass& operator<<(PipelineClass& pipeline, const pipeline_func& func)
+std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>& pipeline, const pipeline_func& func)
 {
 	// Run the function on the pipeline.
-	func(pipeline.GetCommandList());
+	func(pipeline->GetCommandList());
 
 	return pipeline;
 }

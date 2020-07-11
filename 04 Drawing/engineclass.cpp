@@ -14,14 +14,13 @@ EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool ful
 		m_Direct3D->GetBufferIndex(),
 		m_Camera->GetViewMatrix(),
 		m_Camera->GetProjectionMatrix(),
-		xResolution,
-		yResolution)),
+		xResolution, yResolution)),
 	m_Geometry(make_unique<QuadClass>(m_Direct3D->GetDevice()))
 {
 	// Move the camera back so we can see our scene.
 	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
-	// TODO: comment
+	// Set the backdground to a neutral gray color.
 	m_Direct3D->SetClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
@@ -58,11 +57,15 @@ void EngineClass::Render()
 	m_Direct3D->WaitForNextAvailableFrame();
 
 	// Open our pipeline, set a transition barrier, then reset the RTV and DSV.
-	m_Pipeline << PipelineClass::open << m_Context->SetState << m_Direct3D->StartBarrier << m_Direct3D->ResetViews;
+	m_Pipeline->Open();
+	m_Pipeline << m_Context->SetState;
+	m_Pipeline->AddBarrier(m_Direct3D->StartBarrier());
+	m_Direct3D->ResetViewsCallback(m_Pipeline->GetCommandList());
 
 	// Communicate the matrices to the vertex shader and submit the geometry to the pipeline.
 	m_Pipeline << m_Context->SetShaderParameters << m_Geometry->Render;
 
 	// Add a final transition barrier and close the pipeline.
-	m_Pipeline << m_Direct3D->FinishBarrier << PipelineClass::close;
+	m_Pipeline->AddBarrier(m_Direct3D->FinishBarrier());
+	m_Pipeline->Close();
 }

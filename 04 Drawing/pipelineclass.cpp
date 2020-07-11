@@ -69,6 +69,13 @@ void PipelineClass::Close()
 }
 
 
+void PipelineClass::AddBarrier(const D3D12_RESOURCE_BARRIER barrier)
+{
+	// Only need to add the barrier.
+	m_commandList->ResourceBarrier(1, &barrier);
+}
+
+
 void PipelineClass::NameD3DResources()
 {
 	wstring name;

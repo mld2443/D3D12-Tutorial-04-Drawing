@@ -24,6 +24,8 @@ public:
 	void Open();
 	void Close();
 
+	void AddBarrier(const D3D12_RESOURCE_BARRIER);
+
 	friend std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>&, PipelineClass::CommandType);
 	friend std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>&, const pipeline_func&);
 

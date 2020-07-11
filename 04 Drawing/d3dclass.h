@@ -23,12 +23,13 @@ public:
 	void WaitForNextAvailableFrame();
 	void WaitForAllFrames();
 
+	void ResetViewsCallback(ID3D12GraphicsCommandList*);
+
+	D3D12_RESOURCE_BARRIER StartBarrier();
+	D3D12_RESOURCE_BARRIER FinishBarrier();
+
 private:
 	void WaitForFrameIndex(UINT);
-
-	void ResetViewsCallback(ID3D12GraphicsCommandList*);
-	void StartBarrierCallback(ID3D12GraphicsCommandList*);
-	void FinishBarrierCallback(ID3D12GraphicsCommandList*);
 
 	void InitializeDevice();
 	void InitializeCommandQueue();
@@ -41,8 +42,6 @@ private:
 
 public:
 	const pipeline_func ResetViews;
-	const pipeline_func StartBarrier;
-	const pipeline_func FinishBarrier;
 
 private:
 	UINT	m_bufferIndex		= 0;

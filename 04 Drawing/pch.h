@@ -46,10 +46,10 @@
 ///////////////
 
 // Defines the number of back buffers and other variable length resources.
-#define FRAME_BUFFER_COUNT 2u
+constexpr unsigned FRAME_BUFFER_COUNT = 2u;
 
 // The value of pi divided by 180.  Used to convert degrees to radians.
-#define PI_180 0.0174532925f
+constexpr float PI_180 = 0.0174532925f;
 
 
 //////////////////////
@@ -70,14 +70,6 @@ using pipeline_func = typename function<void(ID3D12GraphicsCommandList*)>;
 
 // Global function callback for windows messages.
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-
-
-//////////////////////
-// GLOBAL VARIABLES //
-//////////////////////
-
-// Global pointer to our SystemClass instantiation.  Used to redirect windows messages to SystemClass.
-static void* g_ApplicationHandle = nullptr;
 
 
 /////////////////////

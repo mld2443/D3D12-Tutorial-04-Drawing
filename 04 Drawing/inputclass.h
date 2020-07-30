@@ -10,14 +10,14 @@
 class InputClass
 {
 public:
-	InputClass() = default;
-	~InputClass() = default;
+    InputClass() = default;
+    ~InputClass() = default;
 
-	void KeyDown(UINT);
-	void KeyUp(UINT);
+    void KeyDown(UINT);
+    void KeyUp(UINT);
 
-	bool IsKeyDown(UINT);
+    bool IsKeyDown(UINT);
 
 private:
-	vector<bool>	m_keys	= vector<bool>(256, false);
+    vector<bool> m_keys = vector<bool>(256, false);
 };

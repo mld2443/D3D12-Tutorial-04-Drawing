@@ -10,17 +10,42 @@
 //////////////////////
 
 // Global pointer to our SystemClass instantiation.  Used to redirect windows messages to SystemClass.
-static SystemClass* g_ApplicationHandle = nullptr;
+static SystemClass *g_ApplicationHandle = nullptr;
 
 
-SystemClass::SystemClass() :
-    m_Input(make_unique<InputClass>())
+// Static function for C-style callback that Windows needs.
+static LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+{
+    switch (umsg)
+    {
+        // Check if the window is being destroyed or closed.
+    case WM_DESTROY:
+    case WM_CLOSE:
+        PostQuitMessage(0);
+        return 0;
+
+        // All other messages pass to the message handler in the system class.
+    default:
+        if (g_ApplicationHandle)
+        {
+            return g_ApplicationHandle->MessageHandler(hwnd, umsg, wparam, lparam);
+        }
+        else
+        {
+            return DefWindowProc(hwnd, umsg, wparam, lparam);
+        }
+    }
+}
+
+
+SystemClass::SystemClass()
+    : m_Input(std::make_unique<InputClass>())
 {
     // Initialize the windows API.
     InitializeWindows();
 
     // Create the engine object.  This object will handle rendering all the graphics for this application.
-    m_Engine = make_unique<EngineClass>(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
+    m_Engine = std::make_unique<EngineClass>(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
 }
 
 
@@ -33,15 +58,11 @@ SystemClass::~SystemClass()
 
 void SystemClass::Run()
 {
-    MSG msg;
-    bool running;
-
-
     // Initialize the message structure.
-    ZeroMemory(&msg, sizeof(msg));
+    MSG msg{};
 
     // Loop until there is a quit message from the window or the user.
-    running = true;
+    bool running = true;
     while (running)
     {
         // Handle the windows messages.
@@ -102,17 +123,9 @@ bool SystemClass::Frame()
     return true;
 }
 
-void func()
-{
-    // comment
-}
 
 void SystemClass::InitializeWindows()
 {
-    WNDCLASSEX wc;
-    DEVMODE dmScreenSettings;
-    UINT screenWidth, screenHeight;
-    int posX, posY;
 
 
     // Get an external pointer to this object.
@@ -122,6 +135,7 @@ void SystemClass::InitializeWindows()
     m_hinstance = GetModuleHandle(NULL);
 
     // Setup the windows class with default settings.
+    WNDCLASSEX wc{};
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc   = WndProc;
     wc.cbClsExtra    = 0;
@@ -141,9 +155,12 @@ void SystemClass::InitializeWindows()
         "Unable to register the window class."
     );
 
+    // Set the position of the window to the top left corner.
+    int posX = 0, posY = 0;
+
     // Determine the resolution of the clients desktop screen.
-    screenWidth  = GetSystemMetrics(SM_CXSCREEN);
-    screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    UINT screenWidth  = GetSystemMetrics(SM_CXSCREEN);
+    UINT screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
     // Setup the screen settings depending on whether it is running in full screen or in windowed mode.
     if (m_fullscreen)
@@ -153,7 +170,7 @@ void SystemClass::InitializeWindows()
         m_yResolution = screenHeight;
 
         // If full screen set the screen to maximum size of the users desktop and 32bit.
-        ZeroMemory(&dmScreenSettings, sizeof(dmScreenSettings));
+        DEVMODE dmScreenSettings{};
         dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
         dmScreenSettings.dmPelsWidth  = m_xResolution;
         dmScreenSettings.dmPelsHeight = m_yResolution;
@@ -162,9 +179,6 @@ void SystemClass::InitializeWindows()
 
         // Change the display settings to full screen.
         ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
-
-        // Set the position of the window to the top left corner.
-        posX = posY = 0;
     }
     else
     {
@@ -213,21 +227,4 @@ void SystemClass::ShutdownWindows()
 
     // Release the pointer to this class.
     g_ApplicationHandle = nullptr;
-}
-
-
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
-{
-    switch (umessage)
-    {
-    // Check if the window is being destroyed or closed.
-    case WM_DESTROY:
-    case WM_CLOSE:
-        PostQuitMessage(0);
-        return 0;
-
-    // All other messages pass to the message handler in the system class.
-    default:
-        return g_ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
-    }
 }

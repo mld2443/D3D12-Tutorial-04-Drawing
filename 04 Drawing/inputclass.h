@@ -19,5 +19,5 @@ public:
     bool IsKeyDown(UINT);
 
 private:
-    vector<bool> m_keys = vector<bool>(256, false);
+    std::array<bool, 256> m_keys = {};
 };

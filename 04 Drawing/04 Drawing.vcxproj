@@ -57,6 +57,10 @@
       <HeaderFileOutput>%(Filename).h</HeaderFileOutput>
       <ObjectFileOutput />
     </FxCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

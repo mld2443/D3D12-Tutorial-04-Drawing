@@ -17,8 +17,8 @@ public:
     UINT GetYResolution();
     float GetScreenNear();
     float GetScreenFar();
-    XMMATRIX& GetViewMatrix();
-    XMMATRIX& GetProjectionMatrix();
+    XMMATRIX & GetViewMatrix();
+    XMMATRIX & GetProjectionMatrix();
 
     void SetFieldOfViewInDegrees(float);
     void SetPosition(float, float, float);

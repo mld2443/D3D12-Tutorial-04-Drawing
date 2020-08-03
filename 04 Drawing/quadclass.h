@@ -18,26 +18,28 @@ class QuadClass : public GeometryInterface
 private:
     struct VertexType
     {
-        XMFLOAT3 position = XMFLOAT3();
-        XMFLOAT4 color    = XMFLOAT4();
+        XMFLOAT3 position = {};
+        XMFLOAT4 color    = {};
     };
 
     struct InstanceType
     {
-        XMFLOAT3 position = XMFLOAT3();
-        XMFLOAT3 hsv      = XMFLOAT3();
+        XMFLOAT3 position = {};
+        XMFLOAT3 hsv      = {};
     };
 
 public:
     QuadClass() = delete;
-    QuadClass(const QuadClass&) = delete;
-    QuadClass& operator=(const QuadClass&) = delete;
+    QuadClass(const QuadClass &) = delete;
+    QuadClass & operator=(const QuadClass &) = delete;
 
-    QuadClass(ID3D12Device*);
+    QuadClass(ID3D12Device *);
     ~QuadClass() = default;
 
+    void Render(ID3D12GraphicsCommandList *) override;
+
 private:
-    BufferType m_vertexBuffer   = BufferType();
-    BufferType m_indexBuffer    = BufferType();
-    BufferType m_instanceBuffer = BufferType();
+    BufferType m_vertexBuffer   = {};
+    BufferType m_indexBuffer    = {};
+    BufferType m_instanceBuffer = {};
 };

@@ -10,16 +10,17 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
                    __in PSTR pScmdline,
                    __in int iCmdshow)
 {
-    unique_ptr<SystemClass> System;
+    std::unique_ptr<SystemClass> System;
 
 
     // Create and initialize the system object.
     try
     {
-        System = make_unique<SystemClass>();
+        System = std::make_unique<SystemClass>();
     }
-    catch (exception& e)
+    catch (std::exception& e)
     {
+        ShowCursor(true);
         MessageBoxA(NULL, e.what(), "Initialization Error", MB_OK | MB_ICONERROR);
         return 1;
     }
@@ -29,8 +30,9 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
     {
         System->Run();
     }
-    catch (exception& e)
+    catch (std::exception& e)
     {
+        ShowCursor(true);
         MessageBoxA(NULL, e.what(), "Runtime Error", MB_OK | MB_ICONERROR);
         return 2;
     }

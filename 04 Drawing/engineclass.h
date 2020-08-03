@@ -29,11 +29,11 @@ private:
     void Render();
 
 private:
-    bool m_vsyncEnabled = true;
+    const bool m_vsyncEnabled = true;
 
-    unique_ptr<CameraClass>          m_Camera   = nullptr;
-    unique_ptr<D3DClass>             m_Direct3D = nullptr;
-    unique_ptr<PipelineClass>        m_Pipeline = nullptr;
-    unique_ptr<InstanceContextClass> m_Context  = nullptr;
-    unique_ptr<GeometryInterface>    m_Geometry = nullptr;
+    std::unique_ptr<CameraClass>          m_Camera   = nullptr;
+    std::unique_ptr<D3DClass>             m_Direct3D = nullptr;
+    std::unique_ptr<PipelineClass>        m_Pipeline = nullptr;
+    std::unique_ptr<InstanceContextClass> m_Context  = nullptr;
+    std::unique_ptr<GeometryInterface>    m_Geometry = nullptr;
 };

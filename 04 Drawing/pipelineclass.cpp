@@ -5,11 +5,11 @@
 #include "pipelineclass.h"
 
 
-PipelineClass::PipelineClass(ID3D12Device* device, UINT& frameIndex, D3D12_COMMAND_LIST_TYPE type) :
-    r_frameIndex(frameIndex)
+PipelineClass::PipelineClass(ID3D12Device *device, const UINT &frameIndex, D3D12_COMMAND_LIST_TYPE type)
+    : r_frameIndex(frameIndex)
 {
     // Create command allocators, one for each frame.
-    for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
+    for (uint32_t i = 0; i < FRAME_BUFFER_COUNT; ++i)
     {
         THROW_IF_FAILED(
             device->CreateCommandAllocator(
@@ -37,7 +37,7 @@ PipelineClass::PipelineClass(ID3D12Device* device, UINT& frameIndex, D3D12_COMMA
 }
 
 
-ID3D12GraphicsCommandList* PipelineClass::GetCommandList()
+ID3D12GraphicsCommandList * PipelineClass::GetCommandList()
 {
     return m_commandList.Get();
 }
@@ -76,44 +76,19 @@ void PipelineClass::AddBarrier(const D3D12_RESOURCE_BARRIER barrier)
 }
 
 
+void PipelineClass::SetState(ID3D12PipelineState* state)
+{
+    m_commandList->SetPipelineState(state);
+}
+
+
 void PipelineClass::NameD3DResources()
 {
-    wstring name;
-
-
     // Name all DirectX objects.
     m_commandList->SetName(L"PC command list");
     for (UINT i = 0; i < FRAME_BUFFER_COUNT; ++i)
     {
-        name = L"PC command list " + to_wstring(i);
+        std::wstring name = L"PC command list " + std::to_wstring(i);
         m_commandAllocators[i]->SetName(name.c_str());
     }
-}
-
-
-std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>& pipeline, PipelineClass::CommandType command)
-{
-    switch (command)
-    {
-    case PipelineClass::open:
-        // Open the command list so it can receive commands.
-        pipeline->Open();
-        break;
-
-    case PipelineClass::close:
-        // Close the command list so it can be submitted to a command queue.
-        pipeline->Close();
-        break;
-    }
-
-    return pipeline;
-}
-
-
-std::unique_ptr<PipelineClass>& operator<<(std::unique_ptr<PipelineClass>& pipeline, const pipeline_func& func)
-{
-    // Run the function on the pipeline.
-    func(pipeline->GetCommandList());
-
-    return pipeline;
 }

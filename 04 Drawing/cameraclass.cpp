@@ -5,13 +5,13 @@
 #include "cameraclass.h"
 
 
-CameraClass::CameraClass(UINT xResolution, UINT yResolution, float fieldOfView, float screenNear, float screenFar) :
-    m_xResolution(xResolution),
-    m_yResolution(yResolution),
-    m_fieldOfView(fieldOfView * PI_180),
-    m_aspectRatio((float)xResolution / (float)yResolution),
-    m_screenNear(screenNear),
-    m_screenFar(screenFar)
+CameraClass::CameraClass(UINT xResolution, UINT yResolution, float fieldOfView, float screenNear, float screenFar)
+    : m_xResolution(xResolution)
+    , m_yResolution(yResolution)
+    , m_fieldOfView(fieldOfView * PI_180)
+    , m_aspectRatio((float)xResolution / (float)yResolution)
+    , m_screenNear(screenNear)
+    , m_screenFar(screenFar)
 {
     UpdateProjectionMatrix();
 }
@@ -41,13 +41,13 @@ float CameraClass::GetScreenFar()
 }
 
 
-XMMATRIX& CameraClass::GetViewMatrix()
+XMMATRIX & CameraClass::GetViewMatrix()
 {
     return m_viewMatrix;
 }
 
 
-XMMATRIX& CameraClass::GetProjectionMatrix()
+XMMATRIX & CameraClass::GetProjectionMatrix()
 {
     return m_projectionMatrix;
 }
@@ -81,18 +81,14 @@ void CameraClass::SetLookDirection(float x, float y, float z)
 
 void CameraClass::Render()
 {
-    XMVECTOR upDirection, lookAt;
-    XMMATRIX rotationMatrix;
-
-
     // Setup the vector that points upwards relative to the camera.
-    upDirection = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR upDirection = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
     // Setup where the camera is looking by default.
-    lookAt = m_lookDirection;
+    XMVECTOR lookAt = m_lookDirection;
 
     // Create the rotation matrix from the yaw, pitch, and roll values.
-    rotationMatrix = XMMatrixRotationRollPitchYawFromVector(m_rotation);
+    XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYawFromVector(m_rotation);
 
     // Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
     lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);

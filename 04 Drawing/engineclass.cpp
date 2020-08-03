@@ -5,17 +5,16 @@
 #include "engineclass.h"
 
 
-EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen) :
-    m_Camera(make_unique<CameraClass>(xResolution, yResolution, 45.0f)),
-    m_Direct3D(make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled)),
-    m_Pipeline(make_unique<PipelineClass>(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex())),
-    m_Context(make_unique<InstanceContextClass>(
-        m_Direct3D->GetDevice(),
-        m_Direct3D->GetBufferIndex(),
-        m_Camera->GetViewMatrix(),
-        m_Camera->GetProjectionMatrix(),
-        xResolution, yResolution)),
-    m_Geometry(make_unique<QuadClass>(m_Direct3D->GetDevice()))
+EngineClass::EngineClass(HWND hwnd, UINT xResolution, UINT yResolution, bool fullscreen)
+    : m_Camera(std::make_unique<CameraClass>(xResolution, yResolution, 45.0f))
+    , m_Direct3D(std::make_unique<D3DClass>(hwnd, xResolution, yResolution, fullscreen, m_vsyncEnabled))
+    , m_Pipeline(std::make_unique<PipelineClass>(m_Direct3D->GetDevice(), m_Direct3D->GetBufferIndex()))
+    , m_Context(std::make_unique<InstanceContextClass>(m_Direct3D->GetDevice(),
+                                                       m_Direct3D->GetBufferIndex(),
+                                                       m_Camera->GetViewMatrix(),
+                                                       m_Camera->GetProjectionMatrix(),
+                                                       xResolution, yResolution))
+    , m_Geometry(std::make_unique<QuadClass>(m_Direct3D->GetDevice()))
 {
     // Move the camera back so we can see our scene.
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
@@ -34,9 +33,6 @@ EngineClass::~EngineClass()
 
 void EngineClass::Frame()
 {
-    std::vector<ID3D12CommandList*> lists;
-
-
     // Generate the view matrix based on the camera's position.
     m_Camera->Render();
 
@@ -44,6 +40,7 @@ void EngineClass::Frame()
     Render();
 
     // Collect all one of our command lists to be drawn this frame, (only one for now).
+    std::vector<ID3D12CommandList*> lists;
     lists.push_back(m_Pipeline->GetCommandList());
 
     // Finish the scene and submit our lists for drawing.
@@ -58,12 +55,13 @@ void EngineClass::Render()
 
     // Open our pipeline, set a transition barrier, then reset the RTV and DSV.
     m_Pipeline->Open();
-    m_Pipeline << m_Context->SetState;
+    m_Pipeline->SetState(m_Context->GetState());
     m_Pipeline->AddBarrier(m_Direct3D->StartBarrier());
     m_Direct3D->ResetViewsCallback(m_Pipeline->GetCommandList());
 
     // Communicate the matrices to the vertex shader and submit the geometry to the pipeline.
-    m_Pipeline << m_Context->SetShaderParameters << m_Geometry->Render;
+    m_Context->SetShaderParameters(m_Pipeline->GetCommandList());
+    m_Geometry->Render(m_Pipeline->GetCommandList());
 
     // Add a final transition barrier and close the pipeline.
     m_Pipeline->AddBarrier(m_Direct3D->FinishBarrier());

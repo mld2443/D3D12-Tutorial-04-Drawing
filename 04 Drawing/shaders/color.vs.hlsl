@@ -35,13 +35,11 @@ struct PixelInputType
 ////////////////////////////////////////////////////////////////////////////////
 PixelInputType VSMain(VertexInputType input)
 {
-    PixelInputType output;
-
-
     // Convert the position vector to homogeneous coordinates for matrix calculations.
     input.position.w = 1.0f;
 
     // Calculate the position of the vertex against the world, view, and projection matrices.
+    PixelInputType output;
     output.position = mul(input.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);

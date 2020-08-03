@@ -31,7 +31,7 @@ float3 HUEtoRGB(in float H)
 float3 HSVtoRGB(in float3 HSV)
 {
     float3 RGB = HUEtoRGB(HSV.x);
-    return ((RGB - 1) * HSV.y + 1) * HSV.z;
+    return ((RGB - 1.0f) * HSV.y + 1.0f) * HSV.z;
 }
 
 

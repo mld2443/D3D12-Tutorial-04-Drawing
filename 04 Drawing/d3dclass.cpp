@@ -5,10 +5,7 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync) :
-    ResetViews([this](ID3D12GraphicsCommandList* commandList) { ResetViewsCallback(commandList); })
-//    StartBarrier([this](ID3D12GraphicsCommandList* commandList) { StartBarrierCallback(commandList); }),
-//    FinishBarrier([this](ID3D12GraphicsCommandList* commandList) { FinishBarrierCallback(commandList); })
+D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
 {
     // Initialize the device and all the resources we will need while rendering.
     InitializeDevice();
@@ -26,13 +23,15 @@ D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscre
 
 D3DClass::~D3DClass()
 {
-    // Before shutting down, set to windowed mode or when you release the swap chain it will throw an exception.
+    // Before shutting down, set to windowed mode or when you release the swap chain it will throw
+    // an exception.
     if (m_swapChain)
     {
         m_swapChain->SetFullscreenState(false, nullptr);
     }
 
-    // Make sure there are no more commands in the command queue by checking all fences one last time.
+    // Make sure there are no more commands in the command queue by checking all fences one last
+    // time.
     WaitForAllFrames();
 
     // Close the object handle to the fence event.
@@ -40,13 +39,13 @@ D3DClass::~D3DClass()
 }
 
 
-ID3D12Device* D3DClass::GetDevice()
+ID3D12Device * D3DClass::GetDevice()
 {
     return m_device.Get();
 }
 
 
-UINT& D3DClass::GetBufferIndex()
+uint32_t & D3DClass::GetBufferIndex()
 {
     return m_bufferIndex;
 }
@@ -62,7 +61,7 @@ void D3DClass::SetClearColor(float red, float green, float blue, float alpha)
 }
 
 
-void D3DClass::SubmitToQueue(vector<ID3D12CommandList*> lists, bool vsync)
+void D3DClass::SubmitToQueue(std::vector<ID3D12CommandList*> lists, bool vsync)
 {
     // Execute the list of commands.
     m_commandQueue->ExecuteCommandLists(static_cast<UINT>(lists.size()), lists.data());
@@ -99,7 +98,7 @@ void D3DClass::WaitForNextAvailableFrame()
 void D3DClass::WaitForAllFrames()
 {
     // Finish all commands already submitted to the GPU.
-    for (UINT i = 0u; i < FRAME_BUFFER_COUNT; ++i)
+    for (uint32_t i = 0u; i < FRAME_BUFFER_COUNT; ++i)
     {
         // Increment each fenceValue one final time.
         ++m_fenceValue[i];
@@ -117,10 +116,11 @@ void D3DClass::WaitForAllFrames()
 }
 
 
-void D3DClass::WaitForFrameIndex(UINT frameIndex)
+void D3DClass::WaitForFrameIndex(const uint32_t frameIndex)
 {
-    // If the current fence value is still less than "fenceValue", then we know the GPU has not finished executing
-    // the command queue since it has not reached the "commandQueue->Signal(fence, fenceValue)" command.
+    // If the current fence value is still less than `fenceValue`, then we know the GPU has not
+    // finished executing the command queue since it has not reached the
+    // `commandQueue->Signal(fence, fenceValue)` command.
     if (m_fence[frameIndex]->GetCompletedValue() < m_fenceValue[frameIndex])
     {
         // We have the fence signal the fenceEvent once the fence's current value is "fenceValue".
@@ -137,19 +137,15 @@ void D3DClass::WaitForFrameIndex(UINT frameIndex)
 }
 
 
-void D3DClass::ResetViewsCallback(ID3D12GraphicsCommandList* commandList)
+void D3DClass::ResetViewsCallback(ID3D12GraphicsCommandList *commandList)
 {
-    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle, depthStencilViewHandle;
-    UINT renderTargetViewDescriptorSize;
-
-
     // Get the render target view handle for the current back buffer.
-    renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
-    renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
+    const UINT renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     renderTargetViewHandle.ptr += renderTargetViewDescriptorSize * static_cast<SIZE_T>(m_bufferIndex);
 
     // Get the depth stencil view handle.
-    depthStencilViewHandle = m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
+    D3D12_CPU_DESCRIPTOR_HANDLE depthStencilViewHandle = m_depthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
 
     // Set the back buffer as the render target.
     commandList->OMSetRenderTargets(1, &renderTargetViewHandle, FALSE, &depthStencilViewHandle);
@@ -164,11 +160,8 @@ void D3DClass::ResetViewsCallback(ID3D12GraphicsCommandList* commandList)
 
 D3D12_RESOURCE_BARRIER D3DClass::StartBarrier()
 {
-    D3D12_RESOURCE_BARRIER barrier;
-
-
     // Indicate that the back buffer is ready to be drawn to.
-    ZeroMemory(&barrier, sizeof(barrier));
+    D3D12_RESOURCE_BARRIER barrier{};
     barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     barrier.Transition.pResource   = m_backBufferRenderTarget[m_bufferIndex].Get();
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
@@ -181,11 +174,8 @@ D3D12_RESOURCE_BARRIER D3DClass::StartBarrier()
 
 D3D12_RESOURCE_BARRIER D3DClass::FinishBarrier()
 {
-    D3D12_RESOURCE_BARRIER barrier;
-
-
     // Indicate that the back buffer is ready to be drawn to.
-    ZeroMemory(&barrier, sizeof(barrier));
+    D3D12_RESOURCE_BARRIER barrier{};
     barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     barrier.Transition.pResource   = m_backBufferRenderTarget[m_bufferIndex].Get();
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -198,15 +188,12 @@ D3D12_RESOURCE_BARRIER D3DClass::FinishBarrier()
 
 void D3DClass::InitializeDevice()
 {
-    D3D_FEATURE_LEVEL featureLevel;
-    ComPtr<ID3D12Debug> debugController;
-
-
     // Set the feature level to DirectX 12.1 to enable using all the DirectX 12 features.
-    featureLevel = D3D_FEATURE_LEVEL_12_1;
+    D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_12_1;
 
 #if defined(_DEBUG)
     // Create the Direct3D 12 debug controller.
+    ComPtr<ID3D12Debug> debugController;
     THROW_IF_FAILED(
         D3D12GetDebugInterface(IID_PPV_ARGS(debugController.ReleaseAndGetAddressOf())),
         "Unable to create the Direct3D 12 debug layer."
@@ -229,11 +216,8 @@ void D3DClass::InitializeDevice()
 
 void D3DClass::InitializeCommandQueue()
 {
-    D3D12_COMMAND_QUEUE_DESC commandQueueDesc;
-
-
     // Set up the description of the command queue.
-    ZeroMemory(&commandQueueDesc, sizeof(commandQueueDesc));
+    D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
     commandQueueDesc.Type     = D3D12_COMMAND_LIST_TYPE_DIRECT;
     commandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
     commandQueueDesc.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -249,21 +233,20 @@ void D3DClass::InitializeCommandQueue()
 }
 
 
-void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
+void D3DClass::InitializeSwapChain(HWND hwnd,
+                                   UINT screenWidth,
+                                   UINT screenHeight,
+                                   bool fullscreen,
+                                   bool vsync)
 {
-    ComPtr<IDXGIFactory4> factory;
-    ComPtr<IDXGIAdapter> adapter;
-    ComPtr<IDXGIOutput> adapterOutput;
+    ComPtr<IDXGIFactory4>  factory;
+    ComPtr<IDXGIAdapter>   adapter;
+    ComPtr<IDXGIOutput>    adapterOutput;
     ComPtr<IDXGISwapChain> swapChain;
-    UINT dxgiFlags;
-    UINT numModes, numerator, denominator;
-    DXGI_MODE_DESC* displayModeList;
-    DXGI_ADAPTER_DESC adapterDesc;
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
 
 
     // Set the default DXGI factory flags.
-    dxgiFlags = 0u;
+    UINT dxgiFlags = 0u;
 
 #if defined(_DEBUG)
     // Enable debugging our DXGI device.
@@ -291,9 +274,10 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
     );
 
     // Initialize numModes to zero.
-    numModes = 0u;
+    UINT numModes = 0u;
 
-    // Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
+    // Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the
+    // adapter output (monitor).
     THROW_IF_FAILED(
         adapterOutput->GetDisplayModeList(
             DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -304,7 +288,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
     );
 
     // Create a list to hold all the possible display modes for this monitor/video card combination.
-    displayModeList = new DXGI_MODE_DESC[numModes];
+    DXGI_MODE_DESC* displayModeList = new DXGI_MODE_DESC[numModes];
 
     // Now fill the display mode list structures.
     THROW_IF_FAILED(
@@ -317,11 +301,12 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
     );
 
     // Initialize numerator and denominator to 0.
-    numerator = denominator = 0u;
+    UINT numerator = 0u, denominator = 0u;
 
-    // Now go through all the display modes and find the one that matches the screen height and width.
-    // When a match is found store the numerator and denominator of the refresh rate for that monitor.
-    for (UINT i = 0u; i < numModes; ++i)
+    // Now go through all the display modes and find the one that matches the screen height and
+    // width.  When a match is found store the numerator and denominator of the refresh rate for
+    // that monitor.
+    for (uint32_t i = 0u; i < numModes; ++i)
     {
         if (displayModeList[i].Height == screenHeight && displayModeList[i].Width == screenWidth)
         {
@@ -331,20 +316,21 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
     }
 
     // Get the adapter (video card) description.
+    DXGI_ADAPTER_DESC adapterDesc;
     THROW_IF_FAILED(
         adapter->GetDesc(&adapterDesc),
         "Unable to communicate with graphics adapter."
     );
 
     // Store the dedicated video card memory in megabytes.
-    m_videoCardMemory = static_cast<UINT>(adapterDesc.DedicatedVideoMemory / 1024u / 1024u);
+    m_videoCardMemory = adapterDesc.DedicatedVideoMemory;
 
     // Release the display mode list.
     delete[] displayModeList;
     displayModeList = nullptr;
 
     // Create a description for the swap chain.
-    ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+    DXGI_SWAP_CHAIN_DESC swapChainDesc{};
     swapChainDesc.BufferCount                 = FRAME_BUFFER_COUNT;
     swapChainDesc.BufferDesc.Height           = screenHeight;
     swapChainDesc.BufferDesc.Width            = screenWidth;
@@ -369,7 +355,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
         swapChainDesc.BufferDesc.RefreshRate.Denominator = 1u;
     }
 
-    // Create the swap chain using the swap chain description.    
+    // Create the swap chain using the swap chain description.
     THROW_IF_FAILED(
         factory->CreateSwapChain(
             m_commandQueue.Get(),
@@ -378,8 +364,9 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
         "Unable to create the swap chain on the graphics device."
     );
 
-    // Finally, upgrade the swap chain to a IDXGISwapChain3 interface and store it in the private member variable m_swapChain.
-    // This will allow us to use the function GetCurrentBackBufferIndex().
+    // Finally, upgrade the swap chain to a IDXGISwapChain3 interface and store it in the private
+    // member variable m_swapChain.  This will allow us to use the function
+    // GetCurrentBackBufferIndex().
     THROW_IF_FAILED(
         swapChain.As(&m_swapChain),
         "This graphics device does not support the 'IDXGISwapChain3' Interface."
@@ -389,17 +376,13 @@ void D3DClass::InitializeSwapChain(HWND hwnd, UINT screenWidth, UINT screenHeigh
 
 void D3DClass::InitializeRenderTargets()
 {
-    D3D12_DESCRIPTOR_HEAP_DESC renderTargetViewHeapDesc;
-    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle;
-    UINT renderTargetViewDescriptorSize;
-
-
-    // Set the number of descriptors to the number of back buffers.
-    // Also set the heap type to render target views.
-    ZeroMemory(&renderTargetViewHeapDesc, sizeof(renderTargetViewHeapDesc));
+    // Set the number of descriptors to the number of back buffers.  Also set the heap type to
+    // render target views.
+    D3D12_DESCRIPTOR_HEAP_DESC renderTargetViewHeapDesc{};
     renderTargetViewHeapDesc.NumDescriptors = FRAME_BUFFER_COUNT;
     renderTargetViewHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     renderTargetViewHeapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    renderTargetViewHeapDesc.NodeMask       = 0;
 
     // Create the render target view heap for the back buffers.
     THROW_IF_FAILED(
@@ -411,10 +394,10 @@ void D3DClass::InitializeRenderTargets()
 
     // Get a handle to the starting memory location in the render target view heap to
     // identify where the render target views will be located for the two back buffers.
-    renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
+    D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
 
     // Get the size of the memory location for the render target view descriptors.
-    renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    UINT renderTargetViewDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     for (UINT i = 0u; i < FRAME_BUFFER_COUNT; ++i)
     {
@@ -440,18 +423,12 @@ void D3DClass::InitializeRenderTargets()
 
 void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 {
-    D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
-    D3D12_HEAP_PROPERTIES heapProps;
-    D3D12_RESOURCE_DESC resourceDesc;
-    D3D12_CLEAR_VALUE depthOptimizedClearValue;
-    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-
-
-    // Define the heap where we'll keep the DSV.
-    ZeroMemory(&heapDesc, sizeof(heapDesc));
+    // Define the heap where we'll keep the Depth Stencil View (DSV).
+    D3D12_DESCRIPTOR_HEAP_DESC heapDesc{};
     heapDesc.NumDescriptors = 1u;
     heapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     heapDesc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    heapDesc.NodeMask       = 0;
 
     // Create our heap.  It must be created before it can be used to create the DSV.
     THROW_IF_FAILED(
@@ -461,18 +438,19 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
         "Unable to create the render target heap on the graphics device."
     );
 
-    // Set the heap properties for the heap where we keep the DSV.  This heap
-    // is inaccessible from the CPU, and everything else is set to defaults.
-    ZeroMemory(&heapProps, sizeof(heapProps));
+    // Set the heap properties for the heap where we keep the DSV.  This heap is inaccessible from
+    // the CPU, and everything else is set to defaults.
+    D3D12_HEAP_PROPERTIES heapProps{};
     heapProps.Type                 = D3D12_HEAP_TYPE_DEFAULT;
     heapProps.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
     heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
     heapProps.CreationNodeMask     = 1u;
     heapProps.VisibleNodeMask      = 1u;
 
-    // Define the resource attributes of our DSV.  It is a 2D texture, with a resolution, and
-    // the format is a D32 float.  This format should match our pipeline state object DSVformat.
-    ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+    // Define the resource attributes of our DSV.  It is a 2D texture, with a full screen
+    // resolution, and 32-bit floats for depth only.  This format should match our pipeline state
+    // object DSVformat.
+    D3D12_RESOURCE_DESC resourceDesc{};
     resourceDesc.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment          = 0ull;
     resourceDesc.Width              = screenWidth;
@@ -485,9 +463,9 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
     resourceDesc.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
     resourceDesc.Flags              = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-    // Just like how the RTV needs a color to clear to, the DSV needs a value to
-    // clear to.  We set this value as infinite depth, and black for the stencil.
-    ZeroMemory(&depthOptimizedClearValue, sizeof(depthOptimizedClearValue));
+    // Just like how the RTV needs a color to clear to, the DSV needs a value to clear to.  We set
+    // this value as infinite depth, and black for the stencil.
+    D3D12_CLEAR_VALUE depthOptimizedClearValue{};
     depthOptimizedClearValue.Format               = resourceDesc.Format;
     depthOptimizedClearValue.DepthStencil.Depth   = 1.0f;
     depthOptimizedClearValue.DepthStencil.Stencil = 0u;
@@ -504,9 +482,9 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
         "Unable to allocate the depth buffer on the graphics device."
     );
 
-    // Define the attributes of our depth stencil.  These need to match what we
-    // have used so far, as well as what is stated in the pipeline state object.
-    ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+    // Define the attributes of our depth stencil.  These need to match what we have used so far, as
+    // well as what is stated in the pipeline state object.
+    D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
     depthStencilViewDesc.Format        = resourceDesc.Format;
     depthStencilViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
     depthStencilViewDesc.Flags         = D3D12_DSV_FLAG_NONE;
@@ -522,7 +500,7 @@ void D3DClass::InitializeDepthStencil(UINT screenWidth, UINT screenHeight)
 
 void D3DClass::InitializeFences()
 {
-    for (UINT i = 0u; i < FRAME_BUFFER_COUNT; ++i)
+    for (uint32_t i = 0u; i < FRAME_BUFFER_COUNT; ++i)
     {
         // Create fences for GPU synchronization.
         THROW_IF_FAILED(
@@ -540,31 +518,28 @@ void D3DClass::InitializeFences()
     // Create an event object for the fences.
     m_fenceEvent = CreateEventEx(NULL, FALSE, FALSE, EVENT_ALL_ACCESS);
     THROW_IF_TRUE(
-        m_fenceEvent == NULL,
-        "Unable to create a windows system event for hardware synchronization."
+        m_fenceEvent == nullptr,
+        "Unable to create a Windows system event for hardware synchronization."
     );
 }
 
 
 void D3DClass::NameResources()
 {
-    wstring name;
-
-
     // Name all DirectX objects.
     m_device->SetName(L"D3DC device");
     m_commandQueue->SetName(L"D3DC command queue");
     m_renderTargetViewHeap->SetName(L"D3DC render target view heap");
-    for (UINT i = 0u; i < FRAME_BUFFER_COUNT; ++i)
+    for (uint32_t i = 0u; i < FRAME_BUFFER_COUNT; ++i)
     {
-        name = wstring(L"D3DC back buffer render target ") + to_wstring(i);
+        std::wstring name = std::wstring(L"D3DC back buffer render target ") + std::to_wstring(i);
         m_backBufferRenderTarget[i]->SetName(name.c_str());
     }
     m_depthStencilViewHeap->SetName(L"D3DC depth stencil view heap");
     m_depthStencil->SetName(L"D3DC depth stencil");
-    for (UINT i = 0u; i < FRAME_BUFFER_COUNT; ++i)
+    for (uint32_t i = 0u; i < FRAME_BUFFER_COUNT; ++i)
     {
-        name = wstring(L"D3DC fence ") + to_wstring(i);
+        std::wstring name = std::wstring(L"D3DC fence ") + std::to_wstring(i);
         m_fence[i]->SetName(name.c_str());
     }
 }

@@ -13,23 +13,23 @@ public:
     D3DClass(HWND, UINT, UINT, bool, bool);
     ~D3DClass();
 
-    ID3D12Device* GetDevice();
-    UINT& GetBufferIndex();
+    ID3D12Device * GetDevice();
+    uint32_t& GetBufferIndex();
 
     void SetClearColor(float, float, float, float);
 
-    void SubmitToQueue(vector<ID3D12CommandList*>, bool);
+    void SubmitToQueue(std::vector<ID3D12CommandList*>, bool);
 
     void WaitForNextAvailableFrame();
     void WaitForAllFrames();
 
-    void ResetViewsCallback(ID3D12GraphicsCommandList*);
+    void ResetViewsCallback(ID3D12GraphicsCommandList *);
 
     D3D12_RESOURCE_BARRIER StartBarrier();
     D3D12_RESOURCE_BARRIER FinishBarrier();
 
 private:
-    void WaitForFrameIndex(UINT);
+    void WaitForFrameIndex(const uint32_t);
 
     void InitializeDevice();
     void InitializeCommandQueue();
@@ -40,24 +40,21 @@ private:
 
     void NameResources();
 
-public:
-    const pipeline_func ResetViews;
-
 private:
-    UINT  m_bufferIndex     = 0;
-    UINT  m_videoCardMemory = 0;
-    float m_clearColor[4]   = { 0.0f, 0.0f, 0.0f, 1.0f };
+    uint32_t m_bufferIndex     = 0u;
+    size_t   m_videoCardMemory = 0ull;
+    float    m_clearColor[4]   = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     ComPtr<IDXGISwapChain3>    m_swapChain    = nullptr;
     ComPtr<ID3D12Device>       m_device       = nullptr;
     ComPtr<ID3D12CommandQueue> m_commandQueue = nullptr;
 
-    ComPtr<ID3D12DescriptorHeap>   m_renderTargetViewHeap   = nullptr;
-    vector<ComPtr<ID3D12Resource>> m_backBufferRenderTarget = vector<ComPtr<ID3D12Resource>>(FRAME_BUFFER_COUNT, nullptr);
-    ComPtr<ID3D12DescriptorHeap>   m_depthStencilViewHeap   = nullptr;
-    ComPtr<ID3D12Resource>         m_depthStencil           = nullptr;
+    ComPtr<ID3D12DescriptorHeap>                           m_renderTargetViewHeap   = nullptr;
+    std::array<ComPtr<ID3D12Resource>, FRAME_BUFFER_COUNT> m_backBufferRenderTarget = {};
+    ComPtr<ID3D12DescriptorHeap>                           m_depthStencilViewHeap   = nullptr;
+    ComPtr<ID3D12Resource>                                 m_depthStencil           = nullptr;
 
-    vector<ComPtr<ID3D12Fence>> m_fence      = vector<ComPtr<ID3D12Fence>>(FRAME_BUFFER_COUNT, nullptr);
-    vector<UINT64>              m_fenceValue = vector<UINT64>(FRAME_BUFFER_COUNT, 0);
-    HANDLE                      m_fenceEvent = nullptr;
+    std::array<ComPtr<ID3D12Fence>, FRAME_BUFFER_COUNT> m_fence      = {};
+    std::array<UINT64, FRAME_BUFFER_COUNT>              m_fenceValue = {};
+    HANDLE                                              m_fenceEvent = nullptr;
 };

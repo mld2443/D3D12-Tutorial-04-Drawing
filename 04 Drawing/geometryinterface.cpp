@@ -5,49 +5,30 @@
 #include "geometryinterface.h"
 
 
-GeometryInterface::BufferType::BufferType(ID3D12Device* device, vector<UINT> data, wstring name) :
-    count(data.size()),
-    buffer(InitializeBuffer(
-        device,
-        reinterpret_cast<BYTE*>(data.data()),
-        count * sizeof(UINT),
-        D3D12_RESOURCE_STATE_INDEX_BUFFER,
-        name
-    )),
-    indexView{
-        buffer->GetGPUVirtualAddress(),
-        static_cast<UINT>(count * sizeof(UINT)),
-        DXGI_FORMAT_R32_UINT 
-    }
+GeometryInterface::BufferType::BufferType(ID3D12Device          *device,
+                                          std::vector<uint32_t> &data,
+                                          const std::wstring     name)
+    : count(data.size())
+    , buffer(InitializeBuffer(device,
+                              reinterpret_cast<BYTE*>(data.data()),
+                              count * sizeof(uint32_t),
+                              D3D12_RESOURCE_STATE_INDEX_BUFFER,
+                              name))
+    , indexView{ buffer->GetGPUVirtualAddress(),
+                 static_cast<UINT>(count * sizeof(uint32_t)),
+                 DXGI_FORMAT_R32_UINT }
 {
 }
 
 
-ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
-    ID3D12Device* device,
-    BYTE* data,
-    SIZE_T dataSize,
-    D3D12_RESOURCE_STATES finalState,
-    wstring name)
+ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(ID3D12Device         *device,
+                                                                       BYTE                 *data,
+                                                                       SIZE_T                dataSize,
+                                                                       D3D12_RESOURCE_STATES finalState,
+                                                                       const std::wstring    name)
 {
-    ComPtr<ID3D12Resource> defaultBuffer, uploadBuffer;
-    ComPtr<ID3D12CommandAllocator> commandAllocator;
-    ComPtr<ID3D12GraphicsCommandList> commandList;
-    ComPtr<ID3D12CommandQueue> commandQueue;
-    ComPtr<ID3D12Fence> fence;
-    D3D12_HEAP_PROPERTIES heapProps;
-    D3D12_RESOURCE_DESC resourceDesc;
-    wstring uploadName;
-    D3D12_COMMAND_QUEUE_DESC queueDesc;
-    BYTE* rawData;
-    D3D12_RESOURCE_BARRIER barrierDesc;
-    ID3D12CommandList* ppCommandLists[1];
-    HANDLE fenceEvent;
-    DWORD waitValue;
-
-
     // Fill out a description for the default heap; the CPU cannot write to this heap.
-    ZeroMemory(&heapProps, sizeof(heapProps));
+    D3D12_HEAP_PROPERTIES heapProps{};
     heapProps.Type                 = D3D12_HEAP_TYPE_DEFAULT;
     heapProps.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
     heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
@@ -55,7 +36,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     heapProps.VisibleNodeMask      = 1;
 
     // Fill out a resource description for both heaps.
-    ZeroMemory(&resourceDesc, sizeof(resourceDesc));
+    D3D12_RESOURCE_DESC resourceDesc{};
     resourceDesc.Dimension          = D3D12_RESOURCE_DIMENSION_BUFFER;
     resourceDesc.Alignment          = 0;
     resourceDesc.Width              = dataSize;
@@ -69,6 +50,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     resourceDesc.Flags              = D3D12_RESOURCE_FLAG_NONE;
 
     // Allocate space on the GPU for the defualt heap.
+    ComPtr<ID3D12Resource> defaultBuffer;
     THROW_IF_FAILED(
         device->CreateCommittedResource(
             &heapProps,
@@ -87,6 +69,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
 
     // Allocate space on the GPU for the upload heap for this resource.
+    ComPtr<ID3D12Resource> uploadBuffer;
     THROW_IF_FAILED(
         device->CreateCommittedResource(
             &heapProps,
@@ -99,10 +82,11 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     );
 
     // Set the name of the upload heap for use in debugging.
-    uploadName = name + L" upload heap";
+    std::wstring uploadName = name + L" upload heap";
     uploadBuffer->SetName(uploadName.c_str());
 
     // Create a single-use command allocator.
+    ComPtr<ID3D12CommandAllocator> commandAllocator;
     THROW_IF_FAILED(
         device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -111,6 +95,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     );
 
     // Create a command list using our new command allocator.
+    ComPtr<ID3D12GraphicsCommandList> commandList;
     THROW_IF_FAILED(
         device->CreateCommandList(
             0,
@@ -122,13 +107,14 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     );
 
     // Fill out a description for a command queue.
-    ZeroMemory(&queueDesc, sizeof(queueDesc));
+    D3D12_COMMAND_QUEUE_DESC queueDesc{};
     queueDesc.Type     = D3D12_COMMAND_LIST_TYPE_DIRECT;
     queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
     queueDesc.Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.NodeMask = 0;
 
     // Create a single-use command queue.
+    ComPtr<ID3D12CommandQueue> commandQueue;
     THROW_IF_FAILED(
         device->CreateCommandQueue(
             &queueDesc,
@@ -136,7 +122,8 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
         "Unable to create a command queue on the device."
     );
 
-    // Lock the upload buffer.
+    // Lock the upload buffer, and get a pointer to the data.
+    BYTE *rawData;
     THROW_IF_FAILED(
         uploadBuffer->Map(0, nullptr, reinterpret_cast<void**>(&rawData)),
         "Unable to communicate with device buffer."
@@ -152,7 +139,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     commandList->CopyBufferRegion(defaultBuffer.Get(), 0, uploadBuffer.Get(), 0, dataSize);
 
     // Fill out the description for our resource barrier.
-    ZeroMemory(&barrierDesc, sizeof(barrierDesc));
+    D3D12_RESOURCE_BARRIER barrierDesc{};
     barrierDesc.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     barrierDesc.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     barrierDesc.Transition.pResource   = defaultBuffer.Get();
@@ -166,13 +153,15 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     // Close the command list.
     commandList->Close();
 
-    // Prepare the list to be queued.
+    // Prepare a list to be queued.
+    ID3D12CommandList* ppCommandLists[1];
     ppCommandLists[0] = commandList.Get();
 
     // Queue the list, starting the execution.
     commandQueue->ExecuteCommandLists(1, ppCommandLists);
 
     // Create our fence to track the commands.
+    ComPtr<ID3D12Fence> fence;
     THROW_IF_FAILED(
         device->CreateFence(
             0,
@@ -182,7 +171,7 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     );
 
     // Create an event that will block until our task is done.
-    fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    HANDLE fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
     THROW_IF_TRUE(
         fenceEvent == NULL,
         "Unable to create system event for synchronization."
@@ -201,17 +190,11 @@ ComPtr<ID3D12Resource> GeometryInterface::BufferType::InitializeBuffer(
     );
 
     // Wait up to 10 seconds for our task to complete or give up. This function is blocking.
-    waitValue = WaitForSingleObject(fenceEvent, 10000);
+    DWORD waitValue = WaitForSingleObject(fenceEvent, 10000);
     THROW_IF_FALSE(
         waitValue == WAIT_OBJECT_0,
-        "The Buffer took longer than 10 seconds to upload to the graphics device."
+        "Timed out attempting to upload the buffer to the graphics device."
     );
 
     return defaultBuffer;
-}
-
-
-GeometryInterface::GeometryInterface(pipeline_func render) :
-    Render(render)
-{
 }

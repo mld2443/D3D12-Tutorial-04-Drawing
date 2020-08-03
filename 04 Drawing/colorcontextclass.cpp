@@ -5,40 +5,16 @@
 #include "colorcontextclass.h"
 
 
-ColorContextClass::ColorContextClass(
-    ID3D12Device* device,
-    UINT& frameIndex,
-    XMMATRIX& viewMatrix,
-    XMMATRIX& projectionMatrix,
-    UINT screenWidth,
-    UINT screenHeight) :
-    RenderContextInterface(
-[=](ID3D12GraphicsCommandList* commandList) {
-    MatrixBufferType matrices;
-    D3D12_GPU_VIRTUAL_ADDRESS cbvAddress;
-
-
-    // Set the window viewport.
-    commandList->RSSetViewports(1, &m_viewport);
-    commandList->RSSetScissorRects(1, &m_scissorRect);
-
-    // Declare the root signature.
-    commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-
-    // Transpose and copy the matrices into the constant buffer.
-    matrices.world      = XMMatrixTranspose(m_worldMatrix);
-    matrices.view       = XMMatrixTranspose(r_viewMatrix);
-    matrices.projection = XMMatrixTranspose(r_projectionMatrix);
-
-    // Set the data and get the address of the constant buffer for this frame.
-    cbvAddress = m_matrixBuffer.SetConstantBuffer(r_frameIndex, reinterpret_cast<BYTE*>(&matrices));
-
-    // Tell the root descriptor where the data for our matrix buffer is located.
-    commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
-}, frameIndex),
-        r_viewMatrix(viewMatrix),
-        r_projectionMatrix(projectionMatrix),
-        m_matrixBuffer(device, sizeof(MatrixBufferType))
+ColorContextClass::ColorContextClass(ID3D12Device   *device,
+                                     const UINT     &frameIndex,
+                                     const XMMATRIX &viewMatrix,
+                                     const XMMATRIX &projectionMatrix,
+                                     UINT            screenWidth,
+                                     UINT            screenHeight)
+    : RenderContextInterface(frameIndex,
+                             viewMatrix,
+                             projectionMatrix)
+    , m_matrixBuffer(device, sizeof(MatrixBufferType))
 {
     // We need to set up the root signature before creating the pipeline state object.
     InitializeRootSignature(device);
@@ -54,22 +30,40 @@ ColorContextClass::ColorContextClass(
 }
 
 
-void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
+void ColorContextClass::SetShaderParameters(ID3D12GraphicsCommandList *commandList)
 {
-    ComPtr<ID3D10Blob> signature;
-    D3D12_ROOT_PARAMETER matrixBufferDesc;
-    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags;
-    D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+    // Set the window viewport.
+    commandList->RSSetViewports(1, &m_viewport);
+    commandList->RSSetScissorRects(1, &m_scissorRect);
+
+    // Declare the root signature.
+    commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+
+    // Transpose and copy the matrices into the constant buffer.
+    MatrixBufferType matrices;
+    matrices.world      = XMMatrixTranspose(m_worldMatrix);
+    matrices.view       = XMMatrixTranspose(r_viewMatrix);
+    matrices.projection = XMMatrixTranspose(r_projectionMatrix);
+
+    // Set the data and get the address of the constant buffer for this frame.
+    D3D12_GPU_VIRTUAL_ADDRESS cbvAddress = m_matrixBuffer.SetConstantBuffer(r_frameIndex, reinterpret_cast<BYTE*>(&matrices));
+
+    // Tell the root descriptor where the data for our matrix buffer is located.
+    commandList->SetGraphicsRootConstantBufferView(0, cbvAddress);
+}
 
 
+void ColorContextClass::InitializeRootSignature(ID3D12Device *device)
+{
     // Create a descriptor for the matrix buffer.
-    ZeroMemory(&matrixBufferDesc, sizeof(matrixBufferDesc));
+    D3D12_ROOT_PARAMETER matrixBufferDesc{};
     matrixBufferDesc.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     matrixBufferDesc.Descriptor.ShaderRegister = 0;
     matrixBufferDesc.Descriptor.RegisterSpace  = 0;
     matrixBufferDesc.ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
 
     // Specify which shaders need access to what resources.
+    D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags;
     rootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
                        | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
                        | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
@@ -77,7 +71,7 @@ void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
                        | D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
     // Fill out the root signature layout description.
-    ZeroMemory(&rootSignatureDesc, sizeof(rootSignatureDesc));
+    D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.NumParameters     = 1;
     rootSignatureDesc.pParameters       = &matrixBufferDesc;
     rootSignatureDesc.NumStaticSamplers = 0;
@@ -85,6 +79,7 @@ void ColorContextClass::InitializeRootSignature(ID3D12Device* device)
     rootSignatureDesc.Flags             = rootSignatureFlags;
 
     // Serialize the signature, preparing it for creation on the device.
+    ComPtr<ID3D10Blob> signature;
     THROW_IF_FAILED(
         D3D12SerializeRootSignature(
             &rootSignatureDesc,

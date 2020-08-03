@@ -5,13 +5,17 @@
 #include "rendercontextinterface.h"
 
 
-RenderContextInterface::RenderContextInterface(pipeline_func setParameters, UINT& frameIndex) :
-    ContextInterface(setParameters, frameIndex)
+RenderContextInterface::RenderContextInterface(const UINT     &frameIndex,
+                                               const XMMATRIX &viewMatrix,
+                                               const XMMATRIX &projectionMatrix)
+    : ContextInterface(frameIndex)
+    , r_viewMatrix(viewMatrix)
+    , r_projectionMatrix(projectionMatrix)
 {
 }
 
 
-void RenderContextInterface::InitializeContext(ID3D12Device* device)
+void RenderContextInterface::InitializeContext(ID3D12Device *device)
 {
     // Check that the root signature is properly set up before using.
     THROW_IF_FALSE(
@@ -49,13 +53,10 @@ void RenderContextInterface::InitializeViewport(UINT screenWidth, UINT screenHei
 }
 
 
-void RenderContextInterface::InitializeState(ID3D12Device* device)
+void RenderContextInterface::InitializeState(ID3D12Device *device)
 {
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
-
-
     // Set up the Pipeline State for this render pipeline.
-    ZeroMemory(&pipelineStateDesc, sizeof(pipelineStateDesc));
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
     pipelineStateDesc.pRootSignature                 = m_rootSignature.Get();
     pipelineStateDesc.VS                             = m_vsBytecode;
     pipelineStateDesc.HS                             = m_hsBytecode;
@@ -75,6 +76,7 @@ void RenderContextInterface::InitializeState(ID3D12Device* device)
     pipelineStateDesc.SampleDesc.Count               = 1;
     pipelineStateDesc.SampleDesc.Quality             = 0;
     pipelineStateDesc.NodeMask                       = 0;
+    pipelineStateDesc.CachedPSO                      = {};
     pipelineStateDesc.Flags                          = D3D12_PIPELINE_STATE_FLAG_NONE;
 
     // Create the pipeline state object.

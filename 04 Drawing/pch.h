@@ -5,9 +5,9 @@
 #pragma message("COMPILING PRECOMPILED HEADER")
 
 
-///////////////////////////////
-// PRE-PROCESSING DIRECTIVES //
-///////////////////////////////
+/////////////////////////////
+// PREPROCESSOR DIRECTIVES //
+/////////////////////////////
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -34,6 +34,7 @@
 #include <directxmath.h>
 
 // C++ Standard Library
+#include <array>
 #include <functional>
 #include <memory>
 #include <string>
@@ -46,7 +47,7 @@
 ///////////////
 
 // Defines the number of back buffers and other variable length resources.
-constexpr unsigned FRAME_BUFFER_COUNT = 2u;
+constexpr uint32_t FRAME_BUFFER_COUNT = 2u;
 
 // The value of pi divided by 180.  Used to convert degrees to radians.
 constexpr float PI_180 = 0.0174532925f;
@@ -57,26 +58,14 @@ constexpr float PI_180 = 0.0174532925f;
 //////////////////////
 
 using namespace DirectX;
-using namespace std;
 using namespace Microsoft::WRL;
-
-// Type definition for pipeline functions.
-using pipeline_func = typename function<void(ID3D12GraphicsCommandList*)>;
-
-
-/////////////////////////
-// FUNCTION PROTOTYPES //
-/////////////////////////
-
-// Global function callback for windows messages.
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 
 /////////////////////
 // MACRO FUNCTIONS //
 /////////////////////
 
-#define THROW_IF_FAILED(hr, message) if (FAILED(hr)) { throw runtime_error(message); }
-#define THROW_IF_TRUE(cond, message) if (cond) { throw runtime_error(message); }
-#define THROW_IF_FALSE(cond, message) if (!cond) { throw runtime_error(message); }
+#define THROW_IF_FAILED(hr, message) if (FAILED(hr)) { throw std::runtime_error(message); }
+#define THROW_IF_TRUE(cond, message) if (cond) { throw std::runtime_error(message); }
+#define THROW_IF_FALSE(cond, message) if (!cond) { throw std::runtime_error(message); }
 #define BYTE_ALIGNED_WIDTH(type, target) (sizeof(type) + target) & ~target

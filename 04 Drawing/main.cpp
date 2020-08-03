@@ -10,10 +10,8 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
                    __in PSTR pScmdline,
                    __in int iCmdshow)
 {
-    std::unique_ptr<SystemClass> System;
-
-
     // Create and initialize the system object.
+    std::unique_ptr<SystemClass> System;
     try
     {
         System = std::make_unique<SystemClass>();

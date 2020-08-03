@@ -17,29 +17,29 @@
 class SystemClass
 {
 public:
-	SystemClass(const SystemClass&) = delete;
-	SystemClass& operator=(const SystemClass&) = delete;
+    SystemClass(const SystemClass &) = delete;
+    SystemClass & operator=(const SystemClass &) = delete;
 
-	SystemClass();
-	~SystemClass();
+    SystemClass();
+    ~SystemClass();
 
-	void Run();
+    void Run();
 
-	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
-
-private:
-	bool Frame();
-	void InitializeWindows();
-	void ShutdownWindows();
+    LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 private:
-	bool		m_fullscreen =		false;
-	UINT		m_xResolution =		1024;
-	UINT		m_yResolution =		768;
-	LPCWSTR		m_applicationName =	L"04 Drawing";
-	HINSTANCE	m_hinstance =		NULL;
-	HWND		m_hwnd =			NULL;
+    bool Frame();
+    void InitializeWindows();
+    void ShutdownWindows();
 
-	unique_ptr<InputClass>	m_Input =	nullptr;
-	unique_ptr<EngineClass>	m_Engine =	nullptr;
+private:
+    bool      m_fullscreen      = false;
+    UINT      m_xResolution     = 1024u;
+    UINT      m_yResolution     = 768u;
+    LPCWSTR   m_applicationName = L"04 Drawing";
+    HINSTANCE m_hinstance       = NULL;
+    HWND      m_hwnd            = NULL;
+
+    std::unique_ptr<InputClass>  m_Input  = nullptr;
+    std::unique_ptr<EngineClass> m_Engine = nullptr;
 };

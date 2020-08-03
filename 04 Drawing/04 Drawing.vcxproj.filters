@@ -1,92 +1,141 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Shader Files">
+    <Filter Include="Assets">
+      <UniqueIdentifier>{86198cfe-88d2-48b2-a106-c1d1a209a800}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shader Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{b67ebd96-d403-422c-bc2c-3cc85aecd13f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System">
+      <UniqueIdentifier>{be509029-1cbd-47bf-a86a-58b934a5e0e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Engine">
+      <UniqueIdentifier>{a188c207-e689-44d7-af13-c4ed93d8ec88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Engine\Direct3D">
+      <UniqueIdentifier>{b60d447e-5c1c-462c-8853-820f499480cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Engine\Direct3D\Contexts">
+      <UniqueIdentifier>{366d2ad3-ce6f-4858-9257-91dd30096f9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Engine\Direct3D\Contexts\Interfaces">
+      <UniqueIdentifier>{c6995d72-cceb-45e6-ac57-aa6cc9d2594b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Engine\Direct3D\Geometry">
+      <UniqueIdentifier>{47e422a5-56fb-429e-8d22-d1fcf7e71e90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System\Engine\Direct3D\Geometry\Interfaces">
+      <UniqueIdentifier>{9ac4d7ff-eb0d-4893-b0c0-0dfccada0ec0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="systemclass.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="triangleclass.h">
+      <Filter>Header Files\System\Engine\Direct3D\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="d3dclass.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="quadclass.h">
+      <Filter>Header Files\System\Engine\Direct3D\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="systemclass.h">
+      <Filter>Header Files\System</Filter>
     </ClInclude>
     <ClInclude Include="inputclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cameraclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="solopipelineclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="geometryinterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="triangleclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="pipelineinterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderpipelineinterface.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\System</Filter>
     </ClInclude>
     <ClInclude Include="engineclass.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\System\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="cameraclass.h">
+      <Filter>Header Files\System\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="instancecontextclass.h">
+      <Filter>Header Files\System\Engine\Direct3D\Contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="colorcontextclass.h">
+      <Filter>Header Files\System\Engine\Direct3D\Contexts</Filter>
+    </ClInclude>
+    <ClInclude Include="contextinterface.h">
+      <Filter>Header Files\System\Engine\Direct3D\Contexts\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="rendercontextinterface.h">
+      <Filter>Header Files\System\Engine\Direct3D\Contexts\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryinterface.h">
+      <Filter>Header Files\System\Engine\Direct3D\Geometry\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dclass.h">
+      <Filter>Header Files\System\Engine\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="pipelineclass.h">
+      <Filter>Header Files\System\Engine\Direct3D</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="systemclass.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3dclass.cpp">
+    <ClCompile Include="systemclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="inputclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="engineclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cameraclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="solopipelineclass.cpp">
+    <ClCompile Include="pipelineclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="geometryinterface.cpp">
+    <ClCompile Include="d3dclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="triangleclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="pipelineinterface.cpp">
+    <ClCompile Include="quadclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="renderpipelineinterface.cpp">
+    <ClCompile Include="geometryinterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engineclass.cpp">
+    <ClCompile Include="instancecontextclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="colorcontextclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendercontextinterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="contextinterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\color.ps.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Assets\Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\instance.vs.hlsl">
+      <Filter>Assets\Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\instance.ps.hlsl">
+      <Filter>Assets\Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="shaders\color.vs.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Assets\Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

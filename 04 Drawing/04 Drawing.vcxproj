@@ -14,19 +14,19 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4BE508DC-BED1-483B-AF8F-307B7144B3CC}</ProjectGuid>
     <RootNamespace>My04Drawing</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -50,12 +50,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <FxCompile>
       <ShaderModel>4.0</ShaderModel>
       <HeaderFileOutput>%(Filename).h</HeaderFileOutput>
       <ObjectFileOutput />
     </FxCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -65,6 +70,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -82,10 +88,13 @@
     <ClInclude Include="geometryinterface.h" />
     <ClInclude Include="engineclass.h" />
     <ClInclude Include="inputclass.h" />
-    <ClInclude Include="renderpipelineinterface.h" />
-    <ClInclude Include="pipelineinterface.h" />
-    <ClInclude Include="solopipelineclass.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="instancecontextclass.h" />
+    <ClInclude Include="quadclass.h" />
+    <ClInclude Include="pipelineclass.h" />
+    <ClInclude Include="rendercontextinterface.h" />
+    <ClInclude Include="contextinterface.h" />
+    <ClInclude Include="colorcontextclass.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="systemclass.h" />
     <ClInclude Include="triangleclass.h" />
   </ItemGroup>
@@ -95,11 +104,14 @@
     <ClCompile Include="geometryinterface.cpp" />
     <ClCompile Include="engineclass.cpp" />
     <ClCompile Include="inputclass.cpp" />
+    <ClCompile Include="instancecontextclass.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="renderpipelineinterface.cpp" />
-    <ClCompile Include="pipelineinterface.cpp" />
-    <ClCompile Include="solopipelineclass.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="quadclass.cpp" />
+    <ClCompile Include="pipelineclass.cpp" />
+    <ClCompile Include="rendercontextinterface.cpp" />
+    <ClCompile Include="contextinterface.cpp" />
+    <ClCompile Include="colorcontextclass.cpp" />
+    <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -122,6 +134,22 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_colorvs</VariableName>
       <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_colorvs</VariableName>
+    </FxCompile>
+    <FxCompile Include="shaders\instance.ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_instanceps</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_instanceps</VariableName>
+    </FxCompile>
+    <FxCompile Include="shaders\instance.vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_instancevs</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_instancevs</VariableName>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,6 +1,9 @@
 # Tutorial 04: Drawing
 This tutorial is currently a work in progress. This particular tutorial will eventually be part 4, but it is currently a prototype of my implementation and style. Check the issues for info about progress toward completion.
 
+### Note
+Currently, this version includes a few ideas beyond what I initially intended, primarily instancing and the beginnings of multiple pipelines.
+
 ![04 drawing](https://user-images.githubusercontent.com/5340992/47807384-e6b70b80-dd09-11e8-89d8-f569826e07eb.png)
 
 ## Motivation

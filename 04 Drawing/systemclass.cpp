@@ -65,7 +65,7 @@ void SystemClass::Run()
     bool running = true;
     while (running)
     {
-        // Handle the windows messages.
+        // Handle the Windows messages.
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             TranslateMessage(&msg);

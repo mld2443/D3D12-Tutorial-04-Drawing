@@ -10,15 +10,19 @@
 class D3DClass
 {
 public:
+    D3DClass() = delete;
+    D3DClass(const D3DClass &) = delete;
+    D3DClass & operator=(const D3DClass &) = delete;
+
     D3DClass(HWND, UINT, UINT, bool, bool);
     ~D3DClass();
 
     ID3D12Device * GetDevice();
-    uint32_t& GetBufferIndex();
+    uint32_t & GetBufferIndex();
 
     void SetClearColor(float, float, float, float);
 
-    void SubmitToQueue(std::vector<ID3D12CommandList*>, bool);
+    void SubmitToQueue(std::vector<ID3D12CommandList *>, bool);
 
     void WaitForNextAvailableFrame();
     void WaitForAllFrames();

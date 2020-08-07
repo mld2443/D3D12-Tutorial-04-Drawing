@@ -30,8 +30,8 @@
 
 // DirectX
 #include <d3d12.h>
-#include <dxgi1_4.h>
 #include <directxmath.h>
+#include <dxgi1_4.h>
 
 // C++ Standard Library
 #include <array>

@@ -10,6 +10,9 @@
 class InputClass
 {
 public:
+    InputClass(const InputClass&) = delete;
+    InputClass& operator=(const InputClass&) = delete;
+
     InputClass() = default;
     ~InputClass() = default;
 

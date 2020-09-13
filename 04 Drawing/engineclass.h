@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: EngineClass
 ////////////////////////////////////////////////////////////////////////////////
-class EngineClass
+class EngineClass : private D3DClass
 {
 public:
     EngineClass(HWND, UINT, UINT, bool);
@@ -32,7 +32,6 @@ private:
     const bool m_vsyncEnabled = true;
 
     std::unique_ptr<CameraClass>          m_Camera   = nullptr;
-    std::unique_ptr<D3DClass>             m_Direct3D = nullptr;
     std::unique_ptr<PipelineClass>        m_Pipeline = nullptr;
     std::unique_ptr<InstanceContextClass> m_Context  = nullptr;
     std::unique_ptr<GeometryInterface>    m_Geometry = nullptr;

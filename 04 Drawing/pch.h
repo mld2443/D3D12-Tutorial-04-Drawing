@@ -11,6 +11,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#ifdef _DEBUG
+#define DX12_ENABLE_DEBUG_LAYER
+#endif
+
 
 /////////////
 // LINKING //
@@ -18,6 +22,10 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+
+#ifdef DX12_ENABLE_DEBUG_LAYER
+#pragma comment(lib, "dxguid.lib")
+#endif
 
 
 //////////////
@@ -33,6 +41,10 @@
 #include <directxmath.h>
 #include <dxgi1_4.h>
 
+#ifdef DX12_ENABLE_DEBUG_LAYER
+#include <dxgidebug.h>
+#endif
+
 // C++ Standard Library
 #include <array>
 #include <functional>
@@ -47,7 +59,7 @@
 ///////////////
 
 // Defines the number of back buffers and other variable length resources.
-constexpr uint32_t FRAME_BUFFER_COUNT = 2u;
+constexpr uint32_t FRAME_BUFFER_COUNT = 3u;
 
 // The value of pi divided by 180.  Used to convert degrees to radians.
 constexpr float PI_180 = 0.0174532925f;

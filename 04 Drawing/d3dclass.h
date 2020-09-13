@@ -14,6 +14,7 @@ public:
     D3DClass(const D3DClass &) = delete;
     D3DClass & operator=(const D3DClass &) = delete;
 
+protected:
     D3DClass(HWND, UINT, UINT, bool, bool);
     ~D3DClass();
 
@@ -27,7 +28,7 @@ public:
     void WaitForNextAvailableFrame();
     void WaitForAllFrames();
 
-    void ResetViewsCallback(ID3D12GraphicsCommandList *);
+    void ResetViews(ID3D12GraphicsCommandList *);
 
     D3D12_RESOURCE_BARRIER StartBarrier();
     D3D12_RESOURCE_BARRIER FinishBarrier();

@@ -5,12 +5,12 @@
 #include "d3dclass.h"
 
 
-D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
+D3DClass::D3DClass(HWND hWnd, UINT screenWidth, UINT screenHeight, bool fullscreen, bool vsync)
 {
     // Initialize the device and all the resources we will need while rendering.
     InitializeDevice();
     InitializeCommandQueue();
-    InitializeSwapChain(hwnd, screenWidth, screenHeight, fullscreen, vsync);
+    InitializeSwapChain(hWnd, screenWidth, screenHeight, fullscreen, vsync);
     InitializeRenderTargets();
     InitializeDepthStencil(screenWidth, screenHeight);
     InitializeFences();
@@ -23,16 +23,15 @@ D3DClass::D3DClass(HWND hwnd, UINT screenWidth, UINT screenHeight, bool fullscre
 
 D3DClass::~D3DClass()
 {
+    // Make sure there are no more commands in the queue by checking all fences one last time.
+    WaitForAllFrames();
+
     // Before shutting down, set to windowed mode or when you release the swap chain it will throw
     // an exception.
     if (m_swapChain)
     {
         m_swapChain->SetFullscreenState(false, nullptr);
     }
-
-    // Make sure there are no more commands in the command queue by checking all fences one last
-    // time.
-    WaitForAllFrames();
 
     // Close the object handle to the fence event.
     CloseHandle(m_fenceEvent);
@@ -137,7 +136,7 @@ void D3DClass::WaitForFrameIndex(const uint32_t frameIndex)
 }
 
 
-void D3DClass::ResetViewsCallback(ID3D12GraphicsCommandList *commandList)
+void D3DClass::ResetViews(ID3D12GraphicsCommandList *commandList)
 {
     // Get the render target view handle for the current back buffer.
     D3D12_CPU_DESCRIPTOR_HANDLE renderTargetViewHandle = m_renderTargetViewHeap->GetCPUDescriptorHandleForHeapStart();
@@ -188,27 +187,35 @@ D3D12_RESOURCE_BARRIER D3DClass::FinishBarrier()
 
 void D3DClass::InitializeDevice()
 {
+#ifdef DX12_ENABLE_DEBUG_LAYER
+    // Requires the optional "graphics tools" Windows feature.
+    {
+        // Acquire Direct3D 12 debug controller and enable debug layer.
+        ComPtr<ID3D12Debug> debugController;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf()))))
+        {
+            debugController->EnableDebugLayer();
+        }
+
+        // Tell the interface to break when it sees errors or corruptions.
+        ComPtr<IDXGIInfoQueue> dxgiInfoQueue;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(dxgiInfoQueue.GetAddressOf()))))
+        {
+            dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR, true);
+            dxgiInfoQueue->SetBreakOnSeverity(DXGI_DEBUG_ALL, DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION, true);
+        }
+    }
+#endif // DX12_ENABLE_DEBUG_LAYER
+
     // Set the feature level to DirectX 12.1 to enable using all the DirectX 12 features.
     D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_12_1;
-
-#if defined(_DEBUG)
-    // Create the Direct3D 12 debug controller.
-    ComPtr<ID3D12Debug> debugController;
-    THROW_IF_FAILED(
-        D3D12GetDebugInterface(IID_PPV_ARGS(debugController.ReleaseAndGetAddressOf())),
-        "Unable to create the Direct3D 12 debug layer."
-    );
-
-    // Enable the debug layer.
-    debugController->EnableDebugLayer();
-#endif // _DEBUG
 
     // Create the Direct3D 12 device.
     THROW_IF_FAILED(
         D3D12CreateDevice(
             nullptr,
             featureLevel,
-            IID_PPV_ARGS(m_device.ReleaseAndGetAddressOf())),
+            IID_PPV_ARGS(m_device.GetAddressOf())),
         "Unable to create a DirectX 12.1 device.  The default video card does not support DirectX 12.1."
     );
 }
@@ -227,49 +234,46 @@ void D3DClass::InitializeCommandQueue()
     THROW_IF_FAILED(
         m_device->CreateCommandQueue(
             &commandQueueDesc,
-            IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf())),
+            IID_PPV_ARGS(m_commandQueue.GetAddressOf())),
         "Unable to create a command queue on the graphics device."
     );
 }
 
 
-void D3DClass::InitializeSwapChain(HWND hwnd,
+void D3DClass::InitializeSwapChain(HWND hWnd,
                                    UINT screenWidth,
                                    UINT screenHeight,
                                    bool fullscreen,
                                    bool vsync)
 {
-    ComPtr<IDXGIFactory4>  factory;
-    ComPtr<IDXGIAdapter>   adapter;
-    ComPtr<IDXGIOutput>    adapterOutput;
-    ComPtr<IDXGISwapChain> swapChain;
-
-
     // Set the default DXGI factory flags.
     UINT dxgiFlags = 0u;
 
-#if defined(_DEBUG)
+#ifdef DX12_ENABLE_DEBUG_LAYER
     // Enable debugging our DXGI device.
-    dxgiFlags = DXGI_CREATE_FACTORY_DEBUG;
-#endif // _DEBUG
+    dxgiFlags |= DXGI_CREATE_FACTORY_DEBUG;
+#endif // DX12_ENABLE_DEBUG_LAYER
 
-    // Create a DirectX graphics interface factory.
+    // Create a DirectX graphics infrastructure factory.
+    ComPtr<IDXGIFactory4> factory;
     THROW_IF_FAILED(
         CreateDXGIFactory2(
             dxgiFlags,
-            IID_PPV_ARGS(factory.ReleaseAndGetAddressOf())),
+            IID_PPV_ARGS(factory.GetAddressOf())),
         "Unable to create a device factory."
     );
 
     // Use the factory to create an adapter for the primary graphics interface (video card).
+    ComPtr<IDXGIAdapter> adapter;
     THROW_IF_FAILED(
-        factory->EnumAdapters(0, adapter.ReleaseAndGetAddressOf()),
+        factory->EnumAdapters(0, adapter.GetAddressOf()),
         "Unable to enumerate adapters."
     );
 
     // Enumerate the primary adapter output (monitor).
+    ComPtr<IDXGIOutput> adapterOutput;
     THROW_IF_FAILED(
-        adapter->EnumOutputs(0, adapterOutput.ReleaseAndGetAddressOf()),
+        adapter->EnumOutputs(0, adapterOutput.GetAddressOf()),
         "Unable to communicate with graphics adapter."
     );
 
@@ -337,7 +341,7 @@ void D3DClass::InitializeSwapChain(HWND hwnd,
     swapChainDesc.BufferDesc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapChainDesc.BufferUsage                 = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.SwapEffect                  = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.OutputWindow                = hwnd;
+    swapChainDesc.OutputWindow                = hWnd;
     swapChainDesc.Windowed                    = !fullscreen;
     swapChainDesc.SampleDesc.Count            = 1u;
     swapChainDesc.SampleDesc.Quality          = 0u;
@@ -356,11 +360,12 @@ void D3DClass::InitializeSwapChain(HWND hwnd,
     }
 
     // Create the swap chain using the swap chain description.
+    ComPtr<IDXGISwapChain> swapChain;
     THROW_IF_FAILED(
         factory->CreateSwapChain(
             m_commandQueue.Get(),
             &swapChainDesc,
-            swapChain.ReleaseAndGetAddressOf()),
+            swapChain.GetAddressOf()),
         "Unable to create the swap chain on the graphics device."
     );
 
@@ -388,7 +393,7 @@ void D3DClass::InitializeRenderTargets()
     THROW_IF_FAILED(
         m_device->CreateDescriptorHeap(
             &renderTargetViewHeapDesc,
-            IID_PPV_ARGS(m_renderTargetViewHeap.ReleaseAndGetAddressOf())),
+            IID_PPV_ARGS(m_renderTargetViewHeap.GetAddressOf())),
         "Unable to create the render target heap on the graphics device."
     );
 
@@ -405,7 +410,7 @@ void D3DClass::InitializeRenderTargets()
         THROW_IF_FAILED(
             m_swapChain->GetBuffer(
                 i,
-                IID_PPV_ARGS(m_backBufferRenderTarget[i].ReleaseAndGetAddressOf())),
+                IID_PPV_ARGS(m_backBufferRenderTarget[i].GetAddressOf())),
             "Unable to communicate with the swap chain."
         );
 
@@ -507,7 +512,7 @@ void D3DClass::InitializeFences()
             m_device->CreateFence(
                 0ull,
                 D3D12_FENCE_FLAG_NONE,
-                IID_PPV_ARGS(m_fence[i].ReleaseAndGetAddressOf())),
+                IID_PPV_ARGS(m_fence[i].GetAddressOf())),
             "Unable to create synchronization fences on the graphics device."
         );
 

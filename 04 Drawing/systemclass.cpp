@@ -14,9 +14,9 @@ static SystemClass *g_ApplicationHandle = nullptr;
 
 
 // Static function for C-style callback that Windows needs.
-static LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (umsg)
+    switch (msg)
     {
         // Check if the window is being destroyed or closed.
     case WM_DESTROY:
@@ -28,11 +28,11 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lpar
     default:
         if (g_ApplicationHandle)
         {
-            return g_ApplicationHandle->MessageHandler(hwnd, umsg, wparam, lparam);
+            return g_ApplicationHandle->MessageHandler(hWnd, msg, wParam, lParam);
         }
         else
         {
-            return DefWindowProc(hwnd, umsg, wparam, lparam);
+            return DefWindowProc(hWnd, msg, wParam, lParam);
         }
     }
 }
@@ -45,7 +45,7 @@ SystemClass::SystemClass()
     InitializeWindows();
 
     // Create the engine object.  This object will handle rendering all the graphics for this application.
-    m_Engine = std::make_unique<EngineClass>(m_hwnd, m_xResolution, m_yResolution, m_fullscreen);
+    m_Engine = std::make_unique<EngineClass>(m_hWnd, m_xResolution, m_yResolution, m_fullscreen);
 }
 
 
@@ -86,25 +86,25 @@ void SystemClass::Run()
 }
 
 
-LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK SystemClass::MessageHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (umsg)
+    switch (msg)
     {
     // Check if a key has been pressed on the keyboard.
     case WM_KEYDOWN:
         // If a key is pressed send it to the input object so it can record that state.
-        m_Input->KeyDown(static_cast<UINT>(wparam));
+        m_Input->KeyDown(static_cast<UINT>(wParam));
         return 0;
 
     // Check if a key has been released on the keyboard.
     case WM_KEYUP:
         // If a key is released then send it to the input object so it can unset the state for that key.
-        m_Input->KeyUp(static_cast<UINT>(wparam));
+        m_Input->KeyUp(static_cast<UINT>(wParam));
         return 0;
 
     // Any other messages send to the default message handler as our application won't make use of them.
     default:
-        return DefWindowProc(hwnd, umsg, wparam, lparam);
+        return DefWindowProc(hWnd, msg, wParam, lParam);
     }
 }
 
@@ -126,8 +126,6 @@ bool SystemClass::Frame()
 
 void SystemClass::InitializeWindows()
 {
-
-
     // Get an external pointer to this object.
     g_ApplicationHandle = this;
 
@@ -188,18 +186,18 @@ void SystemClass::InitializeWindows()
     }
 
     // Create the window with the screen settings and get the handle to it.
-    m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
+    m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
                             WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
                             posX, posY, m_xResolution, m_yResolution, NULL, NULL, m_hinstance, NULL);
     THROW_IF_FALSE(
-        m_hwnd,
+        m_hWnd,
         "Unable to create the window."
     );
 
     // Bring the window up on the screen and set it as main focus.
-    ShowWindow(m_hwnd, SW_SHOW);
-    SetForegroundWindow(m_hwnd);
-    SetFocus(m_hwnd);
+    ShowWindow(m_hWnd, SW_SHOW);
+    SetForegroundWindow(m_hWnd);
+    SetFocus(m_hWnd);
 
     // Hide the mouse cursor.
     ShowCursor(false);
@@ -218,8 +216,8 @@ void SystemClass::ShutdownWindows()
     }
 
     // Remove the window.
-    DestroyWindow(m_hwnd);
-    m_hwnd = NULL;
+    DestroyWindow(m_hWnd);
+    m_hWnd = NULL;
 
     // Remove the application instance.
     UnregisterClass(m_applicationName, m_hinstance);

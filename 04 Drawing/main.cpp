@@ -35,5 +35,16 @@ int WINAPI WinMain(__in HINSTANCE hInstance,
         return 2;
     }
 
+#ifdef DX12_ENABLE_DEBUG_LAYER
+    {
+        // Acquire DXGI debug controller.
+        ComPtr<IDXGIDebug1> debugInterface;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(debugInterface.GetAddressOf()))))
+        {
+            debugInterface->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_DETAIL | DXGI_DEBUG_RLO_IGNORE_INTERNAL));
+        }
+    }
+#endif // DX12_ENABLE_DEBUG_LAYER
+
     return 0;
 }
